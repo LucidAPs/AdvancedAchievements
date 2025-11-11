@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.hm.achievement.JobsEnableWatcher;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -53,6 +54,7 @@ public class PluginLoader {
 	private final ReloadCommand reloadCommand;
 	private final Set<Reloadable> reloadables;
 	private final AchievementMap achievementMap;
+    private final JobsEnableWatcher jobsEnableWatcher; // <-- add
 
 	// Listeners, to monitor various events.
 	private final JoinListener joinListener;
@@ -94,7 +96,9 @@ public class PluginLoader {
 			CommandTabCompleter commandTabCompleter, Set<Category> disabledCategories,
 			@Named("main") YamlConfiguration mainConfig, ConfigurationParser configurationParser,
 			AchieveDistanceRunnable distanceRunnable, AchievePlayTimeRunnable playTimeRunnable, ReloadCommand reloadCommand,
-			AchievementMap achievementMap) {
+            AchievementMap achievementMap,
+            JobsEnableWatcher jobsEnableWatcher
+    ) {
 		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
 		this.reloadables = reloadables;
@@ -115,7 +119,8 @@ public class PluginLoader {
 		this.playTimeRunnable = playTimeRunnable;
 		this.reloadCommand = reloadCommand;
 		this.achievementMap = achievementMap;
-	}
+        this.jobsEnableWatcher = jobsEnableWatcher;
+    }
 
 	/**
 	 * Loads the plugin.
@@ -180,7 +185,8 @@ public class PluginLoader {
 		pluginManager.registerEvents(listGUIListener, advancedAchievements);
 		pluginManager.registerEvents(playerAdvancedAchievementListener, advancedAchievements);
 		pluginManager.registerEvents(teleportListener, advancedAchievements);
-	}
+        pluginManager.registerEvents(jobsEnableWatcher, advancedAchievements);
+    }
 
 	/**
 	 * Links the plugin's custom command tab completer and command executor.
