@@ -39,8 +39,10 @@ public class GenerateCommand extends AbstractCommand {
 
 	@Override
 	void onExecute(CommandSender sender, String[] args) {
-		advancementManager.registerAdvancements();
-
-		sender.sendMessage(langAdvancementsGenerated);
+		advancementManager.generateAdvancementsIncremental(
+				true, // force regenerate (remove old + rebuild)
+				sender,
+				() -> sender.sendMessage(langAdvancementsGenerated)
+		);
 	}
 }

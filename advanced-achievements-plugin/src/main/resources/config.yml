@@ -176,7 +176,7 @@ HideAdvancements: false
 RootAdvancementTitle: Advanced Achievements
 
 # Background shown on the advancement tab. Must be a resource location to any image in a resource pack.
-AdvancementsBackground: "minecraft:textures/item/book.png"
+AdvancementsBackground: "minecraft:textures/block/bookshelf.png"
 
 # Used for the Fireworks achievement category. In vanilla Minecraft, fireworks cannot be launched on the following
 # blocks. Unless listed here, players may be able to abuse the Fireworks category by repeatedly right clicking on the

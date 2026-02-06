@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
+import com.hm.achievement.advancement.AdvancementManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -54,6 +55,19 @@ public class AdvancedAchievements extends JavaPlugin {
 			return;
 		}
 
+		var advancementManager = advancedAchievementsComponent.advancementManager();
+
+// Generate after load, one tick later (and NOT force regenerate)
+		Bukkit.getScheduler().runTaskLater(this, () -> {
+			advancementManager.generateAdvancementsIncremental(false, null, null);
+		}, 1L);
+
+// Optional but recommended: seed root on join (see next section)
+		Bukkit.getPluginManager().registerEvents(
+				new com.hm.achievement.advancement.AdvancementTabListener(this, advancementManager),
+				this
+		);
+
 		getLogger().info(
 				"Plugin has finished loading and is ready to run! Took " + (System.currentTimeMillis() - startTime) + "ms.");
 	}
@@ -82,6 +96,8 @@ interface AdvancedAchievementsComponent {
 	PluginLoader pluginLoader();
 
 	AdvancedAchievementsBukkitAPI advancedAchievementsBukkitAPI();
+
+	AdvancementManager advancementManager();
 
 	@Component.Builder
 	interface Builder {
