@@ -22,6 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.command.CommandException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -200,13 +201,42 @@ public class RewardParser {
 	private Reward parseCommandReward(ConfigurationSection configSection) {
 		String displayPath = configSection.contains("Command") ? "Command.Display" : "Commands.Display";
 		List<String> listTexts = getOneOrManyConfigStrings(configSection, displayPath);
+
 		List<String> chatTexts = listTexts.stream()
 				.map(message -> StringUtils.replace(langConfig.getString("custom-command-reward"), "MESSAGE", message))
 				.collect(Collectors.toList());
+
 		String executePath = configSection.contains("Command") ? "Command.Execute" : "Commands.Execute";
-		Consumer<Player> rewarder = player -> getOneOrManyConfigStrings(configSection, executePath).stream()
-				.map(command -> StringHelper.replacePlayerPlaceholders(command, player))
-				.forEach(command -> server.dispatchCommand(server.getConsoleSender(), command));
+
+		Consumer<Player> rewarder = player -> {
+			for (String raw : getOneOrManyConfigStrings(configSection, executePath)) {
+				if (raw == null) continue;
+
+				String command = StringHelper.replacePlayerPlaceholders(raw, player).trim();
+				if (command.isEmpty()) continue;
+
+				// Many configs include a leading slash; Bukkit dispatchCommand expects no slash.
+				if (command.charAt(0) == '/') {
+					command = command.substring(1);
+				}
+
+				try {
+					boolean ok = server.dispatchCommand(server.getConsoleSender(), command);
+					if (!ok) {
+						server.getLogger().warning("[AdvancedAchievements] Reward command returned false (unknown?): " + command);
+					}
+				} catch (CommandException ex) {
+					server.getLogger().severe("[AdvancedAchievements] Reward command failed for " + player.getName() + ": " + command);
+					ex.printStackTrace();
+				} catch (Throwable t) {
+					// Extra safety: don't let *anything* here kill the achievement flow.
+					server.getLogger().severe("[AdvancedAchievements] Unexpected error running reward command for "
+							+ player.getName() + ": " + command);
+					t.printStackTrace();
+				}
+			}
+		};
+
 		return new Reward(listTexts, chatTexts, rewarder);
 	}
 
