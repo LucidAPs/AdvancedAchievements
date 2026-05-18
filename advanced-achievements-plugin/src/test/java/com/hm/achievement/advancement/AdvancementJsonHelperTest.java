@@ -37,7 +37,8 @@ class AdvancementJsonHelperTest {
 				"    \"title\":\"Special Event Achievement!\",\n" +
 				"    \"description\":\"You took part in the \\\"Special Event\\\"!\",\n" +
 				"    \"frame\":\"task\",\n" +
-				"    \"announce_to_chat\":false\n" +
+				"    \"announce_to_chat\":false,\n" +
+				"    \"show_toast\":true\n" +
 				"  },\n" +
 				"  \"parent\":\"advancedachievements:advanced_achievements_parent\"\n" +
 				"}\n", AdvancementJsonHelper.toJson(aa));
@@ -68,8 +69,41 @@ class AdvancementJsonHelperTest {
 				"    \"description\":\"You took part in the special event!\",\n" +
 				"    \"frame\":\"goal\",\n" +
 				"    \"announce_to_chat\":false,\n" +
+				"    \"show_toast\":true,\n" +
 				"    \"background\":\"minecraft:book\"\n" +
 				"  }\n" +
+				"}\n", AdvancementJsonHelper.toJson(aa));
+	}
+
+	@Test
+	void shouldGenerateAdvancementJsonWithHiddenToast() {
+		AchievementAdvancement aa = new AchievementAdvancementBuilder().iconItem("minecraft:dirt")
+				.iconData("0").title("Special Event Achievement!").description("You took part in the special event!")
+				.parent("advancedachievements:advanced_achievements_parent").type(AdvancementType.TASK)
+				.showToast(false).build();
+
+		assertEquals("{\n" +
+				"  \"criteria\":{\n" +
+				"    \"aach_handled\":{\n" +
+				"      \"trigger\":\"minecraft:impossible\"\n" +
+				"    }\n" +
+				"  },\n" +
+				"  \"requirements\":[\n" +
+				"    [\n" +
+				"      \"aach_handled\"\n" +
+				"    ]\n" +
+				"  ],\n" +
+				"  \"display\":{\n" +
+				"    \"icon\":{\n" +
+				"      \"item\":\"minecraft:dirt\",\"data\":0\n" +
+				"    },\n" +
+				"    \"title\":\"Special Event Achievement!\",\n" +
+				"    \"description\":\"You took part in the special event!\",\n" +
+				"    \"frame\":\"task\",\n" +
+				"    \"announce_to_chat\":false,\n" +
+				"    \"show_toast\":false\n" +
+				"  },\n" +
+				"  \"parent\":\"advancedachievements:advanced_achievements_parent\"\n" +
 				"}\n", AdvancementJsonHelper.toJson(aa));
 	}
 

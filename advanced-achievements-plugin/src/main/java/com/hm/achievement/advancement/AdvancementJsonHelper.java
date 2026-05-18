@@ -8,9 +8,6 @@ import org.bukkit.Bukkit;
 
 public class AdvancementJsonHelper {
 
-	// 1.20.5+ uses ItemStack "id"/"count"/"components" format (also applies to advancement icon).
-	private static final boolean NEW_ITEMSTACK_FORMAT = isAtLeast(1, 20, 5);
-
 	public static String toJson(AchievementAdvancement aa) {
 		return "{\n" +
 				"  \"criteria\":{\n" +
@@ -30,7 +27,8 @@ public class AdvancementJsonHelper {
 				"    \"title\":\"" + StringEscapeUtils.escapeJson(aa.getTitle()) + "\",\n" +
 				"    \"description\":\"" + StringEscapeUtils.escapeJson(aa.getDescription()) + "\",\n" +
 				"    \"frame\":\"" + aa.getFrame() + "\",\n" +
-				"    \"announce_to_chat\":false" +
+				"    \"announce_to_chat\":false,\n" +
+				"    \"show_toast\":" + aa.isShowToast() +
 				getStringFieldOrLineBreak("background", aa.getBackground(), 4) +
 				"  }" +
 				getStringFieldOrLineBreak("parent", aa.getParent(), 2) +
@@ -56,7 +54,8 @@ public class AdvancementJsonHelper {
 	private static String iconLine(AchievementAdvancement aa) {
 		String id = normalizeItemId(aa.getIconItem());
 
-		if (NEW_ITEMSTACK_FORMAT) {
+		if (isAtLeast(1, 20, 5)) {
+			// 1.20.5+ uses ItemStack "id"/"count"/"components" format.
 			// New format: id / count / components (count optional, defaults to 1)
 			return "      \"id\":\"" + id + "\"\n";
 		}
@@ -73,7 +72,13 @@ public class AdvancementJsonHelper {
 	}
 
 	private static boolean isAtLeast(int major, int minor, int patch) {
-		int[] v = parseMcVersion(Bukkit.getMinecraftVersion()); // e.g. "1.21.11"
+		String minecraftVersion;
+		try {
+			minecraftVersion = Bukkit.getMinecraftVersion();
+		} catch (RuntimeException e) {
+			return false;
+		}
+		int[] v = parseMcVersion(minecraftVersion); // e.g. "1.21.11"
 		if (v[0] != major) return v[0] > major;
 		if (v[1] != minor) return v[1] > minor;
 		return v[2] >= patch;

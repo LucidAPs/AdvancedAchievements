@@ -51,6 +51,7 @@ public class AdvancementManager implements Reloadable {
 
 	private boolean configRegisterAdvancementDescriptions;
 	private boolean configHideAdvancements;
+	private boolean configShowAdvancementToasts;
 	private String configRootAdvancementTitle;
 	private String configBackgroundTexture;
 	private int generatedAdvancements;
@@ -85,6 +86,7 @@ public class AdvancementManager implements Reloadable {
 	public void extractConfigurationParameters() {
 		configRegisterAdvancementDescriptions = mainConfig.getBoolean("RegisterAdvancementDescriptions");
 		configHideAdvancements = mainConfig.getBoolean("HideAdvancements");
+		configShowAdvancementToasts = mainConfig.getBoolean("ShowAdvancementToasts", true);
 		configRootAdvancementTitle = mainConfig.getString("RootAdvancementTitle");
 		configBackgroundTexture = mainConfig.getString("AdvancementsBackground");
 	}
@@ -136,7 +138,8 @@ public class AdvancementManager implements Reloadable {
 						.title(configRootAdvancementTitle)
 						.description("")
 						.background(configBackgroundTexture)
-						.type(AdvancementType.GOAL);
+						.type(AdvancementType.GOAL)
+						.showToast(configShowAdvancementToasts);
 				parentJson = AdvancementJsonHelper.toJson(builder.build());
 			}
 			loads.add(new LoadRequest(parentKey, parentJson));
@@ -179,7 +182,8 @@ public class AdvancementManager implements Reloadable {
 							.title(displayName)
 							.description(description)
 							.parent("advancedachievements:" + parent)
-							.type(last ? AdvancementType.CHALLENGE : AdvancementType.TASK);
+							.type(last ? AdvancementType.CHALLENGE : AdvancementType.TASK)
+							.showToast(configShowAdvancementToasts);
 
 					loads.add(new LoadRequest(key, AdvancementJsonHelper.toJson(builder.build())));
 				}
@@ -264,7 +268,8 @@ public class AdvancementManager implements Reloadable {
 					.title(configRootAdvancementTitle)
 					.description("")
 					.background(configBackgroundTexture)
-					.type(AdvancementType.GOAL);
+					.type(AdvancementType.GOAL)
+					.showToast(configShowAdvancementToasts);
 			json = AdvancementJsonHelper.toJson(builder.build());
 		}
 
@@ -315,7 +320,8 @@ public class AdvancementManager implements Reloadable {
 				.title(displayName)
 				.description(description)
 				.parent("advancedachievements:" + parentKey)
-				.type(lastAchievement ? AdvancementType.CHALLENGE : AdvancementType.TASK);
+				.type(lastAchievement ? AdvancementType.CHALLENGE : AdvancementType.TASK)
+				.showToast(configShowAdvancementToasts);
 
 		String json = AdvancementJsonHelper.toJson(builder.build());
 		Advancement adv = Bukkit.getUnsafe().loadAdvancement(namespacedKey, json);

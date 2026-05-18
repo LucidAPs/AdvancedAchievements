@@ -17,9 +17,10 @@ public class AchievementAdvancement {
 	private final String parent;
 	private final String background;
 	private final String frame;
+	private final boolean showToast;
 
 	private AchievementAdvancement(String iconItem, String iconData, String title, String description, String parent,
-			String background, String frame) {
+			String background, String frame, boolean showToast) {
 		this.iconItem = iconItem;
 		this.iconData = iconData;
 		this.title = title;
@@ -27,6 +28,7 @@ public class AchievementAdvancement {
 		this.parent = parent;
 		this.background = background;
 		this.frame = frame;
+		this.showToast = showToast;
 	}
 
 	public String getIconItem() {
@@ -57,6 +59,10 @@ public class AchievementAdvancement {
 		return frame;
 	}
 
+	public boolean isShowToast() {
+		return showToast;
+	}
+
 	public static class AchievementAdvancementBuilder {
 
 		private String iconItem;
@@ -66,6 +72,7 @@ public class AchievementAdvancement {
 		private String parent;
 		private String background;
 		private AdvancementType type;
+		private boolean showToast = true;
 
 		public AchievementAdvancementBuilder iconItem(String iconItem) {
 			this.iconItem = iconItem;
@@ -102,8 +109,14 @@ public class AchievementAdvancement {
 			return this;
 		}
 
+		public AchievementAdvancementBuilder showToast(boolean showToast) {
+			this.showToast = showToast;
+			return this;
+		}
+
 		public AchievementAdvancement build() {
-			return new AchievementAdvancement(iconItem, iconData, title, description, parent, background, type.toString());
+			return new AchievementAdvancement(iconItem, iconData, title, description, parent, background, type.toString(),
+					showToast);
 		}
 
 	}

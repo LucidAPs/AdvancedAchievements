@@ -154,9 +154,14 @@ IgnoreAFKPlayedTime: false
 # 如果改变，使用/aach generate来重新生成成就的参数值，使用Minecraft 1.12以前的版本中，本项设置无效
 RegisterAdvancementDescriptions: true
 
-# 若为true，隐藏成就GUI中的成就。获得成就时仍然会显示获取成就的信息
+# 若为true，隐藏成就GUI中的成就。右上角弹窗由 ShowAdvancementToasts 控制
 # 使用Minecraft 1.12以前的版本中，本项设置无效
 HideAdvancements: false
+
+# 当插件授予成就时，在右上角显示 Minecraft 成就弹窗。设置为 false 可禁用这些弹窗，
+# 包括玩家加入服务器时可能出现的同步提示。如果更改此项，请运行 /aach generate
+# 以重新生成成就，使新值生效。
+ShowAdvancementToasts: true
 
 # 根成就标题
 RootAdvancementTitle: Advanced Achievements

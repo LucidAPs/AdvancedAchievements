@@ -169,8 +169,13 @@ IgnoreAFKPlayedTime: false
 # /aach generate to regenerate advancements with the new value taken into account.
 RegisterAdvancementDescriptions: true
 
-# Hide advancements from the advancement GUI. Advancement notifications will still appear when receiving achievements.
+# Hide advancements from the advancement GUI. Toast pop-ups are controlled by ShowAdvancementToasts.
 HideAdvancements: false
+
+# Show Minecraft advancement toast pop-ups in the top-right corner when plugin advancements are awarded. Set to false
+# to disable those pop-ups, including catch-up notifications that can appear when players join. If changed, run
+# /aach generate to regenerate advancements with the new value taken into account.
+ShowAdvancementToasts: true
 
 # Title shown on the root advancement.
 RootAdvancementTitle: Advanced Achievements
