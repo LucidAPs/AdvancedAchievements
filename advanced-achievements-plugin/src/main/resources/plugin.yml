@@ -101,7 +101,6 @@ permissions:
       achievement.count.fireworks: true
       achievement.count.musicdiscs: true
       achievement.count.enderpearls: true
-      achievement.count.itembreaks: true
       achievement.count.milk: true
       achievement.count.shear: true
       achievement.count.snowballs: true
@@ -140,6 +139,7 @@ permissions:
       achievement.count.jobsreborn.*: true
       achievement.count.custom.*: true
       achievement.count.effectsheld.*: true
+      achievement.count.itembreaks.*: true
   achievement.count.connections:
     description: Allows connection statistics in database to increase.
     default: true
@@ -184,9 +184,6 @@ permissions:
     default: true
   achievement.count.enderpearls:
     description: Allows ender pearl statistics in database to increase.
-    default: true
-  achievement.count.itembreaks:
-    description: Allows item breaks statistics in database to increase.
     default: true
   achievement.count.milk:
     description: Allows milk statistics in database to increase.
@@ -302,12 +299,17 @@ permissions:
   achievement.count.effectsheld.*:
     description: Allows effects held statistics in database to increase.
     default: true
+  achievement.count.itembreaks.*:
+    description: Allows item breaks statistics in database to increase.
+    default: true
 #======================================================================================================================#
 #                                /!\  Dynamic permissions added at plugin startup  /!\                                 #
 #======================================================================================================================#
 # For individual achievements, simply use the Name property, e.g achievement.place_100_stone
-# For categories with sub-categories (Breaks, Places, Crafts, Kills, Breeding, PlayerCommands, Custom, TargetsShot and EffectsHeld):
+# For categories with sub-categories (Breaks, Places, Crafts, Kills, Breeding, PlayerCommands, Custom, TargetsShot,
+# EffectsHeld and ItemBreaks):
 # - use the sub-category key: for example for stone breaks, achievement.count.breaks.stone
+# - for ItemBreaks, use the material of the broken item: for example achievement.count.itembreaks.wooden_hoe
 # - for PlayerCommands, use lower case without spaces nor the initial slash: achievement.count.playercommands.aachbook
 # - for Kills with a custom mob name you should remove any whitespaces: achievement.count.kills.§2SkeletalKnight
 # - for Places with a custom item display name you should also remove any whitespaces.

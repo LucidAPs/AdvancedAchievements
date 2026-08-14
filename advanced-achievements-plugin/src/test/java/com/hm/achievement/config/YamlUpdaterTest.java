@@ -1,12 +1,15 @@
 package com.hm.achievement.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,8 @@ import com.hm.achievement.AdvancedAchievements;
 @ExtendWith(MockitoExtension.class)
 class YamlUpdaterTest {
 
+	private static final Logger LOGGER = Logger.getLogger("YamlUpdaterTestLogger");
+
 	@TempDir
 	static File tempDir;
 
@@ -30,13 +35,13 @@ class YamlUpdaterTest {
 	private YamlUpdater underTest;
 
 	@BeforeEach
-	void setUp() throws Exception {
-		when(plugin.getResource("config-default.yml")).thenReturn(getClass().getResourceAsStream("/config-default.yml"));
-		underTest = new YamlUpdater(plugin);
+	void setUp() {
+		underTest = new YamlUpdater(plugin, LOGGER);
 	}
 
 	@Test
 	void shouldAppendMissingDefaultSectionsToUserConfiguration() throws Exception {
+		mockDefaultConfigResource();
 		when(plugin.getDataFolder()).thenReturn(tempDir);
 		File userFile = createFileFromTestResource("config-missing-sections.yml");
 
@@ -49,6 +54,7 @@ class YamlUpdaterTest {
 
 	@Test
 	void shouldReloadConfigurationIfThereWereMissingSections() throws Exception {
+		mockDefaultConfigResource();
 		when(plugin.getDataFolder()).thenReturn(tempDir);
 		File userFile = createFileFromTestResource("config-missing-sections.yml");
 		YamlConfiguration config = YamlConfiguration.loadConfiguration(userFile);
@@ -60,12 +66,45 @@ class YamlUpdaterTest {
 
 	@Test
 	void shouldNotChangeUserConfigIfThereAreNoMissingKeys() throws Exception {
+		mockDefaultConfigResource();
 		File userFile = createFileFromTestResource("config-default.yml");
 		long lastModified = userFile.lastModified();
 
 		underTest.update("config-default.yml", userFile.getName(), YamlConfiguration.loadConfiguration(userFile));
 
 		assertEquals(lastModified, userFile.lastModified());
+	}
+
+	@Test
+	void shouldMoveLegacyItemBreaksAchievementsToAnySubcategory() throws Exception {
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		File userFile = createFileFromTestResource("config-legacy-itembreaks.yml");
+		YamlConfiguration config = YamlConfiguration.loadConfiguration(userFile);
+
+		underTest.migrateItemBreaksSection(userFile.getName(), config);
+
+		assertEquals(Collections.singleton("any"), config.getConfigurationSection("ItemBreaks").getKeys(false));
+		assertEquals("itembreaks_1", config.getString("ItemBreaks.any.1.Name"));
+		// Other categories must not be affected by the conversion.
+		assertEquals("eatenitems_1", config.getString("EatenItems.1.Name"));
+	}
+
+	@Test
+	void shouldNotChangeItemBreaksSectionAlreadyUsingSubcategories() throws Exception {
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		File userFile = createFileFromTestResource("config-legacy-itembreaks.yml");
+		YamlConfiguration config = YamlConfiguration.loadConfiguration(userFile);
+		underTest.migrateItemBreaksSection(userFile.getName(), config);
+		long lastModified = userFile.lastModified();
+
+		underTest.migrateItemBreaksSection(userFile.getName(), config);
+
+		assertEquals(lastModified, userFile.lastModified());
+		assertTrue(config.isConfigurationSection("ItemBreaks.any"));
+	}
+
+	private void mockDefaultConfigResource() {
+		when(plugin.getResource("config-default.yml")).thenReturn(getClass().getResourceAsStream("/config-default.yml"));
 	}
 
 	private File createFileFromTestResource(String testResourceName) throws Exception {

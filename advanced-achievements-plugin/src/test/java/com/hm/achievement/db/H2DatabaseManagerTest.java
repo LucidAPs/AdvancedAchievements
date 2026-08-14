@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -235,8 +236,30 @@ class H2DatabaseManagerTest {
 	}
 
 	@Test
+	void testMigrateLegacyItemBreaksStatistics() throws Exception {
+		// Recreate the itembreaks table as it was before the category had sub-categories.
+		executeUpdate("DROP TABLE IF EXISTS itembreaks");
+		executeUpdate("DROP TABLE IF EXISTS itembreaks_legacy");
+		executeUpdate("CREATE TABLE itembreaks (playername char(36),itembreaks BIGINT,PRIMARY KEY (playername))");
+		executeUpdate("INSERT INTO itembreaks VALUES ('" + testUUID + "',12)");
+
+		db.initialise();
+
+		assertEquals(12, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.ITEMBREAKS, "any"));
+		// A second initialisation must not attempt the migration again.
+		db.initialise();
+		assertEquals(12, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.ITEMBREAKS, "any"));
+	}
+
+	@Test
 	void testGetDefaultJobsRebornAchievementAmount() {
 		assertEquals(1, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.JOBSREBORN, "hunter"));
+	}
+
+	private void executeUpdate(String sql) throws Exception {
+		try (Statement st = db.getConnection().createStatement()) {
+			st.executeUpdate(sql);
+		}
 	}
 
 	private void clearDatabase() {

@@ -1,0 +1,16 @@
+# Count tools, armors or weapons broken.
+ItemBreaks:
+  1:
+    Goal: Let an item break.
+    Message: You broke your favorite tool!
+    Name: itembreaks_1
+    DisplayName: Clumsy Guy
+    Type: normal
+
+# Count items eaten (excludes potions and milk).
+EatenItems:
+  1:
+    Goal: Eat something.
+    Message: Time for a snack!
+    Name: eatenitems_1
+    Type: normal
