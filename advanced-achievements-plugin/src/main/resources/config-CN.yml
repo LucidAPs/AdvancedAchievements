@@ -118,7 +118,7 @@ DisableSilkTouchBreaks: false
 DisableSilkTouchOreBreaks: false
 
 # 使用的预言文件名称。可用值：lang.yml, lang-BP.yml, lang-CN.yml, lang-CZ.yml, lang-DE.yml, lang-ES.yml, lang-FI.yml
-# lang-FR.yml, lang-HU.yml, lang-IT.yml, lang-PL.yml, lang-RO.yml, lang-RU.yml, lang-SE.yml, lang-TR.yml, lang-TW.yml, lang-VN.yml
+# lang-FR.yml, lang-HU.yml, lang-IT.yml, lang-PL.yml, lang-RO.yml, lang-RU.yml, lang-SE.yml, lang-TR.yml, lang-TW.yml, lang-UA.yml, lang-VN.yml
 LanguageFileName: lang-CN.yml
 
 # 每一次计入成就统计之间间隔（冷却时间）。现仅支持限制列出项
