@@ -2,7 +2,6 @@ package com.hm.achievement.listener.statistics;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -11,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -61,13 +61,14 @@ public class ItemBreaksListener extends AbstractListener {
 	public void onPlayerItemBreak(PlayerItemBreakEvent event) {
 		Player player = event.getPlayer();
 		ItemStack brokenItem = event.getBrokenItem();
-		if (!player.hasPermission(category.toChildPermName(brokenItem.getType().name().toLowerCase(Locale.ROOT)))) {
-			return;
-		}
 
 		Set<String> matchingSubcategories = new HashSet<>();
 		subcategoriesToFilters.forEach((subcategory, filter) -> {
-			if (filter.matches(brokenItem)) {
+			// Permissions are registered per alternative of a sub-category key, so the matching alternative is what the
+			// permission node has to be built from.
+			String alternative = filter.matchingAlternative(brokenItem);
+			if (alternative != null
+					&& player.hasPermission(category.toChildPermName(StringUtils.deleteWhitespace(alternative)))) {
 				matchingSubcategories.add(subcategory);
 			}
 		});

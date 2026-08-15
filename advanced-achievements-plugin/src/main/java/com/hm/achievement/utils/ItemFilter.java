@@ -43,10 +43,34 @@ public class ItemFilter {
 
 	private static final Pattern LEVEL_PATTERN = Pattern.compile("(>=|<=|>|<|=)?\\d+");
 
-	private final List<List<Predicate<ItemStack>>> alternatives;
+	private final List<Alternative> alternatives;
 
-	private ItemFilter(List<List<Predicate<ItemStack>>> alternatives) {
+	private ItemFilter(List<Alternative> alternatives) {
 		this.alternatives = alternatives;
+	}
+
+	/**
+	 * One of the '|' separated alternatives of a sub-category key, with the conditions it is made of and the text it was
+	 * written as. The text is what the permission node of the alternative is built from.
+	 */
+	private static class Alternative {
+
+		private final String key;
+		private final List<Predicate<ItemStack>> conditions;
+
+		private Alternative(String key, List<Predicate<ItemStack>> conditions) {
+			this.key = key;
+			this.conditions = conditions;
+		}
+
+		private boolean matches(ItemStack item) {
+			for (Predicate<ItemStack> condition : conditions) {
+				if (!condition.test(item)) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	/**
@@ -58,7 +82,7 @@ public class ItemFilter {
 	 * @return the corresponding filter
 	 */
 	public static ItemFilter parse(String key, MaterialHelper materialHelper, Logger logger) {
-		List<List<Predicate<ItemStack>>> alternatives = new ArrayList<>();
+		List<Alternative> alternatives = new ArrayList<>();
 		for (String alternative : StringUtils.split(key, '|')) {
 			List<Predicate<ItemStack>> conditions = new ArrayList<>();
 			for (String condition : StringUtils.split(alternative, ';')) {
@@ -67,7 +91,7 @@ public class ItemFilter {
 				}
 			}
 			if (!conditions.isEmpty()) {
-				alternatives.add(conditions);
+				alternatives.add(new Alternative(alternative.trim(), conditions));
 			}
 		}
 		return new ItemFilter(alternatives);
@@ -80,19 +104,24 @@ public class ItemFilter {
 	 * @return true if the item matches the key, false otherwise
 	 */
 	public boolean matches(ItemStack item) {
-		for (List<Predicate<ItemStack>> conditions : alternatives) {
-			boolean matchesAllConditions = true;
-			for (Predicate<ItemStack> condition : conditions) {
-				if (!condition.test(item)) {
-					matchesAllConditions = false;
-					break;
-				}
-			}
-			if (matchesAllConditions) {
-				return true;
+		return matchingAlternative(item) != null;
+	}
+
+	/**
+	 * Returns the first alternative of the key whose conditions are all satisfied by the item, as it was written in the
+	 * configuration file. Permissions are registered per alternative rather than per key, so this is what the caller
+	 * must build the permission node of the match from.
+	 *
+	 * @param item the item to match
+	 * @return the matching alternative, or null if the item matches none of them
+	 */
+	public String matchingAlternative(ItemStack item) {
+		for (Alternative alternative : alternatives) {
+			if (alternative.matches(item)) {
+				return alternative.key;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	private static Predicate<ItemStack> parseCondition(String condition, String key, MaterialHelper materialHelper,

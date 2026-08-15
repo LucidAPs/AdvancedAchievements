@@ -309,7 +309,8 @@ permissions:
 # For categories with sub-categories (Breaks, Places, Crafts, Kills, Breeding, PlayerCommands, Custom, TargetsShot,
 # EffectsHeld and ItemBreaks):
 # - use the sub-category key: for example for stone breaks, achievement.count.breaks.stone
-# - for ItemBreaks, use the material of the broken item: for example achievement.count.itembreaks.wooden_hoe
+# - for ItemBreaks, use the sub-category key, whitespaces removed: achievement.count.itembreaks.netherite_leggings,
+#   achievement.count.itembreaks.any or achievement.count.itembreaks.wooden_hoe;enchant:unbreaking:3
 # - for PlayerCommands, use lower case without spaces nor the initial slash: achievement.count.playercommands.aachbook
 # - for Kills with a custom mob name you should remove any whitespaces: achievement.count.kills.§2SkeletalKnight
 # - for Places with a custom item display name you should also remove any whitespaces.

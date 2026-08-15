@@ -1,6 +1,8 @@
 package com.hm.achievement.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -164,6 +166,30 @@ class ItemFilterTest {
 		when(itemMeta.isUnbreakable()).thenReturn(true);
 
 		assertTrue(parse("unbreakable").matches(itemStack));
+	}
+
+	@Test
+	void shouldReturnTheMatchingAlternativeOfAGroup() {
+		when(itemStack.getType()).thenReturn(Material.STONE_HOE);
+
+		assertEquals("stone_hoe", parse("wooden_hoe|stone_hoe").matchingAlternative(itemStack));
+	}
+
+	@Test
+	void shouldReturnTheMatchingAlternativeAsWrittenWithoutItsSurroundingSpaces() {
+		when(itemStack.getType()).thenReturn(Material.WOODEN_HOE);
+		when(itemStack.getItemMeta()).thenReturn(itemMeta);
+		when(itemMeta.isUnbreakable()).thenReturn(true);
+
+		assertEquals("wooden_hoe;unbreakable",
+				parse("netherite_leggings | wooden_hoe;unbreakable").matchingAlternative(itemStack));
+	}
+
+	@Test
+	void shouldReturnNoAlternativeWhenTheItemMatchesNone() {
+		when(itemStack.getType()).thenReturn(Material.NETHERITE_LEGGINGS);
+
+		assertNull(parse("wooden_hoe|stone_hoe").matchingAlternative(itemStack));
 	}
 
 	private static ItemFilter parse(String key) {
