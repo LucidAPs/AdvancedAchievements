@@ -458,6 +458,23 @@ JobsReborn:
       DisplayName: Hunter
       Type: normal
 
+# 当工具/防具/武器 被用坏，子类别用于描述被用坏的物品，多个条件用 ';' 分隔，全部满足才会计数。可用条件：
+# - any: 任何被用坏的物品（插件旧版本的统计数据会迁移到这里）
+# - <material> 或 material:<material>: 小写的物品名称，例如 netherite_leggings
+# - enchant:<name>[:<level>]: 原版附魔名称，例如 enchant:mending 或 enchant:unbreaking:3，等级还支持 >=、<=、> 和 < 运算符
+# - name:<display name>: 物品的自定义名称，忽略大小写和颜色代码，name:* 表示任何被重命名的物品
+# - color:<colour>: 已染色皮革护甲的颜色，可以是染料颜色名称（例如 purple）、十六进制值（例如 "#8932b8"）或 RGB（例如 137,50,184）
+# - unbreakable: 物品带有无法破坏（unbreakable）标签
+# 和其他拥有子类别的类别一样，可以用 '|' 组合，例如 wooden_hoe|stone_hoe
+ItemBreaks:
+  any:
+    1:
+      Goal: 把一个工具用坏掉吧
+      Message: 你用坏了你的第一个工具！
+      Name: itembreaks_1
+      DisplayName: §4工具破坏者
+      Type: normal
+
 #======================================================================================================================#
 #                                                        简单行为成就                                                   #
 #                                                                                                                      #
@@ -530,15 +547,6 @@ Treasures:
     Message: 你获得来自大海的第一个宝物！
     Name: treasure_1
     DisplayName: 宝物猎人、
-    Type: normal
-
-# 当工具/防具/武器 被用坏
-ItemBreaks:
-  1:
-    Goal: 把一个工具用坏掉吧
-    Message: 你用坏了你的第一个工具！
-    Name: itembreaks_1
-    DisplayName: §4工具破坏者
     Type: normal
 
 # 吃一个东西（除药水和牛奶）

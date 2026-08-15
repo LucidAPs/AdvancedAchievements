@@ -1,6 +1,7 @@
 package com.hm.achievement.db;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -23,6 +24,9 @@ import com.hm.achievement.exception.PluginLoadError;
  */
 @Singleton
 public class DatabaseUpdater {
+
+	private static final String LEGACY_TABLE_SUFFIX = "_legacy";
+	private static final String LEGACY_ITEMBREAKS_SUBCATEGORY = "any";
 
 	private final Logger logger;
 
@@ -97,6 +101,73 @@ public class DatabaseUpdater {
 			st.executeBatch();
 		} catch (SQLException e) {
 			throw new PluginLoadError("Error while initialising database tables.", e);
+		}
+	}
+
+	/**
+	 * Renames the itembreaks table if it still uses the old schema of the days when ItemBreaks was a category without
+	 * sub-categories. The renamed table is kept as a backup and its data is copied over by
+	 * {@link #copyLegacyItemBreaksData(AbstractDatabaseManager)} once the new table has been created.
+	 *
+	 * @param databaseManager
+	 * @return true if a legacy table was renamed and its data must be copied over, false otherwise
+	 */
+	boolean renameLegacyItemBreaksTable(AbstractDatabaseManager databaseManager) {
+		String table = databaseManager.getPrefix() + MultipleAchievements.ITEMBREAKS.toDBName();
+		try (Statement st = databaseManager.getConnection().createStatement()) {
+			if (!tableExistsWithoutSubcategoryColumn(st, table)) {
+				return false;
+			}
+			logger.info("Converting the " + table + " table to the sub-category format, please wait...");
+			st.execute("DROP TABLE IF EXISTS " + table + LEGACY_TABLE_SUFFIX);
+			st.execute("ALTER TABLE " + table + " RENAME TO " + table + LEGACY_TABLE_SUFFIX);
+			return true;
+		} catch (SQLException e) {
+			logger.log(Level.SEVERE, "Database error while converting the old " + table + " table:", e);
+			return false;
+		}
+	}
+
+	/**
+	 * Copies the statistics of the legacy itembreaks table into the 'any' sub-category of the new one. The legacy table
+	 * is left in the database as a backup.
+	 *
+	 * @param databaseManager
+	 */
+	void copyLegacyItemBreaksData(AbstractDatabaseManager databaseManager) {
+		String dbName = MultipleAchievements.ITEMBREAKS.toDBName();
+		String table = databaseManager.getPrefix() + dbName;
+		String legacyTable = table + LEGACY_TABLE_SUFFIX;
+		try (Statement st = databaseManager.getConnection().createStatement()) {
+			int migrated = st.executeUpdate("INSERT INTO " + table + " (playername, "
+					+ MultipleAchievements.ITEMBREAKS.toSubcategoryDBName() + ", " + dbName + ") SELECT playername, '"
+					+ LEGACY_ITEMBREAKS_SUBCATEGORY + "', " + dbName + " FROM " + legacyTable);
+			logger.info("Converted " + migrated + " " + dbName + " statistics to the '" + LEGACY_ITEMBREAKS_SUBCATEGORY
+					+ "' sub-category. The previous data was kept in the " + legacyTable + " table.");
+		} catch (SQLException e) {
+			logger.log(Level.SEVERE, "Database error while copying the old " + table + " statistics:", e);
+		}
+	}
+
+	/**
+	 * Determines whether the table exists and is missing the sub-category column of the ItemBreaks category.
+	 *
+	 * @param st
+	 * @param table
+	 * @return true if the table uses the old schema, false if it does not exist or already has the column
+	 */
+	private boolean tableExistsWithoutSubcategoryColumn(Statement st, String table) {
+		try (ResultSet rs = st.executeQuery("SELECT * FROM " + table + " WHERE 1 = 0")) {
+			ResultSetMetaData metaData = rs.getMetaData();
+			for (int column = 1; column <= metaData.getColumnCount(); ++column) {
+				if (MultipleAchievements.ITEMBREAKS.toSubcategoryDBName().equalsIgnoreCase(metaData.getColumnName(column))) {
+					return false;
+				}
+			}
+			return true;
+		} catch (SQLException tableDoesNotExist) {
+			// Fresh installation, or table renamed by a previous run: nothing to convert.
+			return false;
 		}
 	}
 

@@ -619,6 +619,48 @@ EffectsHeld:
       DisplayName: Kangaroo
       Type: normal
 
+# Count tools, armors or weapons broken, by item. A sub-category key describes the broken item with conditions
+# separated by ';'; all of them must be satisfied. Available conditions:
+# - any: matches any broken item (this is where statistics of previous plugin versions were migrated to).
+# - <material> or material:<material>: material name in lower case, e.g. netherite_leggings.
+# - enchant:<name>[:<level>]: vanilla enchantment name, e.g. enchant:mending or enchant:unbreaking:3. The level also
+#   supports the >=, <=, > and < operators, e.g. enchant:unbreaking:>=2.
+# - name:<display name>: custom item name; case and colour codes are ignored. Use name:* for any renamed item.
+# - color:<colour>: colour of a dyed leather armor piece, either a dye colour name (e.g. purple), a hexadecimal value
+#   (e.g. "#8932b8") or comma-separated RGB components (e.g. 137,50,184).
+# - unbreakable: the item has the unbreakable flag.
+# As for other categories with sub-categories, groups are supported with '|', e.g. wooden_hoe|stone_hoe. Keep the total
+# length of a key below the TableMaxSizeOfGroupedSubcategories parameter.
+ItemBreaks:
+  any:
+    1:
+      Goal: Let an item break.
+      Message: You broke your favorite tool!
+      Name: itembreaks_1
+      DisplayName: §4Clumsy Guy
+      Type: normal
+  netherite_leggings:
+    1:
+      Goal: Wear out a pair of netherite leggings.
+      Message: You wore your netherite leggings down to nothing!
+      Name: itembreaks_1_netherite_leggings
+      DisplayName: Bare Legs
+      Type: normal
+  "wooden_hoe;enchant:unbreaking:3":
+    1:
+      Goal: Break a wooden hoe enchanted with Unbreaking III.
+      Message: Even Unbreaking III could not save that hoe!
+      Name: itembreaks_1_unbreaking_wooden_hoe
+      DisplayName: Sturdy Farmer
+      Type: normal
+  "leather_leggings;color:purple;name:Purple Shorts":
+    1:
+      Goal: Break your purple shorts.
+      Message: Your Purple Shorts fell apart!
+      Name: itembreaks_1_purple_shorts
+      DisplayName: Purple Reign
+      Type: normal
+
 #======================================================================================================================#
 #                                              NORMAL ACTION ACHIEVEMENTS                                              #
 #                                                                                                                      #
@@ -691,15 +733,6 @@ Treasures:
     Message: Your first treasure from the sea!
     Name: treasure_1
     DisplayName: Treasure Hunter
-    Type: normal
-
-# Count tools, armors or weapons broken.
-ItemBreaks:
-  1:
-    Goal: Let an item break.
-    Message: You broke your favorite tool!
-    Name: itembreaks_1
-    DisplayName: §4Clumsy Guy
     Type: normal
 
 # Count items eaten (excludes potions and milk).

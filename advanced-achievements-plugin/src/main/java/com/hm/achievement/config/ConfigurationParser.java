@@ -82,6 +82,7 @@ public class ConfigurationParser {
 	public void loadAndParseConfiguration() throws PluginLoadError {
 		logger.info("Backing up and loading configuration files...");
 		backupAndLoadConfiguration("config.yml", "config.yml", mainConfig);
+		migrateLegacyItemBreaksConfiguration();
 		backupAndLoadConfiguration("lang.yml", mainConfig.getString("LanguageFileName"), langConfig);
 		backupAndLoadConfiguration("gui.yml", "gui.yml", guiConfig);
 		parseHeader();
@@ -136,6 +137,21 @@ public class ConfigurationParser {
 		} catch (IOException | InvalidConfigurationException e) {
 			throw new PluginLoadError("Failed to load " + userConfigName
 					+ ". Verify its syntax on yaml-online-parser.appspot.com and use the following logs.", e);
+		}
+	}
+
+	/**
+	 * Converts the ItemBreaks section of the configuration file if it was written for a plugin version in which the
+	 * category did not have sub-categories.
+	 *
+	 * @throws PluginLoadError
+	 */
+	private void migrateLegacyItemBreaksConfiguration() throws PluginLoadError {
+		try {
+			yamlUpdater.migrateItemBreaksSection("config.yml", mainConfig);
+		} catch (IOException | InvalidConfigurationException e) {
+			throw new PluginLoadError("Failed to convert the ItemBreaks section of config.yml to the sub-category format.",
+					e);
 		}
 	}
 
