@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -73,6 +74,22 @@ class YamlUpdaterTest {
 		underTest.update("config-default.yml", userFile.getName(), YamlConfiguration.loadConfiguration(userFile));
 
 		assertEquals(lastModified, userFile.lastModified());
+	}
+
+	@Test
+	void shouldAppendTheMissingKeyRatherThanOneItIsAPrefixOf() throws Exception {
+		when(plugin.getResource("config-prefix-default.yml"))
+				.thenReturn(getClass().getResourceAsStream("/config-prefix-default.yml"));
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		File userFile = createFileFromTestResource("config-prefix-user.yml");
+		YamlConfiguration config = YamlConfiguration.loadConfiguration(userFile);
+
+		underTest.update("config-prefix-default.yml", userFile.getName(), config);
+
+		// 'Fish' is a prefix of the 'FishableFish' key the user already has, which must not be appended again.
+		assertEquals("fish_1", config.getString("Fish.1.Name"));
+		assertEquals(Arrays.asList("cod", "salmon"), config.getStringList("FishableFish"));
+		assertEquals(1, Files.readAllLines(userFile.toPath()).stream().filter(l -> l.startsWith("FishableFish:")).count());
 	}
 
 	@Test

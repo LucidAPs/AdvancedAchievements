@@ -1,0 +1,12 @@
+#=============================================================#
+
+# Used for the Fish achievement category.
+FishableFish:
+  - cod
+  - salmon
+
+# Count fish caught.
+Fish:
+  1:
+    Goal: Fish a fish.
+    Name: fish_1

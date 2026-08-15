@@ -124,15 +124,17 @@ public class YamlUpdater {
 
 	private Stream<String> extractSectionForMissingKey(List<String> defaultLines, String key) {
 		for (int i = 0; i < defaultLines.size(); ++i) {
-			if (defaultLines.get(i).startsWith(key)) {
+			// The colon matters: without it a missing 'Fish' key matches the 'FishableFish:' line, appends that
+			// section instead, and since the key is still missing does it again on every startup.
+			if (defaultLines.get(i).startsWith(key + ":")) {
 				int start = i;
 				// Include all comments lines above the missing key, if any.
-				while (defaultLines.get(start - 1).startsWith("#")) {
+				while (start > 0 && defaultLines.get(start - 1).startsWith("#")) {
 					--start;
 				}
 				int end = i + 1;
 				// Include all lines belonging to the same YAML section, i.e. starting with spaces.
-				while (defaultLines.get(end).startsWith(" ")) {
+				while (end < defaultLines.size() && defaultLines.get(end).startsWith(" ")) {
 					++end;
 				}
 				return Stream.concat(Stream.of(""), defaultLines.subList(start, end).stream());

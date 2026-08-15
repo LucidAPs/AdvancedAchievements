@@ -1,0 +1,6 @@
+#=============================================================#
+
+# Used for the Fish achievement category.
+FishableFish:
+  - cod
+  - salmon
