@@ -16,7 +16,7 @@ import com.hm.achievement.utils.MaterialHelper;
 
 /**
  * Listener class to deal with ConsumedPotions achievements.
- * 
+ *
  * @author Pyves
  *
  */

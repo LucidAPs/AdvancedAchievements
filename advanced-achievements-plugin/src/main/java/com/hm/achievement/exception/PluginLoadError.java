@@ -2,7 +2,7 @@ package com.hm.achievement.exception;
 
 /**
  * Checked exception thrown if the plugin encounters a non recoverable error during load time.
- * 
+ *
  * @author Pyves
  *
  */

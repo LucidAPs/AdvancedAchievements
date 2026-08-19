@@ -27,7 +27,7 @@ public class SoundPlayer {
 	/**
 	 * Plays a sound provided via configuration. If the sound is invalid, this method falls back to the provided
 	 * fallback.
-	 * 
+	 *
 	 * @param player
 	 * @param providedSound
 	 * @param fallbackSound

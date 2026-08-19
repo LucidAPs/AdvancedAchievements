@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -210,10 +211,12 @@ public class RewardParser {
 
 		Consumer<Player> rewarder = player -> {
 			for (String raw : getOneOrManyConfigStrings(configSection, executePath)) {
-				if (raw == null) continue;
+				if (raw == null)
+					continue;
 
 				String command = StringHelper.replacePlayerPlaceholders(raw, player).trim();
-				if (command.isEmpty()) continue;
+				if (command.isEmpty())
+					continue;
 
 				// Many configs include a leading slash; Bukkit dispatchCommand expects no slash.
 				if (command.charAt(0) == '/') {
@@ -223,16 +226,18 @@ public class RewardParser {
 				try {
 					boolean ok = server.dispatchCommand(server.getConsoleSender(), command);
 					if (!ok) {
-						server.getLogger().warning("[AdvancedAchievements] Reward command returned false (unknown?): " + command);
+						server.getLogger()
+								.warning("[AdvancedAchievements] Reward command returned false (unknown?): " + command);
 					}
 				} catch (CommandException ex) {
-					server.getLogger().severe("[AdvancedAchievements] Reward command failed for " + player.getName() + ": " + command);
-					ex.printStackTrace();
+					server.getLogger().log(Level.SEVERE,
+							"[AdvancedAchievements] Reward command failed for " + player.getName() + ": " + command, ex);
 				} catch (Throwable t) {
 					// Extra safety: don't let *anything* here kill the achievement flow.
-					server.getLogger().severe("[AdvancedAchievements] Unexpected error running reward command for "
-							+ player.getName() + ": " + command);
-					t.printStackTrace();
+					server.getLogger().log(Level.SEVERE,
+							"[AdvancedAchievements] Unexpected error running reward command for "
+									+ player.getName() + ": " + command,
+							t);
 				}
 			}
 		};

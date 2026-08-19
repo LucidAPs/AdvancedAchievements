@@ -339,7 +339,7 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 
 	/**
 	 * Handles rewards and displaying messages when a player has received all achievements.
-	 * 
+	 *
 	 * @param player
 	 */
 	private void handleAllAchievementsReceived(Player player) {

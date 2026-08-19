@@ -74,7 +74,7 @@ public enum NormalAchievements implements Category {
 
 	/**
 	 * Finds the category matching the provided name.
-	 * 
+	 *
 	 * @param categoryName
 	 * @return a category or null if not found
 	 */

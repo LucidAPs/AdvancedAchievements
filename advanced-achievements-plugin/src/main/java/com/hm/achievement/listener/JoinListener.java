@@ -21,7 +21,7 @@ import com.hm.achievement.db.CacheManager;
 /**
  * Listener class to deal with advancements. This class uses delays processing of tasks to avoid spamming a barely
  * connected player.
- * 
+ *
  * @author Pyves
  *
  */
@@ -45,7 +45,7 @@ public class JoinListener implements Listener {
 
 	/**
 	 * Schedules an asynchronous task to load the received achievement cache.
-	 * 
+	 *
 	 * @param player
 	 */
 	private void scheduleReceivedCacheLoad(Player player) {
@@ -58,7 +58,7 @@ public class JoinListener implements Listener {
 	 * Schedules a delayed task to award advancements created by Advanced Achievements. This method can be seen as a
 	 * synchronisation to give advancements which were generated after the corresponding achievement was received for a
 	 * given player.
-	 * 
+	 *
 	 * @param player
 	 */
 	private void scheduleAwardAdvancements(Player player) {

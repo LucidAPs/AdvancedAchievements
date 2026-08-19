@@ -24,7 +24,7 @@ import com.hm.achievement.utils.MaterialHelper;
 
 /**
  * Listener class to deal with Brewing achievements.
- * 
+ *
  * @author Pyves
  *
  */
@@ -64,7 +64,7 @@ public class BrewingListener extends AbstractRateLimitedListener {
 
 	/**
 	 * Determine whether the event corresponds to a brewable potion, i.e. not water.
-	 * 
+	 *
 	 * @param item
 	 * @return true if for any brewable potion
 	 */

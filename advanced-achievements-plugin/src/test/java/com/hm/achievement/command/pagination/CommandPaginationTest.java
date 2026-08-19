@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Class for testing the command pagination utility.
- * 
+ *
  * @author Rsl1122
  */
 class CommandPaginationTest {

@@ -22,7 +22,7 @@ import com.hm.achievement.utils.InventoryHelper;
 
 /**
  * Listener class to deal with Smelting achievements.
- * 
+ *
  * @author Pyves
  *
  */

@@ -11,7 +11,7 @@ public class InventoryHelper {
 	/**
 	 * Calculates the space available to accommodate a new item stack. This method takes both empty slots and existing
 	 * similar item stacks into account.
-	 * 
+	 *
 	 * @param player
 	 * @param newItemStack
 	 * @return the available space for the item

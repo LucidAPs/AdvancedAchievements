@@ -2,7 +2,7 @@ package com.hm.achievement.advancement;
 
 /**
  * The values of this Enum correspond to the "frame" parameter of advancements.
- * 
+ *
  * @author Pyves
  *
  */

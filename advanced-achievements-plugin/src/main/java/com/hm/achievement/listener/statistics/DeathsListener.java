@@ -15,7 +15,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Listener class to deal with Deaths achievements.
- * 
+ *
  * @author Pyves
  *
  */

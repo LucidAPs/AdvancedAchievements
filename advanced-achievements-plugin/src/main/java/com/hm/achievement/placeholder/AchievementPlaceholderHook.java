@@ -17,7 +17,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 /**
  * Class enabling usage of placeholder with PlaceholderAPI to get achievements stats in others plugins.
- * 
+ *
  * @author Phoetrix
  */
 public class AchievementPlaceholderHook extends PlaceholderExpansion {

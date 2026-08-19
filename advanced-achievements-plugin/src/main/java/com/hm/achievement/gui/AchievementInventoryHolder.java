@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Simple wrapper class to keep track of the plugin's inventories and their page numbers.
- * 
+ *
  * @author Pyves
  */
 public class AchievementInventoryHolder implements InventoryHolder {

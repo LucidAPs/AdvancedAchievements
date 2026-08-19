@@ -13,7 +13,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Class in charge of handling the /aach check command, which checks whether a player has received an achievement.
- * 
+ *
  * @author Pyves
  */
 @Singleton

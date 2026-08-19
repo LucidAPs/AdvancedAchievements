@@ -29,7 +29,7 @@ import com.hm.achievement.utils.StringHelper;
 
 /**
  * Class providing all the items displayed in the GUIs.
- * 
+ *
  * @author Pyves
  */
 @Singleton
@@ -132,7 +132,7 @@ public class GUIItems implements Reloadable {
 
 	/**
 	 * Creates an ItemStack used as a button in the category GUI.
-	 * 
+	 *
 	 * @param category
 	 * @param msg
 	 * @param lore

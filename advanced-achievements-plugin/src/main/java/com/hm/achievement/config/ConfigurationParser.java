@@ -157,7 +157,7 @@ public class ConfigurationParser {
 
 	/**
 	 * Extracts disabled categories from the configuration file.
-	 * 
+	 *
 	 * @throws PluginLoadError
 	 */
 	private void parseDisabledCategories() throws PluginLoadError {
@@ -191,7 +191,7 @@ public class ConfigurationParser {
 
 	/**
 	 * Performs validation for the DisabledCategories list and maps the values to Category instances.
-	 * 
+	 *
 	 * @throws PluginLoadError
 	 */
 	private void extractDisabledCategoriesFromConfig() throws PluginLoadError {
@@ -220,7 +220,7 @@ public class ConfigurationParser {
 
 	/**
 	 * Goes through all the achievements for non-disabled categories.
-	 * 
+	 *
 	 * Populates relevant data structures and performs basic validation.
 	 *
 	 * @throws PluginLoadError If an achievement fails to parse due to misconfiguration.
@@ -280,7 +280,7 @@ public class ConfigurationParser {
 
 	/**
 	 * Performs validation for a single achievement and populates an entry in the namesToDisplayNames map.
-	 * 
+	 *
 	 * @param category
 	 * @param subcategory
 	 * @param threshold

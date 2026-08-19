@@ -10,7 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 /**
  * Class in charge of handling the /aach hcaa command, which displays a small easter egg in the in-game chat. Run it and
  * you'll see what all this mess is about
- * 
+ *
  * @author Pyves
  */
 @Singleton

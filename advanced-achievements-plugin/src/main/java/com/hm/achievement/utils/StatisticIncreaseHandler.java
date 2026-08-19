@@ -22,7 +22,7 @@ import com.hm.achievement.lifecycle.Reloadable;
 /**
  * Abstract class in charge of factoring out common functionality for classes which track statistic increases (such as
  * listeners or runnables).
- * 
+ *
  * @author Pyves
  */
 @Singleton
@@ -56,7 +56,7 @@ public class StatisticIncreaseHandler implements Reloadable {
 	/**
 	 * Compares the current value to the achievement thresholds. If a threshold is reached, awards the achievement if it
 	 * wasn't previously received.
-	 * 
+	 *
 	 * @param player
 	 * @param category
 	 * @param currentValue
@@ -68,7 +68,7 @@ public class StatisticIncreaseHandler implements Reloadable {
 	/**
 	 * Compares the current value to the achievement thresholds in the same subcategory. If a threshold is reached,
 	 * awards the achievement if it wasn't previously received.
-	 * 
+	 *
 	 * @param player
 	 * @param category
 	 * @param subcategory
@@ -97,7 +97,7 @@ public class StatisticIncreaseHandler implements Reloadable {
 
 	/**
 	 * Determines whether the statistic increase should be taken into account.
-	 * 
+	 *
 	 * @param player
 	 * @param category
 	 * @return true if the increase should be taken into account, false otherwise

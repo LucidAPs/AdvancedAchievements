@@ -18,7 +18,7 @@ import com.hm.achievement.utils.StatisticIncreaseHandler;
 
 /**
  * Class used to monitor players' played times.
- * 
+ *
  * @author Pyves
  *
  */
@@ -61,7 +61,7 @@ public class AchievePlayTimeRunnable extends StatisticIncreaseHandler implements
 
 	/**
 	 * Updates play time if all conditions are met and awards achievements if necessary.
-	 * 
+	 *
 	 * @param player
 	 * @param millisSincePreviousRun
 	 */

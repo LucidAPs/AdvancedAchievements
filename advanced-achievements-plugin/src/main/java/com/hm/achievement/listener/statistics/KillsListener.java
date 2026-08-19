@@ -22,7 +22,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Listener class to deal with Kills achievements.
- * 
+ *
  * @author Pyves
  *
  */

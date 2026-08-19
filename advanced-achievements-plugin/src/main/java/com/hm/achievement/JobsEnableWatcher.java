@@ -15,28 +15,29 @@ import java.util.logging.Logger;
 
 @Singleton
 public class JobsEnableWatcher implements Listener {
-    private final AdvancedAchievements aa;
-    private final Provider<PluginLoader> loaderProvider; // <-- Provider breaks the cycle
-    private final Logger log;
 
-    @Inject
-    public JobsEnableWatcher(AdvancedAchievements aa, Provider<PluginLoader> loaderProvider, Logger log) {
-        this.aa = aa;
-        this.loaderProvider = loaderProvider;
-        this.log = log;
-    }
+	private final AdvancedAchievements aa;
+	private final Provider<PluginLoader> loaderProvider;
+	private final Logger log;
 
-    @EventHandler
-    public void onPluginEnable(PluginEnableEvent e) {
-        if (e.getPlugin().getName().equalsIgnoreCase("Jobs")) {
-            Bukkit.getScheduler().runTask(aa, () -> {
-                try {
-                    loaderProvider.get().loadAdvancedAchievements(); // mirrors /aach reload
-                    log.info("[AdvancedAchievements] Jobs enabled; JobsReborn category now active.");
-                } catch (PluginLoadError ex) {
-                    log.log(Level.SEVERE, "Could not enable JobsReborn category after Jobs enable:", ex);
-                }
-            });
-        }
-    }
+	@Inject
+	public JobsEnableWatcher(AdvancedAchievements aa, Provider<PluginLoader> loaderProvider, Logger log) {
+		this.aa = aa;
+		this.loaderProvider = loaderProvider;
+		this.log = log;
+	}
+
+	@EventHandler
+	public void onPluginEnable(PluginEnableEvent e) {
+		if (e.getPlugin().getName().equalsIgnoreCase("Jobs")) {
+			Bukkit.getScheduler().runTask(aa, () -> {
+				try {
+					loaderProvider.get().loadAdvancedAchievements();
+					log.info("[AdvancedAchievements] Jobs enabled; JobsReborn category now active.");
+				} catch (PluginLoadError ex) {
+					log.log(Level.SEVERE, "Could not enable JobsReborn category after Jobs enable:", ex);
+				}
+			});
+		}
+	}
 }

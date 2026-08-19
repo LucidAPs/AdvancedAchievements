@@ -23,7 +23,7 @@ import com.hm.achievement.utils.StringHelper;
 
 /**
  * Class in charge of handling the /aach list command, which displays interactive GUIs.
- * 
+ *
  * @author Pyves
  */
 @Singleton

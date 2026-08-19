@@ -21,7 +21,7 @@ public interface Category {
 
 	/**
 	 * Converts to a child's permission name if this category supports children, else returns {@link #toPermName()}.
-	 * 
+	 *
 	 * @param child the child node
 	 *
 	 * @return the Bukkit child permission name

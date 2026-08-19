@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +24,7 @@ class MaterialHelperTest {
 
 	@Test
 	void shouldReturnFalseForWaterPotion() {
-		when(potionMeta.getBasePotionData()).thenReturn(new PotionData(PotionType.WATER));
+		when(potionMeta.getBasePotionType()).thenReturn(PotionType.WATER);
 		when(itemStack.getItemMeta()).thenReturn(potionMeta);
 		when(itemStack.getType()).thenReturn(Material.POTION);
 		MaterialHelper underTest = new MaterialHelper(null);
@@ -35,7 +34,7 @@ class MaterialHelperTest {
 
 	@Test
 	void shouldReturnTrueForOtherPotion() {
-		when(potionMeta.getBasePotionData()).thenReturn(new PotionData(PotionType.HARMING));
+		when(potionMeta.getBasePotionType()).thenReturn(PotionType.HARMING);
 		when(itemStack.getItemMeta()).thenReturn(potionMeta);
 		when(itemStack.getType()).thenReturn(Material.POTION);
 		MaterialHelper underTest = new MaterialHelper(null);

@@ -16,7 +16,7 @@ import com.hm.mcshared.event.PlayerChangeAnimalOwnershipEvent;
 
 /**
  * Listener class to deal with PetMasterGive achievements.
- * 
+ *
  * @author Pyves
  *
  */

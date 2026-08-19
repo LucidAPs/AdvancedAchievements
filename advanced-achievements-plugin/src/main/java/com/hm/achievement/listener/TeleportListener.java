@@ -16,7 +16,7 @@ import com.hm.achievement.runnable.AchieveDistanceRunnable;
 /**
  * Listener class to update the player's location when teleporting, in order to keep the distance achievement statistics
  * correct.
- * 
+ *
  * @author Pyves
  *
  */

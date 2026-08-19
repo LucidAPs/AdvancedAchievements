@@ -66,7 +66,7 @@ public class PluginCommandExecutor implements CommandExecutor, Reloadable {
 	/**
 	 * Determines whether an Advanced Achievements command should be executed based on the provided command line
 	 * arguments.
-	 * 
+	 *
 	 * @param command
 	 * @param args
 	 * @return true if command matches args, false otherwise.

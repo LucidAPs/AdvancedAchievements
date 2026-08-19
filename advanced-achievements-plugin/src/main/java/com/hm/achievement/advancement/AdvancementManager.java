@@ -59,8 +59,10 @@ public class AdvancementManager implements Reloadable {
 	private static final int DEFAULT_PER_TICK = 10;
 
 	private static final class LoadRequest {
+
 		final NamespacedKey key;
 		final String json;
+
 		LoadRequest(NamespacedKey key, String json) {
 			this.key = key;
 			this.json = json;
@@ -69,11 +71,11 @@ public class AdvancementManager implements Reloadable {
 
 	@Inject
 	public AdvancementManager(@Named("main") YamlConfiguration mainConfig,
-							  GUIItems guiItems,
-							  AchievementMap achievementMap,
-							  AdvancedAchievements advancedAchievements,
-							  Logger logger,
-							  Set<Category> disabledCategories) {
+			GUIItems guiItems,
+			AchievementMap achievementMap,
+			AdvancedAchievements advancedAchievements,
+			Logger logger,
+			Set<Category> disabledCategories) {
 		this.mainConfig = mainConfig;
 		this.guiItems = guiItems;
 		this.advancedAchievements = advancedAchievements;
@@ -115,7 +117,8 @@ public class AdvancementManager implements Reloadable {
 	public void ensureRootVisible(Player player) {
 		NamespacedKey key = new NamespacedKey(advancedAchievements, ADVANCED_ACHIEVEMENTS_PARENT);
 		Advancement adv = Bukkit.getAdvancement(key);
-		if (adv == null) return;
+		if (adv == null)
+			return;
 
 		AdvancementProgress progress = player.getAdvancementProgress(adv);
 		if (!progress.isDone()) {
@@ -148,7 +151,8 @@ public class AdvancementManager implements Reloadable {
 		// Children
 		for (Entry<OrderedCategory, ItemStack> categoryItemPair : guiItems.getOrderedAchievementItems().entrySet()) {
 			Category category = categoryItemPair.getKey().getCategory();
-			if (disabledCategories.contains(category)) continue;
+			if (disabledCategories.contains(category))
+				continue;
 
 			ItemStack item = categoryItemPair.getValue();
 			String parent = ADVANCED_ACHIEVEMENTS_PARENT;
@@ -173,8 +177,7 @@ public class AdvancementManager implements Reloadable {
 					String description = "";
 					if (configRegisterAdvancementDescriptions) {
 						description = StringHelper.removeFormattingCodes(
-								StringUtils.replace(achievement.getGoal(), "\\n", " ")
-						);
+								StringUtils.replace(achievement.getGoal(), "\\n", " "));
 					}
 
 					AchievementAdvancementBuilder builder = new AchievementAdvancementBuilder()
@@ -196,8 +199,8 @@ public class AdvancementManager implements Reloadable {
 	}
 
 	public void generateAdvancementsIncremental(boolean forceRegenerate,
-												CommandSender feedback,
-												Runnable onComplete) {
+			CommandSender feedback,
+			Runnable onComplete) {
 		if (generationTask != null) {
 			if (feedback != null) {
 				feedback.sendMessage("§cAdvancement generation is already running.");
@@ -229,7 +232,7 @@ public class AdvancementManager implements Reloadable {
 		}
 
 		final int perTick = Math.max(1, mainConfig.getInt("AdvancementGenerationPerTick", DEFAULT_PER_TICK));
-		final int[] index = {0};
+		final int[] index = { 0 };
 
 		generationTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, () -> {
 			int processed = 0;
@@ -248,7 +251,8 @@ public class AdvancementManager implements Reloadable {
 				if (feedback != null) {
 					feedback.sendMessage("§aAdvancements generation finished.");
 				}
-				if (onComplete != null) onComplete.run();
+				if (onComplete != null)
+					onComplete.run();
 			}
 		}, 1L, 1L);
 	}

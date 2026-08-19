@@ -18,7 +18,7 @@ import com.hm.achievement.category.NormalAchievements;
 
 /**
  * Class used to write the modified cached statistics to the database.
- * 
+ *
  * @author Pyves
  *
  */
@@ -75,10 +75,10 @@ public class AsyncCachedRequestsSender implements Runnable {
 
 	/**
 	 * Adds the database queries to perform for a given Multiple category.
-	 * 
+	 *
 	 * PostgreSQL has no REPLACE operator. We have to use the INSERT ... ON CONFLICT construct, which is available for
 	 * PostgreSQL 9.5+.
-	 * 
+	 *
 	 * @param batchedRequests
 	 * @param category
 	 */
@@ -106,10 +106,10 @@ public class AsyncCachedRequestsSender implements Runnable {
 
 	/**
 	 * Adds the database queries to perform for a given Normal category.
-	 * 
+	 *
 	 * PostgreSQL has no REPLACE operator. We have to use the INSERT ... ON CONFLICT construct, which is available for
 	 * PostgreSQL 9.5+.
-	 * 
+	 *
 	 * @param batchedRequests
 	 * @param category
 	 */

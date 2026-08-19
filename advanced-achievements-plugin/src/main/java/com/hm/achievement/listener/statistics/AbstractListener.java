@@ -17,7 +17,7 @@ import com.hm.achievement.utils.StatisticIncreaseHandler;
 
 /**
  * Abstract class in charge of factoring out common functionality for the listener classes.
- * 
+ *
  * @author Pyves
  */
 public abstract class AbstractListener extends StatisticIncreaseHandler implements Listener {
@@ -44,7 +44,7 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	/**
 	 * Updates the statistic in the database for a NormalAchievement and awards an achievement if an available one is
 	 * found.
-	 * 
+	 *
 	 * @param player
 	 * @param incrementValue
 	 */
@@ -59,7 +59,7 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	/**
 	 * Updates the statistic in the database for a MultipleAchievement and awards an achievement if an available one is
 	 * found.
-	 * 
+	 *
 	 * @param player
 	 * @param subcategories
 	 * @param incrementValue
@@ -77,7 +77,7 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	/**
 	 * Adds all sub-categories that match the identifier to the provided Set. This methods accounts for groups of
 	 * sub-categories, e.g. 'zombie|pig_zombie|zombie_horse|zombie_villager'.
-	 * 
+	 *
 	 * @param matchingSubcategories the subcategories matched so far
 	 * @param id the identifier to match
 	 */

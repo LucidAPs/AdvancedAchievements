@@ -15,7 +15,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Processes raid win event.
- * 
+ *
  * @author Taavi Väänänen
  */
 @Singleton

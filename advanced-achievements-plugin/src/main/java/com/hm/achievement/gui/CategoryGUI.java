@@ -465,7 +465,7 @@ public class CategoryGUI implements Reloadable {
 
 	/**
 	 * Randomises the contents of a string; preserves spaces.
-	 * 
+	 *
 	 * @param text
 	 * @return a string with randomised alphabetic characters
 	 */

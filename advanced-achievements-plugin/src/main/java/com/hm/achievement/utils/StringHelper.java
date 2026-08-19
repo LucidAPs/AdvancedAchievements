@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 /**
  * Simple class providing helper methods to process strings.
- * 
+ *
  * @author Pyves
  */
 public class StringHelper {

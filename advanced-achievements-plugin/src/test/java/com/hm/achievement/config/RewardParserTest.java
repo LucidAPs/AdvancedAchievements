@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -91,14 +92,19 @@ class RewardParserTest {
 
 	@Test
 	void shouldParseItemReward() throws Exception {
-		mainConfig.load(Paths.get(getClass().getClassLoader().getResource("reward-parser/item.yml").toURI()).toFile());
+		MockBukkit.mock();
+		try {
+			mainConfig.load(Paths.get(getClass().getClassLoader().getResource("reward-parser/item.yml").toURI()).toFile());
 
-		List<Reward> rewards = underTest.parseRewards("Reward");
+			List<Reward> rewards = underTest.parseRewards("Reward");
 
-		assertEquals(1, rewards.size());
-		Reward reward = rewards.get(0);
-		assertEquals(Arrays.asList("receive 1 Diamond"), reward.getListTexts());
-		assertEquals(Arrays.asList("You received an item reward: 1 Diamond"), reward.getChatTexts());
+			assertEquals(1, rewards.size());
+			Reward reward = rewards.get(0);
+			assertEquals(Arrays.asList("receive 1 Diamond"), reward.getListTexts());
+			assertEquals(Arrays.asList("You received an item reward: 1 Diamond"), reward.getChatTexts());
+		} finally {
+			MockBukkit.unmock();
+		}
 
 		// Note: this test is incomplete and cannot run the rewarder nor test for custom item names. Anything related
 		// to item meta is only available on a server at runtime. Leveraging PowerMockito would be required.

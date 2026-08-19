@@ -27,7 +27,7 @@ import dagger.Component;
  * Bukkit instantiates an instance of this class and calls the onEnable and onDisable methods when relevant. This class
  * is the root of the dependency graph constructed with Dagger and is used to bind the instance created by Bukkit with
  * the rest of the plugin modules. It delegates the actual enabling and disabling operations to the PluginLoader class.
- * 
+ *
  * @author LucidAPs
  */
 public class AdvancedAchievements extends JavaPlugin {
@@ -57,16 +57,13 @@ public class AdvancedAchievements extends JavaPlugin {
 
 		var advancementManager = advancedAchievementsComponent.advancementManager();
 
-// Generate after load, one tick later (and NOT force regenerate)
 		Bukkit.getScheduler().runTaskLater(this, () -> {
 			advancementManager.generateAdvancementsIncremental(false, null, null);
 		}, 1L);
 
-// Optional but recommended: seed root on join (see next section)
 		Bukkit.getPluginManager().registerEvents(
 				new com.hm.achievement.advancement.AdvancementTabListener(this, advancementManager),
-				this
-		);
+				this);
 
 		getLogger().info(
 				"Plugin has finished loading and is ready to run! Took " + (System.currentTimeMillis() - startTime) + "ms.");

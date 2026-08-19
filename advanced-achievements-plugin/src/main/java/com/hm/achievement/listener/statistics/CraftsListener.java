@@ -29,7 +29,7 @@ import com.hm.achievement.utils.InventoryHelper;
 
 /**
  * Listener class to deal with Crafts achievements.
- * 
+ *
  * @author Pyves
  *
  */
@@ -85,7 +85,7 @@ public class CraftsListener extends AbstractListener {
 	/**
 	 * Metal blocks can be used for repeated crafts of ingots (e.g. iron block -> 9 iron ingots -> iron block -> ...).
 	 * Detect and prevent this.
-	 * 
+	 *
 	 * @param recipe
 	 * @return true if the player is trying to craft ingots from a block of the same metal
 	 */

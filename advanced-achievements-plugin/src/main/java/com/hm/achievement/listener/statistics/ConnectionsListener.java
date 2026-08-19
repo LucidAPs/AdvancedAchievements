@@ -23,7 +23,7 @@ import com.hm.achievement.db.data.ConnectionInformation;
 /**
  * Listener class to deal with Connections achievements. This class uses delays processing of tasks to avoid spamming a
  * barely connected player.
- * 
+ *
  * @author Pyves
  *
  */
@@ -58,7 +58,7 @@ public class ConnectionsListener extends AbstractListener {
 
 	/**
 	 * Schedules a delayed task to deal with Connection achievements.
-	 * 
+	 *
 	 * @param player
 	 */
 	private void scheduleAwardConnection(Player player) {

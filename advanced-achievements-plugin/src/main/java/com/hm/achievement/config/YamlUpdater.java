@@ -33,7 +33,7 @@ public class YamlUpdater {
 	/**
 	 * Updates user configurations by appending any YAML sections that are present in the default files shipped with the
 	 * plugin. Comments, if any, are also included. If file updates are performed, the config object is reloaded.
-	 * 
+	 *
 	 * @param defaultConfigName
 	 * @param userConfigName
 	 * @param userConfig
@@ -66,12 +66,12 @@ public class YamlUpdater {
 			if (defaultLines.get(i).startsWith(key)) {
 				int start = i;
 				// Include all comments lines above the missing key, if any.
-				while (defaultLines.get(start - 1).startsWith("#")) {
+				while (start > 0 && defaultLines.get(start - 1).startsWith("#")) {
 					--start;
 				}
 				int end = i + 1;
 				// Include all lines belonging to the same YAML section, i.e. starting with spaces.
-				while (defaultLines.get(end).startsWith(" ")) {
+				while (end < defaultLines.size() && defaultLines.get(end).startsWith(" ")) {
 					++end;
 				}
 				return Stream.concat(Stream.of(""), defaultLines.subList(start, end).stream());

@@ -2,7 +2,7 @@ package com.hm.achievement.db;
 
 /**
  * Class used to provide a cache wrapper for a database statistic.
- * 
+ *
  * @author Pyves
  *
  */

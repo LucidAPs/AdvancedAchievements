@@ -4,7 +4,7 @@ import com.hm.achievement.category.Category;
 
 /**
  * Small wrapper to define a ordering between the categories.
- * 
+ *
  * @author Pyves
  *
  */

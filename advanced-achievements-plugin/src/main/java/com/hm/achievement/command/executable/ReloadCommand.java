@@ -58,7 +58,7 @@ public class ReloadCommand extends AbstractCommand {
 
 	/**
 	 * Notifies all Reloadables.
-	 * 
+	 *
 	 * @throws PluginLoadError
 	 */
 	public void notifyObservers() throws PluginLoadError {

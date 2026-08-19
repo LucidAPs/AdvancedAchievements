@@ -17,7 +17,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Class in charge of handling the /aach delete command, which deletes an achievement from a player.
- * 
+ *
  * @author Pyves
  */
 @Singleton

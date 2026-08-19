@@ -2,7 +2,7 @@ package com.hm.achievement.utils;
 
 /**
  * Simple class providing helper methods to perform simple number operations.
- * 
+ *
  * @author Pyves
  */
 public class NumberHelper {

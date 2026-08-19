@@ -177,6 +177,10 @@ HideAdvancements: false
 # /aach generate to regenerate advancements with the new value taken into account.
 ShowAdvancementToasts: true
 
+# Number of advancements loaded or removed per tick when running /aach generate. Lower values reduce lag; higher values
+# finish faster.
+AdvancementGenerationPerTick: 10
+
 # Title shown on the root advancement.
 RootAdvancementTitle: Advanced Achievements
 

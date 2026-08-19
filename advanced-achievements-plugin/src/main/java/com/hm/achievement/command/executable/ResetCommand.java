@@ -19,7 +19,7 @@ import com.hm.achievement.utils.StringHelper;
 /**
  * Class in charge of handling the /aach reset command, which resets the statistics for a given player and achievement
  * category.
- * 
+ *
  * @author Pyves
  */
 @Singleton

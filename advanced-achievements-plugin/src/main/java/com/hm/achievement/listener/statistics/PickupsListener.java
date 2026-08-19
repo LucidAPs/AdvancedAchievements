@@ -16,7 +16,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Listener class to deal with ItemPickups achievements.
- * 
+ *
  * @author Pyves
  *
  */

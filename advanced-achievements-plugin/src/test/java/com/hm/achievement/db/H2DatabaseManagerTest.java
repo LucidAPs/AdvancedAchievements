@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -52,7 +51,7 @@ class H2DatabaseManagerTest {
 	@BeforeAll
 	static void setUpClass(@TempDir Path tempDir) throws Exception {
 		AdvancedAchievements plugin = mock(AdvancedAchievements.class);
-		when(plugin.getDataFolder()).thenReturn(tempDir.relativize(Paths.get("").toAbsolutePath()).toFile());
+		when(plugin.getDataFolder()).thenReturn(tempDir.toFile());
 		YamlConfiguration config = YamlConfiguration
 				.loadConfiguration(new InputStreamReader(H2DatabaseManagerTest.class.getResourceAsStream("/config-h2.yml")));
 		db = new H2DatabaseManager(config, LOGGER, new DatabaseUpdater(LOGGER), plugin, newDirectExecutorService());

@@ -16,7 +16,7 @@ import com.hm.achievement.db.CacheManager;
 
 /**
  * Listener class to deal with Shear achievements (only sheep are taken into account).
- * 
+ *
  * @author Pyves
  *
  */

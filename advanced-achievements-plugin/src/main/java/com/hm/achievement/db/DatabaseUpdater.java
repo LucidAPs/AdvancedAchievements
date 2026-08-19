@@ -17,7 +17,7 @@ import com.hm.achievement.exception.PluginLoadError;
 
 /**
  * Class used to update the database schema.
- * 
+ *
  * @author Pyves
  *
  */
@@ -34,7 +34,7 @@ public class DatabaseUpdater {
 	/**
 	 * Renames the database tables with the prefix given in the configuration file. This method is only used and only
 	 * works if the tables had the default name. It does not support multiple successive table renamings.
-	 * 
+	 *
 	 * @param databaseManager
 	 * @throws PluginLoadError
 	 */
@@ -68,7 +68,7 @@ public class DatabaseUpdater {
 	/**
 	 * Initialises database tables by creating non existing ones. We batch the requests to send a unique batch to the
 	 * database.
-	 * 
+	 *
 	 * @param databaseManager
 	 * @param size
 	 * @throws PluginLoadError
@@ -103,7 +103,7 @@ public class DatabaseUpdater {
 	/**
 	 * Increases the size of the sub-category column of MultipleAchievements database tables to accommodate new
 	 * parameters such as specificplayer-56c79b19-4500-466c-94ea-514a755fdd09 or grouped sub-categories.
-	 * 
+	 *
 	 * @param databaseManager
 	 * @param category
 	 * @param size

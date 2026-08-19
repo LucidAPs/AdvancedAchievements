@@ -79,8 +79,10 @@ public class AdvancementJsonHelper {
 			return false;
 		}
 		int[] v = parseMcVersion(minecraftVersion); // e.g. "1.21.11"
-		if (v[0] != major) return v[0] > major;
-		if (v[1] != minor) return v[1] > minor;
+		if (v[0] != major)
+			return v[0] > major;
+		if (v[1] != minor)
+			return v[1] > minor;
 		return v[2] >= patch;
 	}
 

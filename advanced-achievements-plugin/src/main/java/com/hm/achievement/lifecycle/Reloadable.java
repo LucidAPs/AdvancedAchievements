@@ -12,7 +12,7 @@ public interface Reloadable {
 
 	/**
 	 * Extracts and parses configuration parameters.
-	 * 
+	 *
 	 * @throws PluginLoadError
 	 */
 	void extractConfigurationParameters() throws PluginLoadError;

@@ -10,7 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Class used to handle a MySQL database.
- * 
+ *
  * @author Pyves
  *
  */

@@ -224,7 +224,7 @@ public class CacheManager implements Cleanable {
 
 	/**
 	 * Resets a player's statistics to 0.
-	 * 
+	 *
 	 * @param uuid
 	 * @param categoriesWithSubcategories
 	 */

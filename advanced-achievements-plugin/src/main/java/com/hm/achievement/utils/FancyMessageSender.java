@@ -15,7 +15,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 /**
  * Class used to send fancy messages to the player; can be titles, hoverable chat messages or action bar messages. All
  * methods are static and this class cannot be instanciated.
- * 
+ *
  * @author Pyves
  *
  */
@@ -31,7 +31,7 @@ public final class FancyMessageSender {
 
 	/**
 	 * Sends a hoverable message to the player.
-	 * 
+	 *
 	 * @param player Online player to send the message to.
 	 * @param message The text to display in the chat.
 	 * @param hover The text to display in the hover.
@@ -55,7 +55,7 @@ public final class FancyMessageSender {
 
 	/**
 	 * Sends a clickable and hoverable message to the player.
-	 * 
+	 *
 	 * @param player Online player to send the message to.
 	 * @param message The text to display in the chat.
 	 * @param command The command that is entered when clicking on the message.

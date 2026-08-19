@@ -22,7 +22,7 @@ import com.hm.achievement.utils.StringHelper;
 
 /**
  * Class in charge of handling the /aach give command, which gives an achievement from the Commands category.
- * 
+ *
  * @author Pyves
  */
 @Singleton

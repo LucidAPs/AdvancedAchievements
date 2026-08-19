@@ -16,7 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Class used to handle a remote (in the sense not managed by the plugin) database.
- * 
+ *
  * @author Pyves
  *
  */
