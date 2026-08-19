@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.hm.achievement</groupId>
 		<artifactId>advanced-achievements</artifactId>
-		<version>8.0.2</version>
+		<version>11.0</version>
 	</parent>
 	<artifactId>advanced-achievements-plugin</artifactId>
 	<packaging>jar</packaging>
@@ -36,14 +36,6 @@
 						<configuration>
 							<finalName>AdvancedAchievements</finalName>
 							<minimizeJar>true</minimizeJar>
-							<filters>
-								<filter>
-									<artifact>com.hm.achievement:advanced-achievements-api</artifact>
-									<includes>
-										<include>**</include>
-									</includes>
-								</filter>
-							</filters>
 							<relocations>
 								<!-- Older versions of Minecraft may ship antique builds of Apache 
 									Commons, relocate our own managed version. -->
@@ -95,10 +87,6 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.hm.achievement</groupId>
-			<artifactId>advanced-achievements-api</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.google.dagger</groupId>
 			<artifactId>dagger</artifactId>

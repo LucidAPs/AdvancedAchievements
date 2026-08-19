@@ -8,7 +8,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ import com.hm.achievement.category.CommandAchievements;
 import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.db.CacheManager;
 import com.hm.achievement.domain.Achievement;
-import com.hm.achievement.utils.PlayerAdvancedAchievementEvent;
+import com.hm.achievement.listener.PlayerAdvancedAchievementListener;
 import com.hm.achievement.utils.StringHelper;
 
 /**
@@ -31,6 +30,7 @@ public class GiveCommand extends AbstractParsableCommand {
 
 	private final CacheManager cacheManager;
 	private final AchievementMap achievementMap;
+	private final PlayerAdvancedAchievementListener playerAdvancedAchievementListener;
 
 	private boolean configMultiCommand;
 	private String langAchievementAlreadyReceived;
@@ -40,10 +40,12 @@ public class GiveCommand extends AbstractParsableCommand {
 
 	@Inject
 	public GiveCommand(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			StringBuilder pluginHeader, CacheManager cacheManager, AchievementMap achievementMap) {
+			StringBuilder pluginHeader, CacheManager cacheManager, AchievementMap achievementMap,
+			PlayerAdvancedAchievementListener playerAdvancedAchievementListener) {
 		super(mainConfig, langConfig, pluginHeader);
 		this.cacheManager = cacheManager;
 		this.achievementMap = achievementMap;
+		this.playerAdvancedAchievementListener = playerAdvancedAchievementListener;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class GiveCommand extends AbstractParsableCommand {
 				return;
 			}
 
-			Bukkit.getPluginManager().callEvent(new PlayerAdvancedAchievementEvent(player, achievement.get()));
+			playerAdvancedAchievementListener.awardAchievement(player, achievement.get());
 
 			sender.sendMessage(langAchievementGiven);
 		} else {

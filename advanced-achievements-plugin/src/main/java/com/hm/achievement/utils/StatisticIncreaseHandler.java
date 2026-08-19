@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -18,6 +17,7 @@ import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.db.CacheManager;
 import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.lifecycle.Reloadable;
+import com.hm.achievement.listener.PlayerAdvancedAchievementListener;
 
 /**
  * Abstract class in charge of factoring out common functionality for classes which track statistic increases (such as
@@ -31,6 +31,8 @@ public class StatisticIncreaseHandler implements Reloadable {
 	protected final YamlConfiguration mainConfig;
 	protected final AchievementMap achievementMap;
 	protected final CacheManager cacheManager;
+	@Inject
+	PlayerAdvancedAchievementListener playerAdvancedAchievementListener;
 
 	private boolean configRestrictCreative;
 	private boolean configRestrictSpectator;
@@ -90,7 +92,7 @@ public class StatisticIncreaseHandler implements Reloadable {
 			// Check whether player has received the achievement and has permission to do so.
 			if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())
 					&& player.hasPermission("achievement." + achievement.getName())) {
-				Bukkit.getPluginManager().callEvent(new PlayerAdvancedAchievementEvent(player, achievement));
+				playerAdvancedAchievementListener.awardAchievement(player, achievement);
 			}
 		}
 	}

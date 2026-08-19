@@ -49,7 +49,6 @@ import com.hm.achievement.domain.Reward;
 import com.hm.achievement.lifecycle.Reloadable;
 import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.FancyMessageSender;
-import com.hm.achievement.utils.PlayerAdvancedAchievementEvent;
 import com.hm.achievement.utils.StringHelper;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -169,10 +168,7 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onPlayerAdvancedAchievementReception(PlayerAdvancedAchievementEvent event) {
-		Achievement achievement = event.getAchievement();
-		Player player = event.getPlayer();
+	public void awardAchievement(Player player, Achievement achievement) {
 		// Achievement could have already been received if MultiCommand is set to true in the configuration.
 		if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())) {
 			cacheManager.registerNewlyReceivedAchievement(player.getUniqueId(), achievement.getName());

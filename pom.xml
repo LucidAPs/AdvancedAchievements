@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hm.achievement</groupId>
 	<artifactId>advanced-achievements</artifactId>
-	<version>8.0.2</version>
+	<version>11.0</version>
 	<url>https://github.com/PyvesB/advanced-achievements</url>
 	<name>AdvancedAchievements</name>
 	<description>A Minecraft plugin that brings unique and challenging achievements on your server! Books, GUI, rankings, rewards, effects and more!</description>
@@ -19,7 +19,6 @@
 
 	<modules>
 		<module>advanced-achievements-plugin</module>
-		<module>advanced-achievements-api</module>
 	</modules>
 
 	<build>
@@ -84,11 +83,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.hm.achievement</groupId>
-				<artifactId>advanced-achievements-api</artifactId>
-				<version>8.0.2</version>
-			</dependency>
 			<dependency>
 				<groupId>com.google.dagger</groupId>
 				<artifactId>dagger</artifactId>

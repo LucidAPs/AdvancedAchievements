@@ -30,7 +30,6 @@ import com.hm.achievement.db.CacheManager;
 import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.domain.Achievement.AchievementBuilder;
 import com.hm.achievement.utils.FancyMessageSender;
-import com.hm.achievement.utils.PlayerAdvancedAchievementEvent;
 
 /**
  * Class for testing PlayerAdvancedAchievementListener. Currently covers AllAchievementsReceivedRewards usage.
@@ -82,7 +81,7 @@ class PlayerAdvancedAchievementListenerTest {
 				.message("Connected for the first time!")
 				.build();
 
-		underTest.onPlayerAdvancedAchievementReception(new PlayerAdvancedAchievementEvent(player, achievement));
+		underTest.awardAchievement(player, achievement);
 
 		verify(abstractDatabaseManager).registerAchievement(eq(PLAYER_UUID), eq("connect_1"), anyLong());
 	}

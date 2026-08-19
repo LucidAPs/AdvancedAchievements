@@ -9,8 +9,6 @@ import com.hm.achievement.advancement.AdvancementManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.hm.achievement.api.AdvancedAchievementsAPI;
-import com.hm.achievement.api.AdvancedAchievementsBukkitAPI;
 import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.lifecycle.PluginLoader;
 import com.hm.achievement.module.CleanableModule;
@@ -33,7 +31,6 @@ import dagger.Component;
 public class AdvancedAchievements extends JavaPlugin {
 
 	private PluginLoader pluginLoader;
-	private AdvancedAchievementsAPI advancedAchievementsAPI;
 
 	@Override
 	public void onEnable() {
@@ -44,7 +41,6 @@ public class AdvancedAchievements extends JavaPlugin {
 				.advancedAchievements(this).logger(getLogger()).build();
 
 		pluginLoader = advancedAchievementsComponent.pluginLoader();
-		advancedAchievementsAPI = advancedAchievementsComponent.advancedAchievementsBukkitAPI();
 
 		try {
 			pluginLoader.loadAdvancedAchievements();
@@ -73,10 +69,6 @@ public class AdvancedAchievements extends JavaPlugin {
 	public void onDisable() {
 		pluginLoader.disableAdvancedAchievements();
 	}
-
-	public AdvancedAchievementsAPI getAdvancedAchievementsAPI() {
-		return advancedAchievementsAPI;
-	}
 }
 
 @Singleton
@@ -91,8 +83,6 @@ public class AdvancedAchievements extends JavaPlugin {
 interface AdvancedAchievementsComponent {
 
 	PluginLoader pluginLoader();
-
-	AdvancedAchievementsBukkitAPI advancedAchievementsBukkitAPI();
 
 	AdvancementManager advancementManager();
 
