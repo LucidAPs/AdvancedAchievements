@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.command.pagination.CommandPagination;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.utils.SoundPlayer;
@@ -36,6 +37,7 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 	private static final int PER_PAGE = 16;
 
 	private final Logger logger;
+	private final AdvancedAchievements advancedAchievements;
 	private final String languageKey;
 	private final AbstractDatabaseManager databaseManager;
 	private final SoundPlayer soundPlayer;
@@ -51,11 +53,15 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 	// Used for caching.
 	private Map<String, Integer> cachedSortedRankings;
 	private List<Integer> cachedAchievementCounts;
+	private final List<RankingRequest> pendingRequests = new ArrayList<>();
+	private boolean cacheRefreshInProgress;
 	private long lastCacheUpdate = 0L;
 
 	AbstractRankingCommand(YamlConfiguration mainConfig, YamlConfiguration langConfig, StringBuilder pluginHeader,
-			Logger logger, String languageKey, AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer) {
+			AdvancedAchievements advancedAchievements, Logger logger, String languageKey,
+			AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer) {
 		super(mainConfig, langConfig, pluginHeader);
+		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
 		this.languageKey = languageKey;
 		this.databaseManager = databaseManager;
@@ -80,12 +86,42 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 	@Override
 	public void onExecute(CommandSender sender, String[] args) {
 		if (System.currentTimeMillis() - lastCacheUpdate >= CACHE_EXPIRATION_DELAY) {
-			// Update cached data structures.
-			cachedSortedRankings = databaseManager.getTopList(getRankingStartTime());
-			cachedAchievementCounts = new ArrayList<>(cachedSortedRankings.values());
-			lastCacheUpdate = System.currentTimeMillis();
+			pendingRequests.add(new RankingRequest(sender, args.clone()));
+			if (cacheRefreshInProgress) {
+				return;
+			}
+			cacheRefreshInProgress = true;
+			long rankingStartTime = getRankingStartTime();
+			advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
+				try {
+					Map<String, Integer> rankings = databaseManager.getTopList(rankingStartTime);
+					advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+						cachedSortedRankings = rankings;
+						cachedAchievementCounts = new ArrayList<>(rankings.values());
+						lastCacheUpdate = System.currentTimeMillis();
+						cacheRefreshInProgress = false;
+						List<RankingRequest> requests = new ArrayList<>(pendingRequests);
+						pendingRequests.clear();
+						for (RankingRequest request : requests) {
+							if (!(request.sender instanceof Player) || ((Player) request.sender).isOnline()) {
+								displayRankings(request.sender, request.arguments);
+							}
+						}
+					});
+				} catch (RuntimeException e) {
+					logger.log(java.util.logging.Level.SEVERE, "Could not load achievement rankings.", e);
+					advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+						cacheRefreshInProgress = false;
+						pendingRequests.clear();
+					});
+				}
+			});
+			return;
 		}
+		displayRankings(sender, args);
+	}
 
+	private void displayRankings(CommandSender sender, String[] args) {
 		sender.sendMessage(langPeriodAchievement);
 
 		List<String> rankingMessages = getRankingMessages(sender);
@@ -161,6 +197,17 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 			decimalRankSymbol = DECIMAL_CIRCLED_THIRTY_SIX + rank - 36;
 		}
 		return StringEscapeUtils.unescapeJava("\\u" + Integer.toHexString(decimalRankSymbol));
+	}
+
+	private static class RankingRequest {
+
+		private final CommandSender sender;
+		private final String[] arguments;
+
+		private RankingRequest(CommandSender sender, String[] arguments) {
+			this.sender = sender;
+			this.arguments = arguments;
+		}
 	}
 
 	/**

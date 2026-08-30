@@ -8,12 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.lifecycle.PluginLoader;
 import com.hm.achievement.lifecycle.Reloadable;
@@ -29,7 +27,6 @@ import dagger.Lazy;
 @CommandSpec(name = "reload", permission = "reload", minArgs = 1, maxArgs = 1)
 public class ReloadCommand extends AbstractCommand {
 
-	private final AdvancedAchievements advancedAchievements;
 	private final Logger logger;
 	private final Lazy<PluginLoader> pluginLoader;
 	private final Lazy<Set<Reloadable>> reloadables;
@@ -39,10 +36,9 @@ public class ReloadCommand extends AbstractCommand {
 
 	@Inject
 	public ReloadCommand(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			StringBuilder pluginHeader, AdvancedAchievements advancedAchievements, Logger logger,
-			Lazy<PluginLoader> pluginLoader, Lazy<Set<Reloadable>> reloadables) {
+			StringBuilder pluginHeader, Logger logger, Lazy<PluginLoader> pluginLoader,
+			Lazy<Set<Reloadable>> reloadables) {
 		super(mainConfig, langConfig, pluginHeader);
-		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
 		this.pluginLoader = pluginLoader;
 		this.reloadables = reloadables;
@@ -75,8 +71,7 @@ public class ReloadCommand extends AbstractCommand {
 			if (sender instanceof Player) {
 				sender.sendMessage(langConfigReloadFailed);
 			}
-			logger.log(Level.SEVERE, "A non recoverable error was encountered while reloading the plugin, disabling it:", e);
-			Bukkit.getPluginManager().disablePlugin(advancedAchievements);
+			logger.log(Level.SEVERE, "Configuration reload failed; the previous configuration remains active:", e);
 			return;
 		}
 

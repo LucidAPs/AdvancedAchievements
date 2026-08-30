@@ -4,10 +4,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,6 +29,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.category.Category;
 import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
@@ -59,6 +63,7 @@ public class CategoryGUI implements Reloadable {
 
 	private final YamlConfiguration mainConfig;
 	private final YamlConfiguration langConfig;
+	private final AdvancedAchievements advancedAchievements;
 	private final CacheManager cacheManager;
 	private final AbstractDatabaseManager databaseManager;
 	private final GUIItems guiItems;
@@ -88,10 +93,12 @@ public class CategoryGUI implements Reloadable {
 
 	@Inject
 	public CategoryGUI(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			CacheManager cacheManager, AbstractDatabaseManager databaseManager, GUIItems guiItems,
+			AdvancedAchievements advancedAchievements, CacheManager cacheManager,
+			AbstractDatabaseManager databaseManager, GUIItems guiItems,
 			AchievementMap achievementMap) {
 		this.mainConfig = mainConfig;
 		this.langConfig = langConfig;
+		this.advancedAchievements = advancedAchievements;
 		this.cacheManager = cacheManager;
 		this.databaseManager = databaseManager;
 		this.guiItems = guiItems;
@@ -142,21 +149,42 @@ public class CategoryGUI implements Reloadable {
 		for (Entry<OrderedCategory, ItemStack> achievementItem : guiItems.getOrderedAchievementItems().entrySet()) {
 			if (achievementItem.getValue().getItemMeta().getDisplayName().equals(item.getItemMeta().getDisplayName())) {
 				Category category = achievementItem.getKey().getCategory();
-				Map<String, Long> subcategoriesToStatistics;
-				List<Achievement> achievements = achievementMap.getForCategory(category);
-				if (category instanceof MultipleAchievements) {
-					subcategoriesToStatistics = getMultipleStatisticsMapping((MultipleAchievements) category, player);
-				} else if (category instanceof NormalAchievements) {
-					long statistic = getNormalStatistic((NormalAchievements) category, player);
-					subcategoriesToStatistics = Collections.singletonMap(NO_SUBCATEGORY, statistic);
-				} else {
-					subcategoriesToStatistics = achievements.stream()
-							.collect(Collectors.toMap(Achievement::getSubcategory, a -> NO_STAT));
-				}
-				displayPage(player, subcategoriesToStatistics, requestedPage, item, achievements);
+				List<Achievement> achievements = new ArrayList<>(achievementMap.getForCategory(category));
+				Set<String> subcategories = category instanceof MultipleAchievements
+						? new HashSet<>(achievementMap.getSubcategoriesForCategory(category))
+						: Collections.emptySet();
+				UUID playerId = player.getUniqueId();
+				ItemStack clickedItem = item.clone();
+				advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
+					try {
+						Map<String, Long> subcategoriesToStatistics = getStatisticsMapping(category, subcategories,
+								playerId, achievements);
+						Map<String, String> achievementDates = databaseManager.getPlayerAchievementDates(playerId);
+						advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+							if (player.isOnline()) {
+								displayPage(player, subcategoriesToStatistics, achievementDates, requestedPage, clickedItem,
+										achievements);
+							}
+						});
+					} catch (RuntimeException e) {
+						advancedAchievements.getLogger().log(Level.SEVERE,
+								"Could not load achievement category data for " + playerId + ".", e);
+					}
+				});
 				return;
 			}
 		}
+	}
+
+	private Map<String, Long> getStatisticsMapping(Category category, Set<String> subcategories, UUID playerId,
+			List<Achievement> achievements) {
+		if (category instanceof MultipleAchievements) {
+			return cacheManager.getMultipleAchievementAmounts((MultipleAchievements) category, subcategories, playerId);
+		} else if (category instanceof NormalAchievements) {
+			long statistic = cacheManager.getAndIncrementStatisticAmount((NormalAchievements) category, playerId, 0);
+			return Collections.singletonMap(NO_SUBCATEGORY, statistic);
+		}
+		return achievements.stream().collect(Collectors.toMap(Achievement::getSubcategory, a -> NO_STAT));
 	}
 
 	/**
@@ -168,8 +196,9 @@ public class CategoryGUI implements Reloadable {
 	 * @param clickedItem
 	 * @param achievements
 	 */
-	private void displayPage(Player player, Map<String, Long> subcategoriesToStatistics, int requestedIndex,
-			ItemStack clickedItem, List<Achievement> achievements) {
+	private void displayPage(Player player, Map<String, Long> subcategoriesToStatistics,
+			Map<String, String> achievementDates, int requestedIndex, ItemStack clickedItem,
+			List<Achievement> achievements) {
 		int pageIndex = getPageIndex(requestedIndex, achievements.size());
 		int pageStart = MAX_ACHIEVEMENTS_PER_PAGE * pageIndex;
 		int pageEnd = Math.min(MAX_ACHIEVEMENTS_PER_PAGE * (pageIndex + 1), achievements.size());
@@ -185,7 +214,7 @@ public class CategoryGUI implements Reloadable {
 		int seriesStart = 0;
 		if (pageStart > 0) {
 			Achievement previousAchievement = achievements.get(pageStart - 1);
-			previousItemDate = databaseManager.getPlayerAchievementDate(player.getUniqueId(), previousAchievement.getName());
+			previousItemDate = achievementDates.get(previousAchievement.getName());
 			previousSubcategory = previousAchievement.getSubcategory();
 			String currentSubcategory = achievements.get(pageStart).getSubcategory();
 			if (!currentSubcategory.isEmpty()) {
@@ -200,7 +229,7 @@ public class CategoryGUI implements Reloadable {
 			// Path can either be a threshold (eg '10', or a subcategory and threshold (eg 'skeleton.10').
 			Achievement achievement = achievements.get(index);
 			long statistic = subcategoriesToStatistics.get(achievement.getSubcategory());
-			String receptionDate = databaseManager.getPlayerAchievementDate(player.getUniqueId(), achievement.getName());
+			String receptionDate = achievementDates.get(achievement.getName());
 
 			boolean differentSubcategory = !previousSubcategory.equals(achievement.getSubcategory());
 			if (differentSubcategory) {
@@ -298,9 +327,8 @@ public class CategoryGUI implements Reloadable {
 	 * @return the mapping from subcategory to player's statistics
 	 */
 	public Map<String, Long> getMultipleStatisticsMapping(MultipleAchievements category, Player player) {
-		return achievementMap.getSubcategoriesForCategory(category).stream()
-				.collect(Collectors.toMap(Function.identity(), subcategory -> cacheManager
-						.getAndIncrementStatisticAmount(category, subcategory, player.getUniqueId(), 0)));
+		return cacheManager.getMultipleAchievementAmounts(category,
+				achievementMap.getSubcategoriesForCategory(category), player.getUniqueId());
 	}
 
 	/**

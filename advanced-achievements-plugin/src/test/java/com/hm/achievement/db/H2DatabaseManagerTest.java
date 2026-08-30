@@ -115,6 +115,18 @@ class H2DatabaseManagerTest {
 	}
 
 	@Test
+	void testGetPlayerAchievementDates() {
+		db.registerAchievement(testUUID, TEST_ACHIEVEMENT, System.currentTimeMillis());
+		db.registerAchievement(testUUID, TEST_ACHIEVEMENT + "2", System.currentTimeMillis());
+
+		Map<String, String> dates = db.getPlayerAchievementDates(testUUID);
+
+		assertEquals(2, dates.size());
+		assertNotNull(dates.get(TEST_ACHIEVEMENT));
+		assertNotNull(dates.get(TEST_ACHIEVEMENT + "2"));
+	}
+
+	@Test
 	void testDeleteAchievement() {
 		db.registerAchievement(testUUID, TEST_ACHIEVEMENT, System.currentTimeMillis());
 
@@ -231,6 +243,23 @@ class H2DatabaseManagerTest {
 		}).executeOperation(db.writeExecutor, LOGGER, "Writing crafts statistics");
 
 		assertEquals(7, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.CRAFTS, "diamond_axe"));
+	}
+
+	@Test
+	void testGetMultipleAchievementAmounts() {
+		((SQLWriteOperation) () -> {
+			try (PreparedStatement first = db.getConnection()
+					.prepareStatement("REPLACE INTO crafts VALUES ('" + testUUID + "','diamond_axe',7)");
+					PreparedStatement second = db.getConnection()
+							.prepareStatement("REPLACE INTO crafts VALUES ('" + testUUID + "','stick',12)")) {
+				first.execute();
+				second.execute();
+			}
+		}).executeOperation(db.writeExecutor, LOGGER, "Writing crafts statistics");
+
+		Map<String, Long> amounts = db.getMultipleAchievementAmounts(testUUID, MultipleAchievements.CRAFTS);
+
+		assertEquals(Map.of("diamond_axe", 7L, "stick", 12L), amounts);
 	}
 
 	@Test

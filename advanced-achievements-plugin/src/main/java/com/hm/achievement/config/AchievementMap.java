@@ -66,6 +66,11 @@ public class AchievementMap {
 		categoriesToSubcategories.clear();
 	}
 
+	public void replaceWith(AchievementMap replacement) {
+		clearAll();
+		replacement.getAll().forEach(this::put);
+	}
+
 	public Achievement getForName(String name) {
 		return namesToAchievements.get(name);
 	}

@@ -2,6 +2,7 @@ package com.hm.achievement.db;
 
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -145,8 +146,10 @@ public class CacheManager implements Cleanable {
 		Map<UUID, CachedStatistic> cache = getHashMap(category);
 		CachedStatistic statistic = cache.get(player);
 		if (statistic == null) {
-			statistic = new CachedStatistic(databaseManager.getNormalAchievementAmount(player, category), true);
-			cache.put(player, statistic);
+			CachedStatistic loadedStatistic = new CachedStatistic(
+					databaseManager.getNormalAchievementAmount(player, category), true);
+			CachedStatistic existingStatistic = cache.putIfAbsent(player, loadedStatistic);
+			statistic = existingStatistic == null ? loadedStatistic : existingStatistic;
 		}
 		if (value != 0) {
 			statistic.setValue(statistic.getValue() + value);
@@ -169,14 +172,48 @@ public class CacheManager implements Cleanable {
 		Map<SubcategoryUUID, CachedStatistic> cache = getHashMap(category);
 		CachedStatistic statistic = cache.get(key);
 		if (statistic == null) {
-			statistic = new CachedStatistic(databaseManager.getMultipleAchievementAmount(player, category,
-					key.getSubcategory()), true);
-			cache.put(key, statistic);
+			CachedStatistic loadedStatistic = new CachedStatistic(
+					databaseManager.getMultipleAchievementAmount(player, category, key.getSubcategory()), true);
+			CachedStatistic existingStatistic = cache.putIfAbsent(key, loadedStatistic);
+			statistic = existingStatistic == null ? loadedStatistic : existingStatistic;
 		}
 		if (value != 0) {
 			statistic.setValue(statistic.getValue() + value);
 		}
 		return statistic.getValue();
+	}
+
+	/**
+	 * Retrieves several statistics from one multiple-achievement category. Missing cache entries are loaded with a
+	 * single database query.
+	 *
+	 * @param category
+	 * @param subcategories
+	 * @param player
+	 * @return mapping of requested subcategories to statistics
+	 */
+	public Map<String, Long> getMultipleAchievementAmounts(MultipleAchievements category,
+			Collection<String> subcategories, UUID player) {
+		Map<SubcategoryUUID, CachedStatistic> cache = getHashMap(category);
+		boolean cacheMiss = subcategories.stream()
+				.map(subcategory -> new SubcategoryUUID(subcategory, player))
+				.anyMatch(key -> !cache.containsKey(key));
+		if (cacheMiss) {
+			long defaultValue = category == MultipleAchievements.JOBSREBORN ? 1L : 0L;
+			Map<String, Long> storedAmounts = databaseManager.getMultipleAchievementAmounts(player, category);
+			for (String subcategory : subcategories) {
+				SubcategoryUUID key = new SubcategoryUUID(subcategory, player);
+				long storedAmount = storedAmounts.getOrDefault(key.getSubcategory(), defaultValue);
+				cache.putIfAbsent(key, new CachedStatistic(storedAmount, true));
+			}
+		}
+
+		Map<String, Long> amounts = new HashMap<>();
+		for (String subcategory : subcategories) {
+			SubcategoryUUID key = new SubcategoryUUID(subcategory, player);
+			amounts.put(subcategory, cache.get(key).getValue());
+		}
+		return amounts;
 	}
 
 	/**
@@ -188,6 +225,10 @@ public class CacheManager implements Cleanable {
 	 */
 	public boolean hasPlayerAchievement(UUID player, String name) {
 		return receivedAchievementsCache.computeIfAbsent(player, databaseManager::getPlayerAchievementNames).contains(name);
+	}
+
+	public boolean hasCachedPlayerAchievements(UUID player) {
+		return receivedAchievementsCache.containsKey(player);
 	}
 
 	/**

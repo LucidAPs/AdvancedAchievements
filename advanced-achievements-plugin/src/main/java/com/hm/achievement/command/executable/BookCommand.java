@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.db.data.AwardedDBAchievement;
@@ -51,6 +53,7 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 
 	// Corresponds to times at which players have received their books. Cooldown structure.
 	private final HashMap<UUID, Long> playersBookTime = new HashMap<>();
+	private final AdvancedAchievements advancedAchievements;
 	private final Logger logger;
 	private final int serverVersion;
 	private final AbstractDatabaseManager databaseManager;
@@ -71,9 +74,10 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 
 	@Inject
 	public BookCommand(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			StringBuilder pluginHeader, Logger logger, int serverVersion, AbstractDatabaseManager databaseManager,
-			SoundPlayer soundPlayer, AchievementMap achievementMap) {
+			StringBuilder pluginHeader, AdvancedAchievements advancedAchievements, Logger logger, int serverVersion,
+			AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer, AchievementMap achievementMap) {
 		super(mainConfig, langConfig, pluginHeader);
+		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
 		this.serverVersion = serverVersion;
 		this.databaseManager = databaseManager;
@@ -117,36 +121,51 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 		Player player = (Player) sender;
 
 		if (!isInCooldownPeriod(player)) {
-			List<AwardedDBAchievement> playerAchievementsList = databaseManager
-					.getPlayerAchievementsList(player.getUniqueId());
-			if (playerAchievementsList.isEmpty()) {
-				player.sendMessage(langBookNotReceived);
-				return;
-			}
-
-			// Play special particle effect when receiving the book.
-			if (configAdditionalEffects) {
-				// Get the server's version
-				String bukkitVersion = Bukkit.getServer().getBukkitVersion();
-
-				if (bukkitVersion.startsWith("1.20.4")) {
-					// For 1.20.4 and above, skip particles as ENCHANTMENT_TABLE is unavailable
-					logger.info("Skipping particles for version 1.20.4 or bellow.");
-				} else {
-					// Fallback for older versions, use ENCHANT particle
-					player.spawnParticle(Particle.ENCHANT, player.getLocation(), 1000, 0, 2, 0, 1);
+			UUID playerId = player.getUniqueId();
+			advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
+				try {
+					List<AwardedDBAchievement> playerAchievementsList = databaseManager
+							.getPlayerAchievementsList(playerId);
+					advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+						if (player.isOnline()) {
+							deliverBook(playerAchievementsList, player);
+						}
+					});
+				} catch (RuntimeException e) {
+					logger.log(Level.SEVERE, "Could not load achievement book data for " + playerId + ".", e);
 				}
-			}
-
-			// Play special sound when receiving the book.
-			if (configSound) {
-				soundPlayer.play(player, configSoundBook, "ENTITY_PLAYER_LEVELUP");
-			}
-
-			fillBook(playerAchievementsList, player);
+			});
 		} else {
 			player.sendMessage(langBookDelay);
 		}
+	}
+
+	private void deliverBook(List<AwardedDBAchievement> playerAchievementsList, Player player) {
+		if (playerAchievementsList.isEmpty()) {
+			player.sendMessage(langBookNotReceived);
+			return;
+		}
+
+		// Play special particle effect when receiving the book.
+		if (configAdditionalEffects) {
+			// Get the server's version
+			String bukkitVersion = Bukkit.getServer().getBukkitVersion();
+
+			if (bukkitVersion.startsWith("1.20.4")) {
+				// For 1.20.4 and above, skip particles as ENCHANTMENT_TABLE is unavailable
+				logger.info("Skipping particles for version 1.20.4 or bellow.");
+			} else {
+				// Fallback for older versions, use ENCHANT particle
+				player.spawnParticle(Particle.ENCHANT, player.getLocation(), 1000, 0, 2, 0, 1);
+			}
+		}
+
+		// Play special sound when receiving the book.
+		if (configSound) {
+			soundPlayer.play(player, configSoundBook, "ENTITY_PLAYER_LEVELUP");
+		}
+
+		fillBook(playerAchievementsList, player);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.utils.SoundPlayer;
 
@@ -22,8 +23,10 @@ public class TopCommand extends AbstractRankingCommand {
 
 	@Inject
 	public TopCommand(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			StringBuilder pluginHeader, Logger logger, AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer) {
-		super(mainConfig, langConfig, pluginHeader, logger, "top-achievement", databaseManager, soundPlayer);
+			StringBuilder pluginHeader, AdvancedAchievements advancedAchievements, Logger logger,
+			AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer) {
+		super(mainConfig, langConfig, pluginHeader, advancedAchievements, logger, "top-achievement", databaseManager,
+				soundPlayer);
 	}
 
 	@Override

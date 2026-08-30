@@ -19,6 +19,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.hm.achievement.AdvancedAchievements;
+import com.hm.achievement.advancement.AdvancementTabListener;
 import com.hm.achievement.category.Category;
 import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
@@ -54,10 +55,11 @@ public class PluginLoader {
 	private final ReloadCommand reloadCommand;
 	private final Set<Reloadable> reloadables;
 	private final AchievementMap achievementMap;
-	private final JobsEnableWatcher jobsEnableWatcher; // <-- add
+	private final JobsEnableWatcher jobsEnableWatcher;
 
 	// Listeners, to monitor various events.
 	private final JoinListener joinListener;
+	private final AdvancementTabListener advancementTabListener;
 	private final ListGUIListener listGUIListener;
 	private final PlayerAdvancedAchievementListener playerAdvancedAchievementListener;
 	private final TeleportListener teleportListener;
@@ -89,7 +91,8 @@ public class PluginLoader {
 
 	@Inject
 	public PluginLoader(AdvancedAchievements advancedAchievements, Logger logger, Set<Reloadable> reloadables,
-			JoinListener joinListener, ListGUIListener listGUIListener, TeleportListener teleportListener,
+			JoinListener joinListener, AdvancementTabListener advancementTabListener, ListGUIListener listGUIListener,
+			TeleportListener teleportListener,
 			PlayerAdvancedAchievementListener playerAdvancedAchievementListener, Cleaner cleaner,
 			Lazy<AchievementPlaceholderHook> achievementPlaceholderHook, AbstractDatabaseManager databaseManager,
 			AsyncCachedRequestsSender asyncCachedRequestsSender, PluginCommandExecutor pluginCommandExecutor,
@@ -102,6 +105,7 @@ public class PluginLoader {
 		this.logger = logger;
 		this.reloadables = reloadables;
 		this.joinListener = joinListener;
+		this.advancementTabListener = advancementTabListener;
 		this.listGUIListener = listGUIListener;
 		this.teleportListener = teleportListener;
 		this.playerAdvancedAchievementListener = playerAdvancedAchievementListener;
@@ -168,7 +172,7 @@ public class PluginLoader {
 	 * Registers the different event listeners so they can monitor server events. If relevant categories are disabled,
 	 * listeners aren't registered.
 	 */
-	private void registerListeners() {
+	void registerListeners() {
 		logger.info("Registering event listeners...");
 		HandlerList.unregisterAll(advancedAchievements);
 		PluginManager pluginManager = advancedAchievements.getServer().getPluginManager();
@@ -181,6 +185,7 @@ public class PluginLoader {
 			}
 		});
 		pluginManager.registerEvents(joinListener, advancedAchievements);
+		pluginManager.registerEvents(advancementTabListener, advancedAchievements);
 		pluginManager.registerEvents(listGUIListener, advancedAchievements);
 		pluginManager.registerEvents(playerAdvancedAchievementListener, advancedAchievements);
 		pluginManager.registerEvents(teleportListener, advancedAchievements);
@@ -201,25 +206,23 @@ public class PluginLoader {
 	/**
 	 * Launches asynchronous scheduled tasks.
 	 */
-	private void launchScheduledTasks() {
+	void launchScheduledTasks() {
 		logger.info("Launching scheduled tasks...");
 
 		// Schedule a repeating task to group database queries when statistics are modified.
-		if (asyncCachedRequestsSenderTask == null) {
-			long taskPeriod = mainConfig.getBoolean("BungeeMode") ? 40L : 1200L;
-			asyncCachedRequestsSenderTask = Bukkit.getScheduler().runTaskTimerAsynchronously(advancedAchievements,
-					asyncCachedRequestsSender, taskPeriod, taskPeriod);
-		}
+		cancelTask(asyncCachedRequestsSenderTask);
+		long databaseTaskPeriod = mainConfig.getBoolean("BungeeMode") ? 40L : 1200L;
+		asyncCachedRequestsSenderTask = Bukkit.getScheduler().runTaskTimerAsynchronously(advancedAchievements,
+				asyncCachedRequestsSender, databaseTaskPeriod, databaseTaskPeriod);
 
-		if (cleanerTask == null) {
-			long taskPeriod = mainConfig.getBoolean("BungeeMode") ? 50L : 20000L;
-			cleanerTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, cleaner, taskPeriod, taskPeriod);
-		}
+		cancelTask(cleanerTask);
+		long cleanerTaskPeriod = mainConfig.getBoolean("BungeeMode") ? 50L : 20000L;
+		cleanerTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, cleaner, cleanerTaskPeriod,
+				cleanerTaskPeriod);
 
 		// Schedule a repeating task to monitor played time for each player (not directly related to an event).
-		if (playedTimeTask != null) {
-			playedTimeTask.cancel();
-		}
+		cancelTask(playedTimeTask);
+		playedTimeTask = null;
 		if (!disabledCategories.contains(NormalAchievements.PLAYEDTIME)) {
 			int configPlaytimeTaskInterval = mainConfig.getInt("PlaytimeTaskInterval");
 			playedTimeTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, playTimeRunnable,
@@ -227,9 +230,8 @@ public class PluginLoader {
 		}
 
 		// Schedule a repeating task to monitor distances travelled by each player (not directly related to an event).
-		if (distanceTask != null) {
-			distanceTask.cancel();
-		}
+		cancelTask(distanceTask);
+		distanceTask = null;
 		if (!disabledCategories.contains(NormalAchievements.DISTANCEFOOT)
 				|| !disabledCategories.contains(NormalAchievements.DISTANCEPIG)
 				|| !disabledCategories.contains(NormalAchievements.DISTANCEHORSE)
@@ -241,6 +243,12 @@ public class PluginLoader {
 			int configDistanceTaskInterval = mainConfig.getInt("DistanceTaskInterval");
 			distanceTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, distanceRunnable,
 					configDistanceTaskInterval * 40L, configDistanceTaskInterval * 20L);
+		}
+	}
+
+	private void cancelTask(BukkitTask task) {
+		if (task != null) {
+			task.cancel();
 		}
 	}
 

@@ -57,10 +57,6 @@ public class AdvancedAchievements extends JavaPlugin {
 			advancementManager.generateAdvancementsIncremental(false, null, null);
 		}, 1L);
 
-		Bukkit.getPluginManager().registerEvents(
-				new com.hm.achievement.advancement.AdvancementTabListener(this, advancementManager),
-				this);
-
 		getLogger().info(
 				"Plugin has finished loading and is ready to run! Took " + (System.currentTimeMillis() - startTime) + "ms.");
 	}

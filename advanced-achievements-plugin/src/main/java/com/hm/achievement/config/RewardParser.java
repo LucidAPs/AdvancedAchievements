@@ -76,6 +76,21 @@ public class RewardParser {
 		return economy;
 	}
 
+	RewardParser withConfigurations(YamlConfiguration replacementMainConfig,
+			YamlConfiguration replacementLangConfig) {
+		RewardParser replacement = new RewardParser(replacementMainConfig, replacementLangConfig, server, materialHelper);
+		replacement.economy = economy;
+		return replacement;
+	}
+
+	private RewardParser(YamlConfiguration mainConfig, YamlConfiguration langConfig, Server server,
+			MaterialHelper materialHelper) {
+		this.mainConfig = mainConfig;
+		this.langConfig = langConfig;
+		this.server = server;
+		this.materialHelper = materialHelper;
+	}
+
 	public List<Reward> parseRewards(String path) {
 		ConfigurationSection configSection = mainConfig.getConfigurationSection(path);
 		List<Reward> rewards = new ArrayList<>();

@@ -52,7 +52,7 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 	private final AtomicReference<Connection> connectionHolder = new AtomicReference<>();
 	private final DatabaseUpdater databaseUpdater;
 
-	private DateFormat dateFormat;
+	private volatile DateFormat dateFormat;
 	private boolean configBookChronologicalOrder;
 	private boolean initialised = false;
 
@@ -214,12 +214,35 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 				ps.setString(2, achName);
 				try (ResultSet rs = ps.executeQuery()) {
 					if (rs.next()) {
-						return dateFormat.format(new Date(rs.getTimestamp(1).getTime()));
+						return formatDate(new Date(rs.getTimestamp(1).getTime()));
 					}
 				}
 			}
 			return null;
 		}).executeOperation("retrieving an achievement's reception date");
+	}
+
+	/**
+	 * Gets all achievement reception dates for a player in a single query.
+	 *
+	 * @param uuid
+	 * @return mapping of achievement names to formatted reception dates
+	 */
+	public Map<String, String> getPlayerAchievementDates(UUID uuid) {
+		return ((SQLReadOperation<Map<String, String>>) () -> {
+			String sql = "SELECT achievement, date FROM " + prefix + "achievements WHERE playername = ?";
+			Map<String, String> achievementDates = new HashMap<>();
+			try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+				ps.setString(1, uuid.toString());
+				ps.setFetchSize(1000);
+				try (ResultSet rs = ps.executeQuery()) {
+					while (rs.next()) {
+						achievementDates.put(rs.getString(1), formatDate(rs.getTimestamp(2)));
+					}
+				}
+			}
+			return achievementDates;
+		}).executeOperation("retrieving achievement reception dates");
 	}
 
 	/**
@@ -346,6 +369,32 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 	}
 
 	/**
+	 * Gets all of a player's statistics for a multiple-achievement category in a single query.
+	 *
+	 * @param uuid
+	 * @param category
+	 * @return mapping of subcategories to statistics
+	 */
+	public Map<String, Long> getMultipleAchievementAmounts(UUID uuid, MultipleAchievements category) {
+		return ((SQLReadOperation<Map<String, Long>>) () -> {
+			String dbName = category.toDBName();
+			String sql = "SELECT " + category.toSubcategoryDBName() + ", " + dbName + " FROM " + prefix + dbName
+					+ " WHERE playername = ?";
+			Map<String, Long> achievementAmounts = new HashMap<>();
+			try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+				ps.setString(1, uuid.toString());
+				ps.setFetchSize(1000);
+				try (ResultSet rs = ps.executeQuery()) {
+					while (rs.next()) {
+						achievementAmounts.put(rs.getString(1), rs.getLong(2));
+					}
+				}
+			}
+			return achievementAmounts;
+		}).executeOperation("retrieving " + category + " statistics");
+	}
+
+	/**
 	 * Returns a player's last connection data and the total number of connections.
 	 *
 	 * @param uuid
@@ -454,7 +503,7 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 					while (rs.next()) {
 						Timestamp dateAwarded = rs.getTimestamp(2);
 						achievements.add(new AwardedDBAchievement(uuid, rs.getString(1), dateAwarded.getTime(),
-								dateFormat.format(dateAwarded)));
+								formatDate(dateAwarded)));
 					}
 				}
 			}
@@ -489,11 +538,18 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 						}
 						Date dateAwarded = new Date(rs.getTimestamp(2).getTime());
 						achievements.add(new AwardedDBAchievement(uuid, achievementName, dateAwarded.getTime(),
-								dateFormat.format(dateAwarded)));
+								formatDate(dateAwarded)));
 					}
 				}
 			}
 			return achievements;
 		}).executeOperation("retrieving the recipients of an achievement");
+	}
+
+	private String formatDate(java.util.Date date) {
+		DateFormat currentDateFormat = dateFormat;
+		synchronized (currentDateFormat) {
+			return currentDateFormat.format(date);
+		}
 	}
 }

@@ -3,6 +3,8 @@ package com.hm.achievement.gui;
 import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -17,6 +19,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.category.Category;
 import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
@@ -35,6 +38,7 @@ public class MainGUI implements Reloadable {
 
 	private final YamlConfiguration mainConfig;
 	private final YamlConfiguration langConfig;
+	private final AdvancedAchievements advancedAchievements;
 	private final CacheManager cacheManager;
 	private final Set<Category> disabledCategories;
 	private final GUIItems guiItems;
@@ -49,9 +53,11 @@ public class MainGUI implements Reloadable {
 
 	@Inject
 	public MainGUI(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			CacheManager cacheManager, Set<Category> disabledCategories, GUIItems guiItems, AchievementMap achievementMap) {
+			AdvancedAchievements advancedAchievements, CacheManager cacheManager, Set<Category> disabledCategories,
+			GUIItems guiItems, AchievementMap achievementMap) {
 		this.mainConfig = mainConfig;
 		this.langConfig = langConfig;
+		this.advancedAchievements = advancedAchievements;
 		this.cacheManager = cacheManager;
 		this.disabledCategories = disabledCategories;
 		this.guiItems = guiItems;
@@ -74,6 +80,28 @@ public class MainGUI implements Reloadable {
 	 * @param player
 	 */
 	public void displayMainGUI(Player player) {
+		UUID playerId = player.getUniqueId();
+		if (cacheManager.hasCachedPlayerAchievements(playerId)) {
+			displayCachedMainGUI(player);
+			return;
+		}
+
+		advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
+			try {
+				cacheManager.getPlayerAchievements(playerId);
+				advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+					if (player.isOnline()) {
+						displayCachedMainGUI(player);
+					}
+				});
+			} catch (RuntimeException e) {
+				advancedAchievements.getLogger().log(Level.SEVERE,
+						"Could not load achievement list data for " + playerId + ".", e);
+			}
+		});
+	}
+
+	private void displayCachedMainGUI(Player player) {
 		int totalEnabledCategories = MultipleAchievements.values().length + NormalAchievements.values().length + 1
 				- disabledCategories.size();
 		AchievementInventoryHolder inventoryHolder = new AchievementInventoryHolder();

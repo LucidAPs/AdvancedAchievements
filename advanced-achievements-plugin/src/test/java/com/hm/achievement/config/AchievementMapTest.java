@@ -181,4 +181,22 @@ class AchievementMapTest {
 		assertTrue(underTest.getCategorySubcategories().isEmpty());
 	}
 
+	@Test
+	void shouldReplaceAllMapEntries() {
+		Achievement oldAchievement = new AchievementBuilder().category(NormalAchievements.ANVILS).name("old")
+				.displayName("Old").build();
+		Achievement newAchievement = new AchievementBuilder().category(MultipleAchievements.KILLS)
+				.subcategory("skeleton").name("new").displayName("New").build();
+		underTest.put(oldAchievement);
+		AchievementMap replacement = new AchievementMap();
+		replacement.put(newAchievement);
+
+		underTest.replaceWith(replacement);
+
+		assertNull(underTest.getForName("old"));
+		assertEquals(newAchievement, underTest.getForName("new"));
+		assertEquals(Collections.singletonList(newAchievement),
+				underTest.getForCategory(MultipleAchievements.KILLS));
+	}
+
 }
