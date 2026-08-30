@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -102,11 +101,12 @@ public class ConfigurationParser {
 
 		parseHeader(parsedMainConfig, parsedPluginHeader);
 		parseDisabledCategories(parsedMainConfig, parsedDisabledCategories);
-		parseAchievements(parsedMainConfig, parsedAchievementMap, parsedDisabledCategories, parsedRewardParser);
+		int skippedAchievements = parseAchievements(parsedMainConfig, parsedAchievementMap, parsedDisabledCategories,
+				parsedRewardParser);
 
 		commitConfiguration(parsedMainConfig, parsedLangConfig, parsedGuiConfig, parsedAchievementMap,
 				parsedDisabledCategories, parsedPluginHeader);
-		logLoadingMessages(parsedAchievementMap, parsedDisabledCategories);
+		logLoadingMessages(parsedAchievementMap, parsedDisabledCategories, skippedAchievements);
 	}
 
 	/**
@@ -326,21 +326,37 @@ public class ConfigurationParser {
 	 *
 	 * Populates relevant data structures and performs basic validation.
 	 *
-	 * @throws PluginLoadError If an achievement fails to parse due to misconfiguration.
+	 * @return the number of invalid achievement entries that were skipped
 	 */
-	private void parseAchievements(YamlConfiguration config, AchievementMap achievements, Set<Category> categories,
-			RewardParser configurationRewardParser) throws PluginLoadError {
+	private int parseAchievements(YamlConfiguration config, AchievementMap achievements, Set<Category> categories,
+			RewardParser configurationRewardParser) {
 		Set<String> advancementKeys = new HashSet<>();
+		int skippedAchievements = 0;
 
 		// Enumerate Commands achievements.
 		if (!categories.contains(CommandAchievements.COMMANDS)) {
-			Set<String> commands = getSectionKeys(config, CommandAchievements.COMMANDS.toString());
+			String categoryPath = CommandAchievements.COMMANDS.toString();
+			Set<String> commands;
+			try {
+				commands = getSectionKeys(config, categoryPath);
+			} catch (PluginLoadError e) {
+				logInvalidAchievementConfiguration(categoryPath, e.getMessage());
+				categories.add(CommandAchievements.COMMANDS);
+				commands = Collections.emptySet();
+				skippedAchievements++;
+			}
 			if (commands.isEmpty()) {
 				categories.add(CommandAchievements.COMMANDS);
 			} else {
 				for (String command : commands) {
-					parseAchievement(config, achievements, configurationRewardParser, advancementKeys,
-							CommandAchievements.COMMANDS, command, -1L);
+					String path = categoryPath + "." + command;
+					if (!parseAchievementSafely(config, achievements, configurationRewardParser, advancementKeys,
+							CommandAchievements.COMMANDS, command, -1L, path)) {
+						skippedAchievements++;
+					}
+				}
+				if (achievements.getForCategory(CommandAchievements.COMMANDS).isEmpty()) {
+					categories.add(CommandAchievements.COMMANDS);
 				}
 			}
 		}
@@ -348,13 +364,30 @@ public class ConfigurationParser {
 		// Enumerate the normal achievements.
 		for (NormalAchievements category : NormalAchievements.values()) {
 			if (!categories.contains(category)) {
-				if (getSectionKeys(config, category.toString()).isEmpty()) {
+				String categoryPath = category.toString();
+				if (!config.contains(categoryPath)) {
 					categories.add(category);
 					continue;
 				}
-				for (long threshold : getSortedThresholds(config, category.toString())) {
-					parseAchievement(config, achievements, configurationRewardParser, advancementKeys, category, "",
-							threshold);
+				ThresholdParsingResult result;
+				try {
+					result = getSortedThresholds(config, categoryPath);
+				} catch (PluginLoadError e) {
+					logInvalidAchievementConfiguration(categoryPath, e.getMessage());
+					categories.add(category);
+					skippedAchievements++;
+					continue;
+				}
+				skippedAchievements += result.invalidCount();
+				for (AchievementThreshold threshold : result.thresholds()) {
+					String path = categoryPath + "." + threshold.configKey();
+					if (!parseAchievementSafely(config, achievements, configurationRewardParser, advancementKeys,
+							category, "", threshold.value(), path)) {
+						skippedAchievements++;
+					}
+				}
+				if (achievements.getForCategory(category).isEmpty()) {
+					categories.add(category);
 				}
 			}
 		}
@@ -362,61 +395,109 @@ public class ConfigurationParser {
 		// Enumerate the achievements with multiple categories.
 		for (MultipleAchievements category : MultipleAchievements.values()) {
 			if (!categories.contains(category)) {
-				Set<String> subcategories = getSectionKeys(config, category.toString());
+				String categoryPath = category.toString();
+				Set<String> subcategories;
+				try {
+					subcategories = getSectionKeys(config, categoryPath);
+				} catch (PluginLoadError e) {
+					logInvalidAchievementConfiguration(categoryPath, e.getMessage());
+					categories.add(category);
+					skippedAchievements++;
+					continue;
+				}
 				if (subcategories.isEmpty()) {
 					categories.add(category);
 					continue;
 				}
 
 				for (String subcategory : subcategories) {
-					for (long threshold : getSortedThresholds(config, category + "." + subcategory)) {
-						parseAchievement(config, achievements, configurationRewardParser, advancementKeys, category,
-								subcategory, threshold);
+					String subcategoryPath = categoryPath + "." + subcategory;
+					ThresholdParsingResult result;
+					try {
+						result = getSortedThresholds(config, subcategoryPath);
+					} catch (PluginLoadError e) {
+						logInvalidAchievementConfiguration(subcategoryPath, e.getMessage());
+						skippedAchievements++;
+						continue;
 					}
+					skippedAchievements += result.invalidCount();
+					for (AchievementThreshold threshold : result.thresholds()) {
+						String path = subcategoryPath + "." + threshold.configKey();
+						if (!parseAchievementSafely(config, achievements, configurationRewardParser, advancementKeys,
+								category, subcategory, threshold.value(), path)) {
+							skippedAchievements++;
+						}
+					}
+				}
+				if (achievements.getForCategory(category).isEmpty()) {
+					categories.add(category);
 				}
 			}
 		}
+
+		return skippedAchievements;
 	}
 
-	private List<Long> getSortedThresholds(YamlConfiguration config, String path) throws PluginLoadError {
+	private ThresholdParsingResult getSortedThresholds(YamlConfiguration config, String path) throws PluginLoadError {
 		ConfigurationSection section = config.getConfigurationSection(path);
 		if (section == null) {
 			throw new PluginLoadError(path + " must be a YAML section containing achievement thresholds.");
 		}
-		try {
-			List<Long> thresholds = section.getKeys(false).stream()
-					.map(Long::parseLong)
-					.sorted()
-					.collect(Collectors.toList());
-			if (thresholds.stream().anyMatch(threshold -> threshold <= 0)) {
-				throw new PluginLoadError("Achievement thresholds under " + path + " must be positive whole numbers.");
+
+		List<AchievementThreshold> thresholds = new ArrayList<>();
+		int invalidCount = 0;
+		for (String configKey : section.getKeys(false)) {
+			try {
+				long threshold = Long.parseLong(configKey);
+				if (threshold <= 0) {
+					throw new NumberFormatException();
+				}
+				thresholds.add(new AchievementThreshold(configKey, threshold));
+			} catch (NumberFormatException e) {
+				logInvalidAchievementConfiguration(path + "." + configKey,
+						"Achievement thresholds must be positive whole numbers.");
+				invalidCount++;
 			}
-			return thresholds;
-		} catch (NumberFormatException e) {
-			throw new PluginLoadError("Achievement thresholds under " + path + " must be positive whole numbers.", e);
 		}
+		thresholds.sort((left, right) -> Long.compare(left.value(), right.value()));
+		return new ThresholdParsingResult(thresholds, invalidCount);
+	}
+
+	private boolean parseAchievementSafely(YamlConfiguration config, AchievementMap achievements,
+			RewardParser configurationRewardParser, Set<String> advancementKeys, Category category, String subcategory,
+			long threshold, String path) {
+		try {
+			parseAchievement(config, achievements, configurationRewardParser, advancementKeys, category, subcategory,
+					threshold, path);
+			return true;
+		} catch (PluginLoadError e) {
+			logInvalidAchievementConfiguration(path, e.getMessage());
+		} catch (RuntimeException e) {
+			logger.log(Level.SEVERE,
+					"Skipping invalid achievement configuration at " + path
+							+ " after an unexpected parsing error. Other achievements will continue to load.",
+					e);
+		}
+		return false;
+	}
+
+	private void logInvalidAchievementConfiguration(String path, String message) {
+		logger.warning("Skipping invalid achievement configuration at " + path + ": " + message);
 	}
 
 	/**
-	 * Performs validation for a single achievement and populates an entry in the namesToDisplayNames map.
+	 * Performs validation for a single achievement and adds it to the parsed achievement map.
 	 *
 	 * @param category
 	 * @param subcategory
 	 * @param threshold
+	 * @param path
 	 *
 	 * @throws PluginLoadError If the achievement fails to parse due to misconfiguration.
 	 */
 	private void parseAchievement(YamlConfiguration config, AchievementMap achievements,
 			RewardParser configurationRewardParser, Set<String> advancementKeys, Category category, String subcategory,
-			long threshold) throws PluginLoadError {
-		String path;
-		if (category instanceof CommandAchievements) {
-			path = category + "." + subcategory;
-		} else if (category instanceof NormalAchievements) {
-			path = category + "." + threshold;
-		} else {
-			path = category + "." + subcategory + "." + threshold;
-		}
+			long threshold, String path) throws PluginLoadError {
 		ConfigurationSection section = config.getConfigurationSection(path);
 		if (section == null) {
 			throw new PluginLoadError("Achievement with path (" + path + ") must be a YAML section.");
@@ -435,16 +516,13 @@ public class ConfigurationParser {
 		} else if (StringUtils.isBlank(displayName)) {
 			throw new PluginLoadError(
 					"Achievement with path (" + path + ") must have a non-empty DisplayName parameter.");
-		} else if (achievements.getForDisplayName(displayName) != null) {
-			throw new PluginLoadError("Duplicate achievement DisplayName (" + displayName
-					+ "). Display names must be unique after formatting codes are removed.");
 		}
 
 		String advancementKey = AdvancementManager.getKey(name);
 		if (StringUtils.isBlank(advancementKey)) {
 			throw new PluginLoadError(
 					"Achievement Name (" + name + ") does not contain any characters usable in an advancement key.");
-		} else if (!advancementKeys.add(advancementKey)) {
+		} else if (advancementKeys.contains(advancementKey)) {
 			throw new PluginLoadError("Achievement Name (" + name + ") produces duplicate advancement key ("
 					+ advancementKey + "). Rename it so it remains unique after punctuation is removed.");
 		}
@@ -463,18 +541,31 @@ public class ConfigurationParser {
 				.rewards(configurationRewardParser.parseRewards(rewardPath))
 				.build();
 		achievements.put(achievement);
+		advancementKeys.add(advancementKey);
 	}
 
-	private void logLoadingMessages(AchievementMap achievements, Set<Category> categoriesDisabled) {
+	private void logLoadingMessages(AchievementMap achievements, Set<Category> categoriesDisabled,
+			int skippedAchievements) {
 		int disabledCategoryCount = categoriesDisabled.size();
 		int categories = NormalAchievements.values().length + MultipleAchievements.values().length + 1
 				- disabledCategoryCount;
 		logger.info("Loaded " + achievements.getAll().size() + " achievements in " + categories + " categories.");
+		if (skippedAchievements > 0) {
+			String noun = skippedAchievements == 1 ? "entry" : "entries";
+			logger.warning("Skipped " + skippedAchievements + " invalid achievement " + noun
+					+ ". The plugin will continue using the remaining valid achievements.");
+		}
 
 		if (!categoriesDisabled.isEmpty()) {
 			String noun = disabledCategoryCount == 1 ? "category" : "categories";
 			logger.info(disabledCategoryCount + " disabled " + noun + ": " + categoriesDisabled.toString());
 		}
+	}
+
+	private record AchievementThreshold(String configKey, long value) {
+	}
+
+	private record ThresholdParsingResult(List<AchievementThreshold> thresholds, int invalidCount) {
 	}
 
 }
