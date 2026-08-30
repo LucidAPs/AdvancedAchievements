@@ -62,7 +62,7 @@ aach-command-top-hover: "Vilka är det som leder på servern och hur ligger du t
 aach-command-give: "Ge prestationen ACH till NAME."
 aach-command-give-hover: "Spelaren måste vara online; endast prestationskommandon kan användas."
 aach-command-reload: "Ladda om tilläggets konfiguration."
-aach-command-reload-hover: "Ladda om de flesta inställningarna i config.yml och lang.yml filerna."
+aach-command-reload-hover: "Ladda om de flesta inställningarna i TESTconfig.yml och lang.yml filerna."
 aach-command-info: "Visa information om tillägget."
 aach-command-info-hover: "Lite extra information om tillägget och dess fantastiske skapare!"
 aach-command-check: "Se om NAME har ACH."

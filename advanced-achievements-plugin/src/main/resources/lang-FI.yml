@@ -79,7 +79,7 @@ aach-command-give-hover: "Pelaajan tulee olla paikalla (online); Ainoastaan Kome
 aach-command-add: "Kasvata tilastoa."
 aach-command-add-hover: "Pelaajan tulee olla paikalla (online); Pääasiassa käytetty vain Custom-kategorioille."
 aach-command-reload: "Lataa lisäosan asetukset uudelleen."
-aach-command-reload-hover: "Lataa useimmat asetukset tiedistoista config.yml, gui.yml and lang.yml"
+aach-command-reload-hover: "Lataa useimmat asetukset tiedistoista TESTconfig.yml, gui.yml and lang.yml"
 aach-command-info: "Näytä tietoja lisäosasta."
 aach-command-info-hover: "Hiukan lisätietoa hienosta lisäosasta ja sen mahtavasta tekijästä!"
 aach-command-check: "Tarkista sisältääkö NAME ACH:n."

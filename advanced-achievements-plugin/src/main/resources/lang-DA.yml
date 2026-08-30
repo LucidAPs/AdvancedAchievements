@@ -84,7 +84,7 @@ aach-command-give-hover: "Spilleren skal være online; kun kommando præsentatio
 aach-command-add: "Øget en statistik."
 aach-command-add-hover: "Spilleren skal være online; hovedsagelig brugt for brugerdefinerede Kategorier."
 aach-command-reload: "Genindlæs pluginets konfiguration."
-aach-command-reload-hover: "Genindlæs de fleste indstillinger i config.yml, gui.yml og lang.yml filerne."
+aach-command-reload-hover: "Genindlæs de fleste indstillinger i TESTconfig.yml, gui.yml og lang.yml filerne."
 aach-command-info: "Vis information omkring pluginnet."
 aach-command-info-hover: "Noget ekstra information omkring pluginnet samt dets fantastiske forfatter!"
 aach-command-check: "Tjek vis NAME har ACH."

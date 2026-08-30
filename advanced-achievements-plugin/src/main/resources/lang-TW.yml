@@ -79,7 +79,7 @@ aach-command-give-hover: "玩家必須在線；只允許使用 Commands 成就�
 aach-command-add: "增加統計資訊。"
 aach-command-add-hover: "玩家必須在線；主要用於自定義類別。"
 aach-command-reload: "重新載入插件的設定檔。"
-aach-command-reload-hover: "重新載入在 config.yml、gui.yml 與 lang.yml 檔案中的大部分設定。"
+aach-command-reload-hover: "重新載入在 TESTconfig.yml、gui.yml 與 lang.yml 檔案中的大部分設定。"
 aach-command-info: "顯示插件資訊。"
 aach-command-info-hover: "關於插件的一些額外資訊與它驚人的作者！"
 aach-command-check: "檢查 NAME 是否擁有 ACH。"

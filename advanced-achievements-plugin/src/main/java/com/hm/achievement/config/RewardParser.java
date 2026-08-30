@@ -141,7 +141,7 @@ public class RewardParser {
 			}
 			String[] parts = StringUtils.split(item);
 			Optional<Material> rewardMaterial = materialHelper.matchMaterial(parts[0],
-					"config.yml (" + (configSection.getCurrentPath() + ".Item") + ")");
+					"TESTconfig.yml (" + (configSection.getCurrentPath() + ".Item") + ")");
 			if (rewardMaterial.isPresent()) {
 				int amount = NumberUtils.toInt(parts[1], 1);
 				ItemStack itemStack = new ItemStack(rewardMaterial.get(), amount);

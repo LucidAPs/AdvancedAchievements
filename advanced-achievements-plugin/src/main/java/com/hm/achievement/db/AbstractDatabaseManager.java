@@ -98,7 +98,7 @@ public abstract class AbstractDatabaseManager implements Reloadable {
 
 		// Try to establish connection with database; stays opened until explicitly closed by the plugin.
 		if (getConnection() == null) {
-			throw new PluginLoadError("Failed to establish database connection. Please verify your settings in config.yml.");
+			throw new PluginLoadError("Failed to establish database connection. Please verify your settings in TESTconfig.yml.");
 		}
 
 		databaseUpdater.renameExistingTables(this);

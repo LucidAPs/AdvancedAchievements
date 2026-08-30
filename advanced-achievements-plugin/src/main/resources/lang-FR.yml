@@ -85,7 +85,7 @@ aach-command-give-hover: "Le joueur doit être en ligne. Supporte les succès de
 aach-command-add: "Augmente la valeur d'une statistique."
 aach-command-add-hover: "Le joueur doit être en ligne. Fréquemment utilisé pour la catégorie Personnalisée."
 aach-command-reload: "Recharger la configuration du plugin."
-aach-command-reload-hover: "Recharge la plupart des paramètres de gui.yml, lang.yml et config.yml."
+aach-command-reload-hover: "Recharge la plupart des paramètres de gui.yml, lang.yml et TESTconfig.yml."
 aach-command-info: "Afficher des informations à propos du plugin."
 aach-command-info-hover: "Des infos supplémentaires sur le plugin !"
 aach-command-check: "Vérifier si NAME a reçu le succès ACH."

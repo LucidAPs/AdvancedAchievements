@@ -79,7 +79,7 @@ aach-command-give-hover: Spieler muss online sein; nur Befehl Achievements könn
 aach-command-add: "Erhöht eine Statistik."
 aach-command-add-hover: "Der Spieler muss Online sein; Wird meistens für eigene Kategorien verwendet."
 aach-command-reload: Lade das Plugin neu.
-aach-command-reload-hover: Laden Sie die meisten Einstellungen in config.yml und lang.yml Dateien neu.
+aach-command-reload-hover: Laden Sie die meisten Einstellungen in TESTconfig.yml und lang.yml Dateien neu.
 aach-command-info: Zeige diverse Informationen des Plugins an.
 aach-command-info-hover: Einige zusätzliche Infos über das Plugin und seinen großartigen Autor!
 aach-command-check: Überprüfe ob NAME das Achievement &7ACH besitzt.

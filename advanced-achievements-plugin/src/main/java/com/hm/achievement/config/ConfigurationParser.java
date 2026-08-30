@@ -38,7 +38,7 @@ import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.utils.StringHelper;
 
 /**
- * Class in charge of parsing the config.yml, lang.yml and gui.yml configuration files. It loads the files and populates
+ * Class in charge of parsing the TESTconfig.yml, lang.yml and gui.yml configuration files. It loads the files and populates
  * common data structures used in other parts of the plugin. Basic validation is performed on the achievements.
  *
  * @author Pyves
@@ -272,7 +272,7 @@ public class ConfigurationParser {
 			categories.add(NormalAchievements.PETMASTERRECEIVE);
 			logger.warning("Overriding configuration: disabling PetMasterGive and PetMasterReceive categories.");
 			logger.warning(
-					"Ensure you have placed Pet Master in your plugins folder or add PetMasterGive and PetMasterReceive to the DisabledCategories list in config.yml.");
+					"Ensure you have placed Pet Master in your plugins folder or add PetMasterGive and PetMasterReceive to the DisabledCategories list in TESTconfig.yml.");
 		}
 		// Need Jobs for JobsReborn category.
 		if (!categories.contains(MultipleAchievements.JOBSREBORN)
@@ -280,14 +280,14 @@ public class ConfigurationParser {
 			categories.add(MultipleAchievements.JOBSREBORN);
 			logger.warning("Overriding configuration: disabling JobsReborn category.");
 			logger.warning(
-					"Ensure you have placed JobsReborn in your plugins folder or add JobsReborn to the DisabledCategories list in config.yml.");
+					"Ensure you have placed JobsReborn in your plugins folder or add JobsReborn to the DisabledCategories list in TESTconfig.yml.");
 		}
 		// Raids introduced in 1.14.
 		if (!categories.contains(NormalAchievements.RAIDSWON) && serverVersion < 14) {
 			categories.add(NormalAchievements.RAIDSWON);
 			logger.warning("Overriding configuration: disabling RaidsWon category.");
 			logger.warning(
-					"Raids are not available in your server version, please add RaidsWon to the DisabledCategories list in config.yml.");
+					"Raids are not available in your server version, please add RaidsWon to the DisabledCategories list in TESTconfig.yml.");
 		}
 	}
 
@@ -506,13 +506,13 @@ public class ConfigurationParser {
 		String message = section.getString("Message");
 		String displayName = StringUtils.defaultString(section.getString("DisplayName"), name);
 		if (StringUtils.isBlank(name)) {
-			throw new PluginLoadError("Achievement with path (" + path + ") is missing its Name parameter in config.yml.");
+			throw new PluginLoadError("Achievement with path (" + path + ") is missing its Name parameter in TESTconfig.yml.");
 		} else if (achievements.getForName(name) != null) {
 			throw new PluginLoadError("Duplicate achievement Name (" + name + "). "
-					+ "Please ensure each Name is unique in config.yml.");
+					+ "Please ensure each Name is unique in TESTconfig.yml.");
 		} else if (StringUtils.isBlank(message)) {
 			throw new PluginLoadError(
-					"Achievement with path (" + path + ") is missing its Message parameter in config.yml.");
+					"Achievement with path (" + path + ") is missing its Message parameter in TESTconfig.yml.");
 		} else if (StringUtils.isBlank(displayName)) {
 			throw new PluginLoadError(
 					"Achievement with path (" + path + ") must have a non-empty DisplayName parameter.");

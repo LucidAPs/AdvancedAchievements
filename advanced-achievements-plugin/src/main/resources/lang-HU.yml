@@ -80,7 +80,7 @@ aach-command-give-hover: "A játékosnak elérhetőnek kell lennie; csak a paran
 aach-command-add: "Növeli a statisztikát."
 aach-command-add-hover: "A játékosnak online kell lennie; elsősorban az egyéni kategóriákban."
 aach-command-reload: "Újratölti a plugin konfigurációt."
-aach-command-reload-hover: "Újratölti a legtöbb beállítást a config.yml, a gui.yml és a lang.yml fájlokban."
+aach-command-reload-hover: "Újratölti a legtöbb beállítást a TESTconfig.yml, a gui.yml és a lang.yml fájlokban."
 aach-command-info: "A bővítményre vonatkozó információk megjelenítése."
 aach-command-info-hover: "Néhány extra információ a pluginról és annak félelmetes szerzőjéről!"
 aach-command-check: "Ellenőrzi NAME van ACH."

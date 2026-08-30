@@ -78,7 +78,7 @@ aach-command-give-hover: Người chơi phải trực tuyến; chỉ thành tự
 aach-command-add: Tăng một thống kê.
 aach-command-add-hover: Người chơi phải trực tuyến; thường sử dụng cho danh mục tự tạo.
 aach-command-reload: Nạp lại cài đặt của plugin.
-aach-command-reload-hover: Nạp lại đa số thiết lập trong tệp tin config.yml và lang.yml.
+aach-command-reload-hover: Nạp lại đa số thiết lập trong tệp tin TESTconfig.yml và lang.yml.
 aach-command-info: Hiển thị thông tin về plugin này.
 aach-command-info-hover: Một số thông tin về plugin và tác giả của nó!
 aach-command-check: Kiểm tra nếu người chơi NAME có thành tựu ACH.

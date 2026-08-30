@@ -82,7 +82,7 @@ aach-command-give-hover: "Hrač musí byť online; dajú sa použiť iba príkaz
 aach-command-add: "Zvýši štatistiku."
 aach-command-add-hover: "Hrač musí byť online; používa sa hlavne na vlastnú kategóriu."
 aach-command-reload: "Obnoví konfiguráciu."
-aach-command-reload-hover: "Obnoví nastavenia v config.yml, gui.yml a lang.yml súborov."
+aach-command-reload-hover: "Obnoví nastavenia v TESTconfig.yml, gui.yml a lang.yml súborov."
 aach-command-info: "Zobrazí informácie o plugine."
 aach-command-info-hover: "Extra info o plugine a o jeho úžasného autora!"
 aach-command-check: "Skontroluj, či NAME má ACH."
