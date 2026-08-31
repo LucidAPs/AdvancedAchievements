@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -98,23 +99,32 @@ public class GUIItems implements Reloadable {
 		orderedAchievementItems.put(new OrderedCategory(orderedCategories.indexOf(categoryName),
 				CommandAchievements.COMMANDS), itemStack);
 
-		achievementNotStartedDefault = new ItemStack(Material.RED_TERRACOTTA, 1);
-		achievementStartedDefault = new ItemStack(Material.YELLOW_TERRACOTTA, 1);
-		achievementReceivedDefault = new ItemStack(Material.LIME_TERRACOTTA, 1);
-		for (String type : guiConfig.getConfigurationSection("AchievementNotStarted").getKeys(false)) {
-			achievementNotStarted.put(type, createItemStack("AchievementNotStarted." + type));
-		}
-		for (String type : guiConfig.getConfigurationSection("AchievementStarted").getKeys(false)) {
-			achievementStarted.put(type, createItemStack("AchievementStarted." + type));
-		}
-		for (String type : guiConfig.getConfigurationSection("AchievementReceived").getKeys(false)) {
-			achievementReceived.put(type, createItemStack("AchievementReceived." + type));
-		}
+		achievementNotStartedDefault = loadAchievementItems("AchievementNotStarted", Material.RED_TERRACOTTA,
+				achievementNotStarted);
+		achievementStartedDefault = loadAchievementItems("AchievementStarted", Material.YELLOW_TERRACOTTA,
+				achievementStarted);
+		achievementReceivedDefault = loadAchievementItems("AchievementReceived", Material.LIME_TERRACOTTA,
+				achievementReceived);
 		previousButton = createButton("PreviousButton", "list-previous-message", "list-previous-lore");
 		nextButton = createButton("NextButton", "list-next-message", "list-next-lore");
 		backButton = createButton("BackButton", "list-back-message", "list-back-lore");
 		achievementLock = createButton("AchievementLock", "list-achievement-not-unlocked", null);
 		categoryLock = createButton("CategoryLock", "list-category-not-unlocked", null);
+	}
+
+	private ItemStack loadAchievementItems(String sectionPath, Material defaultMaterial, Map<String, ItemStack> items) {
+		items.clear();
+		ItemStack defaultItem = guiConfig.isString(sectionPath + ".Item") ? createItemStack(sectionPath)
+				: new ItemStack(defaultMaterial, 1);
+		ConfigurationSection section = guiConfig.getConfigurationSection(sectionPath);
+		if (section != null) {
+			for (String type : section.getKeys(false)) {
+				if (!"Item".equals(type)) {
+					items.put(type, createItemStack(sectionPath + "." + type));
+				}
+			}
+		}
+		return defaultItem;
 	}
 
 	/**
