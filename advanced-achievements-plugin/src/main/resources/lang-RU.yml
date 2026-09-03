@@ -45,7 +45,6 @@ not-a-player: Указанное существо не может получат
 achievement-already-received: PLAYER уже получил(а) это достижение.
 achievement-not-found: Достижение не найдено.
 achievement-given: Достижение получено.
-achievement-no-permission: У игрока PLAYER нет прав на получение данного достижения.
 
 # Команда /aach add.
 error-value: Значение VALUE должно быть целым числом!

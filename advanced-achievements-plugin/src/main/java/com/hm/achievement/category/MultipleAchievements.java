@@ -31,15 +31,11 @@ public enum MultipleAchievements implements Category {
 	private final String categoryName;
 	private final String subcategoryDBName;
 	private final String dbName;
-	private final String permNamePrefix;
-	private final String permName;
 
 	MultipleAchievements(String categoryName, String subcategoryDBName) {
 		this.categoryName = categoryName;
 		this.subcategoryDBName = subcategoryDBName;
 		this.dbName = name().toLowerCase();
-		this.permNamePrefix = "achievement.count." + categoryName.toLowerCase() + '.';
-		this.permName = permNamePrefix + '*';
 	}
 
 	/**
@@ -63,22 +59,6 @@ public enum MultipleAchievements implements Category {
 	@Override
 	public String toDBName() {
 		return dbName;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toPermName() {
-		return permName;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toChildPermName(String child) {
-		return permNamePrefix + child;
 	}
 
 	/**

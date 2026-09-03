@@ -45,7 +45,6 @@ not-a-player: "No puedes otorgar el logro a ENTITY, porque no es un jugador"
 achievement-already-received: "El jugador PLAYER ya ha recibido éste logro anteriormente"
 achievement-not-found: "El logro ingresado no existe. ¿Quizás quisiste decir CLOSEST_MATCH?"
 achievement-given: "Logro otorgado exitosamente"
-achievement-no-permission: "El jugador PLAYER no cuenta con los permisos necesarios para recibir éste logro"
 
 # Mensajes para /aach add.
 error-value: "Debes ingrear un valor numérico válido"

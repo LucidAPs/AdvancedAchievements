@@ -3,6 +3,7 @@ package com.hm.achievement.lifecycle;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +30,6 @@ import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.command.completer.CommandTabCompleter;
 import com.hm.achievement.command.executable.ReloadCommand;
 import com.hm.achievement.command.executor.PluginCommandExecutor;
-import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.config.ConfigurationParser;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.db.AsyncCachedRequestsSender;
@@ -37,6 +37,7 @@ import com.hm.achievement.listener.JoinListener;
 import com.hm.achievement.listener.ListGUIListener;
 import com.hm.achievement.listener.PlayerAdvancedAchievementListener;
 import com.hm.achievement.listener.TeleportListener;
+import com.hm.achievement.listener.statistics.DropsListener;
 import com.hm.achievement.placeholder.AchievementPlaceholderHook;
 import com.hm.achievement.runnable.AchieveDistanceRunnable;
 import com.hm.achievement.runnable.AchievePlayTimeRunnable;
@@ -60,12 +61,35 @@ class PluginLoaderTest {
 				mock(AbstractDatabaseManager.class), mock(AsyncCachedRequestsSender.class),
 				mock(PluginCommandExecutor.class), mock(CommandTabCompleter.class), Collections.emptySet(),
 				new YamlConfiguration(), mock(ConfigurationParser.class), mock(AchieveDistanceRunnable.class),
-				mock(AchievePlayTimeRunnable.class), mock(ReloadCommand.class), new AchievementMap(),
-				mock(JobsEnableWatcher.class));
+				mock(AchievePlayTimeRunnable.class), mock(ReloadCommand.class), mock(JobsEnableWatcher.class));
 
 		underTest.registerListeners();
 
 		verify(pluginManager).registerEvents(advancementListener, plugin);
+	}
+
+	@Test
+	void shouldNotRegisterListenerForDisabledCategory() {
+		AdvancedAchievements plugin = mock(AdvancedAchievements.class);
+		Server server = mock(Server.class);
+		PluginManager pluginManager = mock(PluginManager.class);
+		when(plugin.getServer()).thenReturn(server);
+		when(server.getPluginManager()).thenReturn(pluginManager);
+		DropsListener dropsListener = mock(DropsListener.class);
+		when(dropsListener.getCategory()).thenReturn(NormalAchievements.DROPS);
+
+		PluginLoader underTest = new PluginLoader(plugin, Logger.getAnonymousLogger(),
+				Collections.singleton(dropsListener), mock(JoinListener.class), mock(AdvancementTabListener.class),
+				mock(ListGUIListener.class), mock(TeleportListener.class), mock(PlayerAdvancedAchievementListener.class),
+				mock(Cleaner.class), mockPlaceholderHook(), mock(AbstractDatabaseManager.class),
+				mock(AsyncCachedRequestsSender.class), mock(PluginCommandExecutor.class), mock(CommandTabCompleter.class),
+				Collections.singleton(NormalAchievements.DROPS), new YamlConfiguration(), mock(ConfigurationParser.class),
+				mock(AchieveDistanceRunnable.class), mock(AchievePlayTimeRunnable.class), mock(ReloadCommand.class),
+				mock(JobsEnableWatcher.class));
+
+		underTest.registerListeners();
+
+		verify(pluginManager, never()).registerEvents(dropsListener, plugin);
 	}
 
 	@Test
@@ -82,7 +106,7 @@ class PluginLoaderTest {
 				mock(AbstractDatabaseManager.class), requestsSender, mock(PluginCommandExecutor.class),
 				mock(CommandTabCompleter.class), disabledCategories, mainConfig, mock(ConfigurationParser.class),
 				mock(AchieveDistanceRunnable.class), mock(AchievePlayTimeRunnable.class), mock(ReloadCommand.class),
-				new AchievementMap(), mock(JobsEnableWatcher.class));
+				mock(JobsEnableWatcher.class));
 		BukkitScheduler scheduler = mock(BukkitScheduler.class);
 		BukkitTask firstSenderTask = mock(BukkitTask.class);
 		BukkitTask secondSenderTask = mock(BukkitTask.class);

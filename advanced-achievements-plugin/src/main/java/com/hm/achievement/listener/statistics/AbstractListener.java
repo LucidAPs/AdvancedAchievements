@@ -49,7 +49,7 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	 * @param incrementValue
 	 */
 	void updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue) {
-		if (shouldIncreaseBeTakenIntoAccount(player, category)) {
+		if (shouldIncreaseBeTakenIntoAccount(player)) {
 			long amount = cacheManager.getAndIncrementStatisticAmount((NormalAchievements) category, player.getUniqueId(),
 					incrementValue);
 			checkThresholdsAndAchievements(player, category, amount);
@@ -65,7 +65,7 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	 * @param incrementValue
 	 */
 	void updateStatisticAndAwardAchievementsIfAvailable(Player player, Set<String> subcategories, int incrementValue) {
-		if (shouldIncreaseBeTakenIntoAccount(player, category)) {
+		if (shouldIncreaseBeTakenIntoAccount(player)) {
 			subcategories.forEach(subcategory -> {
 				long amount = cacheManager.getAndIncrementStatisticAmount((MultipleAchievements) category, subcategory,
 						player.getUniqueId(), incrementValue);

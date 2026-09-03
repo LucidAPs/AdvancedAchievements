@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -48,20 +47,15 @@ public class KillsListener extends AbstractListener {
 
 		Set<String> subcategories = new HashSet<>();
 
-		if (player.hasPermission(category.toChildPermName(mobType))) {
-			addMatchingSubcategories(subcategories, mobType);
-		}
+		addMatchingSubcategories(subcategories, mobType);
 
-		if (entity.getCustomName() != null
-				&& player.hasPermission(category.toChildPermName(StringUtils.deleteWhitespace(entity.getCustomName())))) {
+		if (entity.getCustomName() != null) {
 			addMatchingSubcategories(subcategories, entity.getCustomName());
 		}
 
 		if (entity instanceof Player) {
 			String specificPlayer = "specificplayer-" + entity.getUniqueId();
-			if (player.hasPermission(category.toChildPermName(specificPlayer))) {
-				addMatchingSubcategories(subcategories, specificPlayer);
-			}
+			addMatchingSubcategories(subcategories, specificPlayer);
 		}
 
 		updateStatisticAndAwardAchievementsIfAvailable(player, subcategories, 1);

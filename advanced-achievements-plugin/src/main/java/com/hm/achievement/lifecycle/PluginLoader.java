@@ -8,25 +8,20 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import com.hm.achievement.JobsEnableWatcher;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.advancement.AdvancementTabListener;
 import com.hm.achievement.category.Category;
-import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.command.completer.CommandTabCompleter;
 import com.hm.achievement.command.executable.ReloadCommand;
 import com.hm.achievement.command.executor.PluginCommandExecutor;
-import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.config.ConfigurationParser;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.db.AsyncCachedRequestsSender;
@@ -54,7 +49,6 @@ public class PluginLoader {
 	private final Logger logger;
 	private final ReloadCommand reloadCommand;
 	private final Set<Reloadable> reloadables;
-	private final AchievementMap achievementMap;
 	private final JobsEnableWatcher jobsEnableWatcher;
 
 	// Listeners, to monitor various events.
@@ -99,7 +93,6 @@ public class PluginLoader {
 			CommandTabCompleter commandTabCompleter, Set<Category> disabledCategories,
 			@Named("main") YamlConfiguration mainConfig, ConfigurationParser configurationParser,
 			AchieveDistanceRunnable distanceRunnable, AchievePlayTimeRunnable playTimeRunnable, ReloadCommand reloadCommand,
-			AchievementMap achievementMap,
 			JobsEnableWatcher jobsEnableWatcher) {
 		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
@@ -121,7 +114,6 @@ public class PluginLoader {
 		this.distanceRunnable = distanceRunnable;
 		this.playTimeRunnable = playTimeRunnable;
 		this.reloadCommand = reloadCommand;
-		this.achievementMap = achievementMap;
 		this.jobsEnableWatcher = jobsEnableWatcher;
 	}
 
@@ -138,7 +130,6 @@ public class PluginLoader {
 		}
 		initialiseCommands();
 		launchScheduledTasks();
-		registerPermissions();
 		reloadCommand.notifyObservers();
 		linkPlaceholders();
 	}
@@ -249,45 +240,6 @@ public class PluginLoader {
 	private void cancelTask(BukkitTask task) {
 		if (task != null) {
 			task.cancel();
-		}
-	}
-
-	/**
-	 * Registers permissions that depend on the user's configuration file (for MultipleAchievements; for instance for
-	 * stone breaks, achievement.count.breaks.stone will be registered).
-	 *
-	 * Bukkit only allows permissions to be set once, check that the permission node is null to ensure it was not
-	 * previously set, before an /aach reload for example.
-	 */
-	private void registerPermissions() {
-		logger.info("Registering permissions...");
-
-		PluginManager pluginManager = Bukkit.getPluginManager();
-		for (MultipleAchievements category : MultipleAchievements.values()) {
-			Permission categoryParent = new Permission(category.toPermName(), PermissionDefault.TRUE);
-			for (String section : achievementMap.getSubcategoriesForCategory(category)) {
-				// Permissions don't take spaces into account.
-				section = StringUtils.deleteWhitespace(section);
-
-				for (String groupElement : StringUtils.split(section, '|')) {
-					String permissionNode = category.toChildPermName(groupElement);
-					if (pluginManager.getPermission(permissionNode) == null) {
-						Permission perm = new Permission(permissionNode, PermissionDefault.TRUE);
-						perm.addParent(categoryParent, true);
-						pluginManager.addPermission(perm);
-					}
-				}
-			}
-		}
-
-		Permission achievementParent = new Permission("achievement.*", PermissionDefault.OP);
-		for (String name : achievementMap.getAllNames()) {
-			String permissionNode = "achievement." + name;
-			if (pluginManager.getPermission(permissionNode) == null) {
-				Permission perm = new Permission(permissionNode, PermissionDefault.TRUE);
-				perm.addParent(achievementParent, true);
-				pluginManager.addPermission(perm);
-			}
 		}
 	}
 

@@ -39,10 +39,6 @@ public class JobsRebornListener extends AbstractListener {
 		}
 
 		String jobName = event.getJob().getJobFullName().toLowerCase();
-		if (!player.hasPermission(category.toChildPermName(jobName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 		addMatchingSubcategories(subcategories, jobName);
 		subcategories.forEach(key -> {

@@ -53,10 +53,6 @@ public class CraftsListener extends AbstractListener {
 		Player player = (Player) event.getWhoClicked();
 		ItemStack item = event.getCurrentItem();
 		String craftName = item.getType().name().toLowerCase();
-		if (!player.hasPermission(category.toChildPermName(craftName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 		addMatchingSubcategories(subcategories, craftName);
 

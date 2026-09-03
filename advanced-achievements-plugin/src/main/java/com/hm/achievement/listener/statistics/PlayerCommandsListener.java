@@ -39,11 +39,9 @@ public class PlayerCommandsListener extends AbstractListener {
 		Set<String> matchingSubcategories = new HashSet<>();
 		for (String groupedPrefixes : subcategories) {
 			for (String prefix : StringUtils.split(groupedPrefixes, '|')) {
-				if (player.hasPermission(category.toChildPermName(StringUtils.deleteWhitespace(prefix)))) {
-					for (String equivalentCommand : equivalentCommands) {
-						if (equivalentCommand.startsWith(prefix)) {
-							matchingSubcategories.add(groupedPrefixes);
-						}
+				for (String equivalentCommand : equivalentCommands) {
+					if (equivalentCommand.startsWith(prefix)) {
+						matchingSubcategories.add(groupedPrefixes);
 					}
 				}
 			}

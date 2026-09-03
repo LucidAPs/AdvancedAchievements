@@ -89,9 +89,8 @@ public class StatisticIncreaseHandler implements Reloadable {
 				// Entries in List sorted in increasing order, all subsequent thresholds will fail the condition.
 				return;
 			}
-			// Check whether player has received the achievement and has permission to do so.
-			if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())
-					&& player.hasPermission("achievement." + achievement.getName())) {
+			// Check whether player has received the achievement.
+			if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())) {
 				playerAdvancedAchievementListener.awardAchievement(player, achievement);
 			}
 		}
@@ -101,13 +100,11 @@ public class StatisticIncreaseHandler implements Reloadable {
 	 * Determines whether the statistic increase should be taken into account.
 	 *
 	 * @param player
-	 * @param category
 	 * @return true if the increase should be taken into account, false otherwise
 	 */
-	protected boolean shouldIncreaseBeTakenIntoAccount(Player player, Category category) {
+	protected boolean shouldIncreaseBeTakenIntoAccount(Player player) {
 		GameMode gameMode = player.getGameMode();
 		return !player.hasMetadata("NPC")
-				&& player.hasPermission(category.toPermName())
 				&& (!configRestrictCreative || gameMode != GameMode.CREATIVE)
 				&& (!configRestrictSpectator || gameMode != GameMode.SPECTATOR)
 				&& (!configRestrictAdventure || gameMode != GameMode.ADVENTURE)

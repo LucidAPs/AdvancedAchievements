@@ -44,7 +44,6 @@ not-a-player: "您不能给予 ENTITY 成就，它不是一名玩家！"
 achievement-already-received: "玩家 PLAYER 已经拥有这项成就!"
 achievement-not-found: "在对应的指令类别中找不到指定的成就，您的意思是 CLOSEST_MATCH 吗？"
 achievement-given: "成功给予成就!"
-achievement-no-permission: "玩家 PLAYER 没有权限获取这项成就！"
 
 # 与 /aach add 相关
 error-value: "给定值： VALUE 必须是一个整数!"

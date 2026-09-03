@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -170,23 +171,32 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 
 	public void awardAchievement(Player player, Achievement achievement) {
 		// Achievement could have already been received if MultiCommand is set to true in the configuration.
-		if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())) {
-			cacheManager.registerNewlyReceivedAchievement(player.getUniqueId(), achievement.getName());
-
-			Advancement advancement = Bukkit.getAdvancement(new NamespacedKey(advancedAchievements,
-					AdvancementManager.getKey(achievement.getName())));
-			// Matching advancement might not exist if user has not called /aach generate.
-			if (advancement != null) {
-				player.getAdvancementProgress(advancement).awardCriteria(AchievementAdvancement.CRITERIA_NAME);
-			}
-		}
+		boolean newlyReceived = !cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName());
 		databaseManager.registerAchievement(player.getUniqueId(), achievement.getName(), System.currentTimeMillis());
+		if (newlyReceived) {
+			cacheManager.registerNewlyReceivedAchievement(player.getUniqueId(), achievement.getName());
+			synchroniseAdvancement(player, achievement);
+		}
 
 		achievement.getRewards().forEach(r -> r.getRewarder().accept(player));
 		displayAchievement(player, achievement);
 
 		if (cacheManager.getPlayerAchievements(player.getUniqueId()).size() == achievementMap.getAll().size()) {
 			handleAllAchievementsReceived(player);
+		}
+	}
+
+	private void synchroniseAdvancement(Player player, Achievement achievement) {
+		try {
+			Advancement advancement = Bukkit.getAdvancement(new NamespacedKey(advancedAchievements,
+					AdvancementManager.getKey(achievement.getName())));
+			// Matching advancement might not exist if user has not called /aach generate.
+			if (advancement != null) {
+				player.getAdvancementProgress(advancement).awardCriteria(AchievementAdvancement.CRITERIA_NAME);
+			}
+		} catch (RuntimeException e) {
+			logger.log(Level.WARNING, "Could not synchronise advancement for achievement " + achievement.getName()
+					+ " and player " + player.getName() + ". The achievement was still awarded.", e);
 		}
 	}
 

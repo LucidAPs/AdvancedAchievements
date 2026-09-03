@@ -45,7 +45,6 @@ not-a-player: "Você não pode dar conquistas para ENTITY, não é um jogador!"
 achievement-already-received: "O jogador PLAYER ja recebeu esta conquista"
 achievement-not-found: "Está conquista não foi encontrada"
 achievement-given: "Conquista foi dada"
-achievement-no-permission: "O jogador PLAYER não tem permissão para receber esta conquista!"
 
 # Related to /aach add.
 error-value: "O valor VALUE deve ser um número inteiro!"

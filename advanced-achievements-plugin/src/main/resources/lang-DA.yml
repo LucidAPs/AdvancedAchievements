@@ -44,7 +44,6 @@ not-a-player: "Du kan ikke give præsentationer til ENTITY, det er ikke en spill
 achievement-already-received: "Spilleren PLAYER har allerede modtaget denne præsentation!"
 achievement-not-found: "Den specifikke præsentation var ikke fundet i kommando kategorien. Mente du CLOSEST_MATCH?"
 achievement-given: "Præsentation givet!"
-achievement-no-permission: "Spilleren PLAYER har ikke tilladelse til at modtage denne præsentation!"
 
 # Relateret til /aach add.
 error-value: "Værdien VALUE skal være en integer!"

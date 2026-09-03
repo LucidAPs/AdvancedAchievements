@@ -67,7 +67,7 @@ public class ConnectionsListener extends AbstractListener {
 			if (!ConnectionInformation.today().equals(connectionInformation.getDate())) {
 				// Switch to main server thread as Bukkit APIs aren't thread-safe and shouldn't be used in async tasks.
 				Bukkit.getScheduler().scheduleSyncDelayedTask(advancedAchievements, () -> {
-					if (player.isOnline() && shouldIncreaseBeTakenIntoAccount(player, category)) {
+					if (player.isOnline() && shouldIncreaseBeTakenIntoAccount(player)) {
 						long updatedConnectionCount = connectionInformation.getCount() + 1;
 						databaseManager.updateConnectionInformation(player.getUniqueId(), updatedConnectionCount);
 						checkThresholdsAndAchievements(player, category, updatedConnectionCount);

@@ -194,9 +194,6 @@ HideProgressiveAchievements: false
 # 隐藏玩家还未获得其中成就的成就类别（在/aach list中显示为锁定）
 HideNotReceivedCategories: false
 
-# 完全隐藏玩家没有相应权限的成就类别
-HideNoPermissionCategories: false
-
 # 在/aach list 中隐藏成就奖励
 HideRewardDisplayInList: false
 

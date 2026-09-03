@@ -25,12 +25,4 @@ public class CommandAchievements implements Category {
 	public String toDBName() {
 		return "";
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toPermName() {
-		return "";
-	}
 }

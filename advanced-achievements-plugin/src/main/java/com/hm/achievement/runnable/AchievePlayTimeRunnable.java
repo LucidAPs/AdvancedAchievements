@@ -66,7 +66,7 @@ public class AchievePlayTimeRunnable extends StatisticIncreaseHandler implements
 	 * @param millisSincePreviousRun
 	 */
 	private void updateTime(Player player, int millisSincePreviousRun) {
-		if (!shouldIncreaseBeTakenIntoAccount(player, NormalAchievements.PLAYEDTIME)) {
+		if (!shouldIncreaseBeTakenIntoAccount(player)) {
 			return;
 		}
 

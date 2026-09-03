@@ -64,10 +64,6 @@ public class BreaksListener extends AbstractListener {
 		}
 
 		String blockName = block.getType().name().toLowerCase();
-		if (!player.hasPermission(category.toChildPermName(blockName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 		addMatchingSubcategories(subcategories, blockName);
 		updateStatisticAndAwardAchievementsIfAvailable(player, subcategories, 1);

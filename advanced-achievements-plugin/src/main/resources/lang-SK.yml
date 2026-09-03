@@ -42,7 +42,6 @@ not-a-player: "Nemôžeš dať úspech ENTITY, nie je to hráč!"
 achievement-already-received: "Hrač PLAYER už dosiahol tento úspech!"
 achievement-not-found: "Špecifikovaný úspech sa nenašiel. Myslel si CLOSEST_MATCH?"
 achievement-given: "Úspech darovaný!"
-achievement-no-permission: "Hráč PLAYER nemá právo, aby mohol obdržať tento úspech!"
 
 # Related to /aach add.
 error-value: "Hodnota VALUE musí byť integer!"

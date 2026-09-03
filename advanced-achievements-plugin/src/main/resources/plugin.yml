@@ -15,7 +15,7 @@ permissions:
     description: Allows to receive achievements books.
     default: true
   achievement.list:
-    description: Allows to display  name of received and missing achievements.
+    description: Allows to display name of received and missing achievements.
     default: true
   achievement.top:
     description: Allows to display global achievement rankings.
@@ -57,7 +57,7 @@ permissions:
     description: Allows to generate advancements from the achievements defined in the configuration.
     default: op
   achievement.*:
-    description: Star notation of permissions, includes all the above ones and disables book command cooldowns.
+    description: Star notation of command permissions, includes all the above ones and disables book command cooldowns.
     default: op
     children:
       achievement.book: true
@@ -75,239 +75,9 @@ permissions:
       achievement.delete: true
       achievement.reset: true
       achievement.generate: true
-      achievement.count.*: true
   achievement.config.title.screen:
     description: If TitleScreen is false in TESTconfig.yml, allows overriding to true on a per-player basis.
     default: false
   achievement.config.receiver.chat.messages:
     description: If ReceiverChatMessages is false in TESTconfig.yml, allows overriding to true on a per-player basis.
     default: false
-  achievement.count.*:
-    description: Star notation of statistic count permissions.
-    default: true
-    children:
-      achievement.count.connections: true
-      achievement.count.advancementscompleted: true
-      achievement.count.arrows: true
-      achievement.count.beds: true
-      achievement.count.consumedpotions: true
-      achievement.count.eatenitems: true
-      achievement.count.deaths: true
-      achievement.count.itemdrops: true
-      achievement.count.enchantments: true
-      achievement.count.fish: true
-      achievement.count.hoeplowings: true
-      achievement.count.fertilising: true
-      achievement.count.fireworks: true
-      achievement.count.musicdiscs: true
-      achievement.count.enderpearls: true
-      achievement.count.itembreaks: true
-      achievement.count.milk: true
-      achievement.count.shear: true
-      achievement.count.snowballs: true
-      achievement.count.eggs: true
-      achievement.count.taming: true
-      achievement.count.trades: true
-      achievement.count.anvilsused: true
-      achievement.count.brewing: true
-      achievement.count.maxlevel: true
-      achievement.count.playedtime: true
-      achievement.count.distancefoot: true
-      achievement.count.distanceboat: true
-      achievement.count.distanceminecart: true
-      achievement.count.distancehorse: true
-      achievement.count.distancepig: true
-      achievement.count.distancegliding: true
-      achievement.count.distancellama: true
-      achievement.count.distancesneaking: true
-      achievement.count.treasures: true
-      achievement.count.lavabuckets: true
-      achievement.count.waterbuckets: true
-      achievement.count.itempickups: true
-      achievement.count.petmastergive: true
-      achievement.count.petmasterreceive: true
-      achievement.count.smelting: true
-      achievement.count.raidswon: true
-      achievement.count.riptides: true
-      achievement.count.booksedited: true
-      achievement.count.places.*: true
-      achievement.count.breaks.*: true
-      achievement.count.kills.*: true
-      achievement.count.targetsshot.*: true
-      achievement.count.crafts.*: true
-      achievement.count.breeding.*: true
-      achievement.count.playercommands.*: true
-      achievement.count.jobsreborn.*: true
-      achievement.count.custom.*: true
-      achievement.count.effectsheld.*: true
-  achievement.count.connections:
-    description: Allows connection statistics in database to increase.
-    default: true
-  achievement.count.advancementscompleted:
-    description: Allows advancement statistics in database to increase.
-    default: true
-  achievement.count.arrows:
-    description: Allows arrow statistics in database to increase.
-    default: true
-  achievement.count.beds:
-    description: Allows bed statistics in database to increase.
-    default: true
-  achievement.count.consumedpotions:
-    description: Allows consumed potions statistics in database to increase.
-    default: true
-  achievement.count.eatenitems:
-    description: Allows eaten item statistics in database to increase.
-    default: true
-  achievement.count.deaths:
-    description: Allows death statistics in database to increase.
-    default: true
-  achievement.count.itemdrops:
-    description: Allows item drop statistics in database to increase.
-    default: true
-  achievement.count.enchantments:
-    description: Allows enchantment statistics in database to increase.
-    default: true
-  achievement.count.fish:
-    description: Allows fish statistics in database to increase.
-    default: true
-  achievement.count.hoeplowings:
-    description: Allows hoe plowing statistics in database to increase.
-    default: true
-  achievement.count.fertilising:
-    description: Allows fertilising statistics in database to increase.
-    default: true
-  achievement.count.fireworks:
-    description: Allows firework statistics in database to increase.
-    default: true
-  achievement.count.musicdiscs:
-    description: Allows music disc statistics in database to increase.
-    default: true
-  achievement.count.enderpearls:
-    description: Allows ender pearl statistics in database to increase.
-    default: true
-  achievement.count.itembreaks:
-    description: Allows item breaks statistics in database to increase.
-    default: true
-  achievement.count.milk:
-    description: Allows milk statistics in database to increase.
-    default: true
-  achievement.count.shear:
-    description: Allows shear statistics in database to increase.
-    default: true
-  achievement.count.snowballs:
-    description: Allows snowball statistics in database to increase.
-    default: true
-  achievement.count.eggs:
-    description: Allows egg statistics in database to increase.
-    default: true
-  achievement.count.taming:
-    description: Allows taming statistics in database to increase.
-    default: true
-  achievement.count.trades:
-    description: Allows trade statistics in database to increase.
-    default: true
-  achievement.count.anvilsused:
-    description: Allows anvils used statistics in database to increase.
-    default: true
-  achievement.count.brewing:
-    description: Allows brewing statistics in database to increase.
-    default: true
-  achievement.count.maxlevel:
-    description: Allows max level statistics in database to increase.
-    default: true
-  achievement.count.playedtime:
-    description: Allows played time statistics in database to increase.
-    default: true
-  achievement.count.distancefoot:
-    description: Allows foot distance statistics in database to increase.
-    default: true
-  achievement.count.distanceboat:
-    description: Allows boat distance statistics in database to increase.
-    default: true
-  achievement.count.distanceminecart:
-    description: Allows minecart distance statistics in database to increase.
-    default: true
-  achievement.count.distancehorse:
-    description: Allows horse distance statistics in database to increase.
-    default: true
-  achievement.count.distancepig:
-    description: Allows pig distance statistics in database to increase.
-    default: true
-  achievement.count.distancegliding:
-    description: Allows gliding distance statistics in database to increase.
-    default: true
-  achievement.count.distancellama:
-    description: Allows distance llama statistics in database to increase.
-    default: true
-  achievement.count.distancesneaking:
-    description: Allows distance sneaking statistics in database to increase.
-    default: true
-  achievement.count.treasures:
-    description: Allows treasure statistics in database to increase.
-    default: true
-  achievement.count.lavabuckets:
-    description: Allows lava bucket statistics in database to increase.
-    default: true
-  achievement.count.waterbuckets:
-    description: Allows water bucket statistics in database to increase.
-    default: true
-  achievement.count.itempickups:
-    description: Allows item pickup statistics in database to increase.
-    default: true
-  achievement.count.petmastergive:
-    description: Allows Pet Master give statistics in database to increase.
-    default: true
-  achievement.count.petmasterreceive:
-    description: Allows Pet Master receive statistics in database to increase.
-    default: true
-  achievement.count.smelting:
-    description: Allows smelting statistics in database to increase.
-    default: true
-  achievement.count.raidswon:
-    description: Allows raids won statistics in database to increase.
-    default: true
-  achievement.count.riptides:
-    description: Allows riptides statistics in database to increase.
-    default: true
-  achievement.count.booksedited:
-    description: Allows books edited statistics in database to increase.
-    default: true
-  achievement.count.places.*:
-    description: Allows places statistics in database to increase.
-    default: true
-  achievement.count.breaks.*:
-    description: Allows breaks statistics in database to increase.
-    default: true
-  achievement.count.kills.*:
-    description: Allows kills statistics in database to increase.
-    default: true
-  achievement.count.targetsshot.*:
-    description: Allows targets shot statistics in database to increase.
-    default: true
-  achievement.count.crafts.*:
-    description: Allows crafts statistics in database to increase.
-    default: true
-  achievement.count.breeding.*:
-    description: Allows breeding statistics in database to increase.
-    default: true
-  achievement.count.playercommands.*:
-    description: Allows player commands statistics in database to increase.
-    default: true
-  achievement.count.jobsreborn.*:
-    description: Allows jobs reborn statistics in database to increase.
-    default: true
-  achievement.count.custom.*:
-    description: Allows custom statistics in database to increase.
-    default: true
-  achievement.count.effectsheld.*:
-    description: Allows effects held statistics in database to increase.
-    default: true
-#======================================================================================================================#
-#                                /!\  Dynamic permissions added at plugin startup  /!\                                 #
-#======================================================================================================================#
-# For individual achievements, simply use the Name property, e.g achievement.place_100_stone
-# For categories with sub-categories (Breaks, Places, Crafts, Kills, Breeding, PlayerCommands, Custom, TargetsShot and EffectsHeld):
-# - use the sub-category key: for example for stone breaks, achievement.count.breaks.stone
-# - for PlayerCommands, use lower case without spaces nor the initial slash: achievement.count.playercommands.aachbook
-# - for Kills with a custom mob name you should remove any whitespaces: achievement.count.kills.§2SkeletalKnight
-# - for Places with a custom item display name you should also remove any whitespaces.

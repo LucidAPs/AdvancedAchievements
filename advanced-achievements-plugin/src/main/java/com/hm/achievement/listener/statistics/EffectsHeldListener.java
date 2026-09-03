@@ -34,10 +34,6 @@ public class EffectsHeldListener extends AbstractListener {
 
 		Player player = (Player) event.getEntity();
 		String effectName = event.getNewEffect().getType().getName().toLowerCase();
-		if (!player.hasPermission(category.toChildPermName(effectName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 
 		addMatchingSubcategories(subcategories, effectName);

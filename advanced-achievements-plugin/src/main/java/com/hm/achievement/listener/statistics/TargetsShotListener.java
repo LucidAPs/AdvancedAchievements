@@ -42,10 +42,6 @@ public class TargetsShotListener extends AbstractListener {
 		}
 
 		Player player = (Player) event.getEntity().getShooter();
-		if (!player.hasPermission(category.toChildPermName(targetName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 
 		addMatchingSubcategories(subcategories, targetName);

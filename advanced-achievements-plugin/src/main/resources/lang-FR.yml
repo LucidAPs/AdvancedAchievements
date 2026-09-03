@@ -45,7 +45,6 @@ not-a-player: "Vous ne pouvez pas donner un succès à une entité, ce n'est pas
 achievement-already-received: "Le joueur PLAYER possède déjà ce succès !"
 achievement-not-found: "Le succès spécifié n'a pas été trouvé dans la catégorie Commandes. Vouliez-vous dire CLOSEST_MATCH ?"
 achievement-given: "Succès donné !"
-achievement-no-permission: "Le joueur PLAYER n'a pas la permission de recevoir ce succès !"
 
 # Used in /aach add.
 error-value: "La valeur VALUE doit être un nombre entier !"

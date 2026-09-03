@@ -137,7 +137,7 @@ public class AchieveDistanceRunnable extends StatisticIncreaseHandler implements
 	 * @param category
 	 */
 	private void updateDistance(int difference, Player player, NormalAchievements category) {
-		if (!shouldIncreaseBeTakenIntoAccount(player, category) || disabledCategories.contains(category)) {
+		if (!shouldIncreaseBeTakenIntoAccount(player) || disabledCategories.contains(category)) {
 			return;
 		}
 

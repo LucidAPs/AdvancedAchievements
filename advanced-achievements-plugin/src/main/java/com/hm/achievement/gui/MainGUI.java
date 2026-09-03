@@ -45,7 +45,6 @@ public class MainGUI implements Reloadable {
 	private final AchievementMap achievementMap;
 
 	private boolean configHideNotReceivedCategories;
-	private boolean configHideNoPermissionCategories;
 
 	private String langListGUITitle;
 	private String langListAchievementsInCategoryPlural;
@@ -67,7 +66,6 @@ public class MainGUI implements Reloadable {
 	@Override
 	public void extractConfigurationParameters() {
 		configHideNotReceivedCategories = mainConfig.getBoolean("HideNotReceivedCategories");
-		configHideNoPermissionCategories = mainConfig.getBoolean("HideNoPermissionCategories");
 
 		langListGUITitle = ChatColor.translateAlternateColorCodes('&', langConfig.getString("list-gui-title"));
 		langListAchievementsInCategoryPlural = langConfig.getString("list-achievements-in-category-plural");
@@ -113,7 +111,7 @@ public class MainGUI implements Reloadable {
 		for (Entry<OrderedCategory, ItemStack> achievementItem : guiItems.getOrderedAchievementItems().entrySet()) {
 			Category category = achievementItem.getKey().getCategory();
 			ItemStack item = achievementItem.getValue();
-			if (shouldDisplayCategory(item, player, category)) {
+			if (shouldDisplayCategory(item, category)) {
 				displayCategory(item, mainGUI, player, category, displayedSoFar);
 				++displayedSoFar;
 			}
@@ -127,14 +125,12 @@ public class MainGUI implements Reloadable {
 	 * Determines whether the category should be displayed in the GUI.
 	 *
 	 * @param item
-	 * @param player
 	 * @param category
 	 * @return true if an item corresponding to the category should be added to the GUI
 	 */
-	private boolean shouldDisplayCategory(ItemStack item, Player player, Category category) {
-		// Hide category if an empty name is defined for it, if it's disabled or if the player is missing permissions.
-		return item.getItemMeta().getDisplayName().length() > 0 && !disabledCategories.contains(category)
-				&& (!configHideNoPermissionCategories || player.hasPermission(category.toPermName()));
+	private boolean shouldDisplayCategory(ItemStack item, Category category) {
+		// Hide category if an empty name is defined for it or if it's disabled.
+		return item.getItemMeta().getDisplayName().length() > 0 && !disabledCategories.contains(category);
 	}
 
 	/**

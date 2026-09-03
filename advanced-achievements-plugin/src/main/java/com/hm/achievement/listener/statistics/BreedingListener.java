@@ -36,10 +36,6 @@ public class BreedingListener extends AbstractListener {
 		}
 
 		String mobName = event.getMother().getType().name().toLowerCase();
-		if (!event.getBreeder().hasPermission(category.toChildPermName(mobName))) {
-			return;
-		}
-
 		Set<String> subcategories = new HashSet<>();
 		addMatchingSubcategories(subcategories, mobName);
 		updateStatisticAndAwardAchievementsIfAvailable((Player) event.getBreeder(), subcategories, 1);

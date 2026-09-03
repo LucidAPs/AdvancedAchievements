@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,16 +42,12 @@ public class PlacesListener extends AbstractListener {
 		Set<String> subcategories = new HashSet<>();
 
 		String blockName = placedItem.getType().name().toLowerCase();
-		if (player.hasPermission(category.toChildPermName(blockName))) {
-			addMatchingSubcategories(subcategories, blockName);
-		}
+		addMatchingSubcategories(subcategories, blockName);
 
 		ItemMeta itemMeta = placedItem.getItemMeta();
 		if (itemMeta != null && itemMeta.hasDisplayName()) {
 			String displayName = itemMeta.getDisplayName();
-			if (player.hasPermission(category.toChildPermName(StringUtils.deleteWhitespace(displayName)))) {
-				addMatchingSubcategories(subcategories, displayName);
-			}
+			addMatchingSubcategories(subcategories, displayName);
 		}
 
 		updateStatisticAndAwardAchievementsIfAvailable(player, subcategories, 1);

@@ -64,12 +64,10 @@ public enum NormalAchievements implements Category {
 
 	private final String categoryName;
 	private final String dbName;
-	private final String permName;
 
 	NormalAchievements(String categoryName) {
 		this.categoryName = categoryName;
 		this.dbName = name().toLowerCase();
-		this.permName = "achievement.count." + categoryName.toLowerCase();
 	}
 
 	/**
@@ -93,13 +91,5 @@ public enum NormalAchievements implements Category {
 	@Override
 	public String toDBName() {
 		return dbName;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toPermName() {
-		return permName;
 	}
 }
