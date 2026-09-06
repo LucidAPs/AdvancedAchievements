@@ -3,6 +3,7 @@ package com.hm.achievement.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +69,12 @@ public class AchievementMap {
 
 	public void replaceWith(AchievementMap replacement) {
 		clearAll();
-		replacement.getAll().forEach(this::put);
+		// Sort by threshold before re-inserting: getAll() is backed by a HashMap and is therefore unordered, while
+		// put() appends to the per-subcategory lists. Consumers read those lists in order, so the ordering has to be
+		// established here rather than inherited from the replacement's iteration order.
+		replacement.getAll().stream()
+				.sorted(Comparator.comparingLong(Achievement::getThreshold))
+				.forEach(this::put);
 	}
 
 	public Achievement getForName(String name) {

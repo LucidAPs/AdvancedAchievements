@@ -86,8 +86,9 @@ public class StatisticIncreaseHandler implements Reloadable {
 		for (Achievement achievement : achievements) {
 			// Check whether player has met the threshold.
 			if (currentValue < achievement.getThreshold()) {
-				// Entries in List sorted in increasing order, all subsequent thresholds will fail the condition.
-				return;
+				// Threshold not met. Skip rather than stop: AchievementMap is expected to supply this list in
+				// increasing threshold order, but correctness here must not depend on it.
+				continue;
 			}
 			// Check whether player has received the achievement.
 			if (!cacheManager.hasPlayerAchievement(player.getUniqueId(), achievement.getName())) {
