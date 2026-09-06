@@ -186,17 +186,17 @@ class AchievementMapTest {
 	/**
 	 * Regression test for the 11.6 threshold-ordering defect.
 	 *
-	 * <p>{@code replaceWith} re-inserts via {@code getAll()}, which is
-	 * {@code HashMap.values()} and therefore unordered. The per-subcategory list it
-	 * rebuilds must still come out ascending by threshold, because
+	 * <p>
+	 * {@code replaceWith} re-inserts via {@code getAll()}, which is {@code HashMap.values()} and therefore unordered.
+	 * The per-subcategory list it rebuilds must still come out ascending by threshold, because
 	 * {@code StatisticIncreaseHandler} relies on that ordering for its early exit.
 	 *
-	 * <p>The three names below are chosen deliberately, not arbitrarily: under a real
-	 * {@link java.util.HashMap} at this map's table size they land in buckets 15, 11 and 0,
-	 * so {@code values()} yields them in threshold order 20000, 1000, 100 — the exact
-	 * inversion observed in production on the {@code stone|deepslate} group. A triple of
-	 * arbitrary names would very likely iterate ascending by chance and the test would
-	 * pass against the unpatched code, proving nothing.
+	 * <p>
+	 * The three names below are chosen deliberately, not arbitrarily: under a real {@link java.util.HashMap} at this
+	 * map's table size they land in buckets 15, 11 and 0, so {@code values()} yields them in threshold order 20000,
+	 * 1000, 100 — the exact inversion observed in production on the {@code stone|deepslate} group. A triple of
+	 * arbitrary names would very likely iterate ascending by chance and the test would pass against the unpatched code,
+	 * proving nothing.
 	 */
 	@Test
 	void shouldReplaceWithAscendingThresholdOrderRegardlessOfInputOrder() {
