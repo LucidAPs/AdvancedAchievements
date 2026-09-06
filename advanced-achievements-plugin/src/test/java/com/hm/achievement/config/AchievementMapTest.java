@@ -1,9 +1,11 @@
 package com.hm.achievement.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -179,6 +181,46 @@ class AchievementMapTest {
 		assertTrue(underTest.getForCategory(MultipleAchievements.KILLS).isEmpty());
 		assertTrue(underTest.getSubcategoriesForCategory(MultipleAchievements.KILLS).isEmpty());
 		assertTrue(underTest.getCategorySubcategories().isEmpty());
+	}
+
+	/**
+	 * Regression test for the 11.6 threshold-ordering defect.
+	 *
+	 * <p>
+	 * {@code replaceWith} re-inserts via {@code getAll()}, which is {@code HashMap.values()} and therefore unordered.
+	 * The per-subcategory list it rebuilds must still come out ascending by threshold, because
+	 * {@code StatisticIncreaseHandler} relies on that ordering for its early exit.
+	 *
+	 * <p>
+	 * The three names below are chosen deliberately, not arbitrarily: under a real {@link java.util.HashMap} at this
+	 * map's table size they land in buckets 15, 11 and 0, so {@code values()} yields them in threshold order 20000,
+	 * 1000, 100 — the exact inversion observed in production on the {@code stone|deepslate} group. A triple of
+	 * arbitrary names would very likely iterate ascending by chance and the test would pass against the unpatched code,
+	 * proving nothing.
+	 */
+	@Test
+	void shouldReplaceWithAscendingThresholdOrderRegardlessOfInputOrder() {
+		Achievement high = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_20000_deepslate").displayName("High").threshold(20000).build();
+		Achievement mid = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_1000_deepslate").displayName("Mid").threshold(1000).build();
+		Achievement low = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_100_deepslate").displayName("Low").threshold(100).build();
+		AchievementMap replacement = new AchievementMap();
+		replacement.put(high);
+		replacement.put(low);
+		replacement.put(mid);
+
+		// Guard the test's own premise: if the shuffled input ever stops being scrambled -- a fourth achievement
+		// added here, or a JDK that changes HashMap's spread function -- this test would pass trivially against
+		// unpatched code. Fail loudly instead.
+		assertNotEquals(Arrays.asList(low, mid, high), new ArrayList<>(replacement.getAll()),
+				"test premise broken: replacement iterates in ascending threshold order, so it cannot detect the defect");
+
+		underTest.replaceWith(replacement);
+
+		assertEquals(Arrays.asList(low, mid, high),
+				underTest.getForCategoryAndSubcategory(MultipleAchievements.BREAKS, "deepslate"));
 	}
 
 	@Test
