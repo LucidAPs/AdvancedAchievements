@@ -1,9 +1,11 @@
 package com.hm.achievement.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -208,6 +210,12 @@ class AchievementMapTest {
 		replacement.put(high);
 		replacement.put(low);
 		replacement.put(mid);
+
+		// Guard the test's own premise: if the shuffled input ever stops being scrambled -- a fourth achievement
+		// added here, or a JDK that changes HashMap's spread function -- this test would pass trivially against
+		// unpatched code. Fail loudly instead.
+		assertNotEquals(Arrays.asList(low, mid, high), new ArrayList<>(replacement.getAll()),
+				"test premise broken: replacement iterates in ascending threshold order, so it cannot detect the defect");
 
 		underTest.replaceWith(replacement);
 

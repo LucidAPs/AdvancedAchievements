@@ -69,11 +69,12 @@ public class AchievementMap {
 
 	public void replaceWith(AchievementMap replacement) {
 		clearAll();
-		// Sort by threshold before re-inserting: getAll() is backed by a HashMap and is therefore unordered, while
-		// put() appends to the per-subcategory lists. Consumers read those lists in order, so the ordering has to be
-		// established here rather than inherited from the replacement's iteration order.
+		// Sort before re-inserting: getAll() is backed by a HashMap and is therefore unordered, while put() appends to
+		// the lists consumers read in order. Sorting by subcategory first keeps a category's achievements contiguous
+		// per subcategory, which AdvancementManager relies on to find advancement-chain boundaries; sorting by
+		// threshold within a subcategory is what StatisticIncreaseHandler's early exit expects.
 		replacement.getAll().stream()
-				.sorted(Comparator.comparingLong(Achievement::getThreshold))
+				.sorted(Comparator.comparing(Achievement::getSubcategory).thenComparingLong(Achievement::getThreshold))
 				.forEach(this::put);
 	}
 
