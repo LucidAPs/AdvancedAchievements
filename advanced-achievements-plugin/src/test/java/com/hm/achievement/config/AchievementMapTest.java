@@ -182,6 +182,25 @@ class AchievementMapTest {
 	}
 
 	@Test
+	void shouldReplaceWithAscendingThresholdOrderRegardlessOfInputOrder() {
+		Achievement high = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
+				.name("stone_20000").displayName("Stone High").threshold(20000).build();
+		Achievement mid = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
+				.name("stone_1000").displayName("Stone Mid").threshold(1000).build();
+		Achievement low = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
+				.name("stone_100").displayName("Stone Low").threshold(100).build();
+		AchievementMap replacement = new AchievementMap();
+		replacement.put(high);
+		replacement.put(low);
+		replacement.put(mid);
+
+		underTest.replaceWith(replacement);
+
+		assertEquals(Arrays.asList(low, mid, high),
+				underTest.getForCategoryAndSubcategory(MultipleAchievements.PLACES, "stone"));
+	}
+
+	@Test
 	void shouldReplaceAllMapEntries() {
 		Achievement oldAchievement = new AchievementBuilder().category(NormalAchievements.ANVILS).name("old")
 				.displayName("Old").build();

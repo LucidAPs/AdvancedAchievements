@@ -68,6 +68,20 @@ class StatisticIncreaseHandlerTest {
 	}
 
 	@Test
+	void shouldAwardLowerThresholdAchievementWhenListIsNotAscending() {
+		Achievement high = achievement("itemdrops_20000", 20000);
+		Achievement mid = achievement("itemdrops_1000", 1000);
+		Achievement low = achievement("itemdrops_100", 100);
+		achievementMap.put(high);
+		achievementMap.put(mid);
+		achievementMap.put(low);
+
+		underTest.checkThresholdsAndAchievements(player, NormalAchievements.DROPS, 250);
+
+		verify(achievementListener).awardAchievement(player, low);
+	}
+
+	@Test
 	void shouldNotAwardBelowThreshold() {
 		achievementMap.put(achievement("itemdrops_500", 500));
 
