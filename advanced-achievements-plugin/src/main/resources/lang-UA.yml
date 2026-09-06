@@ -1,0 +1,225 @@
+#======================================================================================================================#
+#       _       _                               _      _        _     _                                     _          #
+#      / \   __| |_   ____ _ _ __   ___ ___  __| |    / \   ___| |__ (_) _____   _____ _ __ ___   ___ _ __ | |_ ___    #
+#     / _ \ / _` \ \ / / _` | '_ \ / __/ _ \/ _` |   / _ \ / __| '_ \| |/ _ \ \ / / _ \ '_ ` _ \ / _ \ '_ \| __/ __|   #
+#    / ___ \ (_| |\ V / (_| | | | | (_|  __/ (_| |  / ___ \ (__| | | | |  __/\ V /  __/ | | | | |  __/ | | | |_\__ \   #
+#   /_/   \_\__,_| \_/ \__,_|_| |_|\___\___|\__,_| /_/   \_\___|_| |_|_|\___| \_/ \___|_| |_| |_|\___|_| |_|\__|___/   #
+#                                                                                                                      #
+#                                                Український переклад                                                  #
+#======================================================================================================================#
+
+# Різні повідомлення для гравців.
+no-permissions: "У вас немає дозволу на цю дію."
+statistic-cooldown: "Перезарядка досягнень: зачекайте TIME секунд, перш ніж ця дія зарахується знову."
+category-does-not-exist: "Категорія та/або підкатегорія CAT не існує. Ви мали на увазі CLOSEST_MATCH?"
+all-achievements-received: "Вітаємо, ви отримали всі досягнення!"
+invalid-command: "Невідома команда. Введіть /aach, щоб побачити довідку."
+
+# Використовується в /aach reload.
+configuration-successfully-reloaded: "Конфігурацію успішно перезавантажено."
+configuration-reload-failed: "Помилки під час перезавантаження конфігурації. Подробиці дивіться в логах."
+
+# Використовується в /aach top, week та month.
+top-achievement: "Найкращі мисливці за досягненнями:"
+player-rank: "Поточне місце:"
+week-achievement: "Тижневий рейтинг досягнень:"
+month-achievement: "Місячний рейтинг досягнень:"
+not-ranked: "Наразі ви не потрапили до рейтингу за цей період."
+pagination-header: "&7> &5Сторінка PAGE/MAX"
+pagination-footer: "&7>"
+
+# Використовується в /aach stats.
+number-achievements: "Отримано досягнень:"
+
+# Використовується в /aach book.
+book-received: "Ви отримали книгу своїх досягнень!"
+book-delay: "Між отриманням книг потрібно чекати TIME секунд!"
+book-name: "Книга досягнень"
+book-date: "Книгу створено DATE."
+book-not-received: "Ви ще не отримали жодного досягнення."
+
+# Використовується в /aach give.
+player-offline: "Гравець PLAYER не в мережі!"
+not-a-player: "Ви не можете видати досягнення для ENTITY, це не гравець!"
+achievement-already-received: "Гравець PLAYER вже отримав це досягнення!"
+achievement-not-found: "Вказане досягнення не знайдено в категорії Commands. Ви мали на увазі CLOSEST_MATCH?"
+achievement-given: "Досягнення видано!"
+achievement-no-permission: "Гравець PLAYER не має дозволу отримати це досягнення!"
+
+# Використовується в /aach add.
+error-value: "Значення VALUE має бути цілим числом!"
+statistic-increased: "Статистику ACH збільшено на AMOUNT для гравця PLAYER!"
+
+# Використовується під час отримання досягнення.
+achievement-received: "PLAYER отримує досягнення: ACH"
+achievement-new: "Нове досягнення: ACH"
+boss-bar-progress: "Прогрес досягнення: AMOUNT"
+
+# Використовується в /aach check.
+check-achievement-true: "PLAYER отримав досягнення ACH!"
+check-achievements-false: "PLAYER не отримав досягнення ACH!"
+
+# Використовується в /aach delete.
+delete-achievements: "Досягнення ACH видалено у гравця PLAYER."
+delete-all-achievements: "Усі досягнення видалено у гравця PLAYER."
+
+# Використовується у винагородах за досягнення.
+item-reward-received: "Ви отримали предмет як винагороду: AMOUNT ITEM"
+money-reward-received: "Ви отримали: AMOUNT!"
+custom-command-reward: "Ви отримали свою винагороду: MESSAGE"
+experience-reward-received: "Ви отримали AMOUNT досвіду!"
+increase-max-health-reward-received: "Ваше максимальне здоров'я збільшено на AMOUNT!"
+increase-max-oxygen-reward-received: "Ваш максимальний запас кисню збільшено на AMOUNT!"
+
+# Використовується в /aach help.
+aach-command-book: "Отримати книгу своїх досягнень."
+aach-command-book-hover: "RP-предмети, які можна збирати та обмінювати з іншими! Список за датою."
+aach-command-stats: "Показати кількість отриманих досягнень."
+aach-command-stats-hover: "Смуга прогресу. Треба зібрати їх усі!"
+aach-command-list: "Показати отримані та відсутні досягнення."
+aach-command-list-hover: "Зручне меню з оглядом усіх досягнень і вашого прогресу!"
+aach-command-top: "Показати особистий і загальний рейтинги."
+aach-command-top-hover: "Хто лідери сервера і як ви виглядаєте на їхньому тлі?"
+aach-command-give: "Видати досягнення ACH гравцю NAME."
+aach-command-give-hover: "Гравець має бути в мережі; доступні лише досягнення категорії Commands."
+aach-command-add: "Збільшити статистику."
+aach-command-add-hover: "Гравець має бути в мережі; здебільшого для власних категорій."
+aach-command-reload: "Перезавантажити конфігурацію плагіна."
+aach-command-reload-hover: "Перезавантажує більшість налаштувань у файлах config.yml, gui.yml і lang.yml."
+aach-command-info: "Показати інформацію про плагін."
+aach-command-info-hover: "Трохи додаткової інформації про плагін і його чудового автора!"
+aach-command-check: "Перевірити, чи має NAME досягнення ACH."
+aach-command-check-hover: "Використовуйте параметр Name, вказаний у конфігурації."
+aach-command-delete: "Видалити ACH у гравця NAME."
+aach-command-delete-hover: "Гравець має бути в мережі; пов'язана статистика не скидається."
+aach-command-week: "Показати тижневий рейтинг."
+aach-command-week-hover: "Найкращі мисливці за досягненнями від початку тижня!"
+aach-command-month: "Показати місячний рейтинг."
+aach-command-month-hover: "Найкращі мисливці за досягненнями від початку місяця!"
+aach-command-toggle: "Перемкнути показ досягнень інших гравців."
+aach-command-toggle-hover: "Ваш вибір зберігається до наступного перезапуску сервера!"
+aach-command-reset: "Скинути статистику категорії CAT."
+aach-command-reset-hover: "Гравець має бути в мережі; приклад: reset Places.stone DarkPyves"
+aach-command-generate: "Згенерувати advancements."
+aach-command-generate-hover: "Команда може бути повільною; використовуйте обережно!"
+aach-command-inspect: "Переглянути власників досягнення ACH."
+aach-command-inspect-hover: "Показує останніх гравців, які отримали досягнення, максимум 1000."
+aach-tip: "&lПІДКАЗКА &8Ви можете &7&n&oнавести&8 або &7&n&oклацнути&8 на командах!"
+
+# Використовується в /aach info.
+version-command-version: "Версія:"
+version-command-website: "Сайт:"
+version-command-author: "Автор:"
+version-command-description: "Опис:"
+version-command-description-details: "Advanced Achievements додає унікальні та непрості досягнення. Зберіть їх якомога більше, отримуйте винагороди, підіймайтеся в рейтингу та здобувайте RP-книги!"
+version-command-vault: "Інтеграція з Vault:"
+version-command-petmaster: "Інтеграція з Pet Master:"
+version-command-essentials: "Інтеграція з Essentials:"
+version-command-placeholderapi: "Інтеграція з PlaceholderAPI:"
+version-command-database: "Тип бази даних:"
+
+# Використовується в /aach list.
+list-gui-title: "&5&lСписок досягнень"
+list-delay: "Між використаннями команди list потрібно чекати TIME секунд!"
+list-description: "Опис:"
+list-goal: "Мета:"
+list-reception: "Дата отримання:"
+list-progress: "Прогрес:"
+list-reward: "Винагорода:"
+list-rewards: "Винагороди:"
+list-reward-money: "отримати AMOUNT"
+list-reward-item: "отримати AMOUNT ITEM"
+list-reward-experience: "отримати AMOUNT досвіду"
+list-reward-increase-max-health: "збільшити максимальне здоров'я на AMOUNT"
+list-reward-increase-max-oxygen: "збільшити максимальний запас кисню на AMOUNT"
+list-achievement-received: "&5✔&f "
+list-achievement-not-received: "&4✘ "
+list-category-not-unlocked: "Ви ще не відкрили цю категорію."
+list-achievement-not-unlocked: "Ви ще не відкрили це досягнення."
+list-back-message: "&7Назад"
+list-back-lore: ""
+list-previous-message: "&7Попередня"
+list-previous-lore: ""
+list-next-message: "&7Наступна"
+list-next-lore: ""
+list-achievements-in-category-singular: "AMOUNT досягнення"
+list-achievements-in-category-plural: "AMOUNT досягнень"
+list-unavailable-whilst-sleeping: "&c&lНе можна відкрити список досягнень уві сні."
+
+# Назви категорій у /aach list.
+# Встановіть параметр у "", щоб приховати його в /aach list (категорія при цьому не вимикається).
+list-connections: "Заходи на сервер"
+list-places: "Встановлено блоків"
+list-breaks: "Зламано блоків"
+list-kills: "Убито істот"
+list-crafts: "Створено предметів"
+list-playercommands: "Введено команд"
+list-deaths: "Кількість смертей"
+list-arrows: "Випущено стріл"
+list-snowballs: "Кинуто сніжок"
+list-eggs: "Кинуто яєць"
+list-fish: "Спіймано риби"
+list-treasure: "Виловлено скарбів"
+list-itembreaks: "Зламано предметів"
+list-eatenitems: "З'їдено предметів"
+list-shear: "Пострижено овець"
+list-milk: "Подоєно корів"
+list-lavabuckets: "Відер, наповнених лавою"
+list-waterbuckets: "Відер, наповнених водою"
+list-trades: "Кількість обмінів"
+list-anvils: "Використано ковадел"
+list-enchantments: "Зачаровано предметів"
+list-beds: "Використано ліжок"
+list-maxlevel: "Досягнутий максимальний рівень"
+list-consumedpotions: "Випито зілля"
+list-playedtime: "Час у грі"
+list-distance-foot: "Пройдено пішки"
+list-distance-pig: "Подолано верхи на свині"
+list-distance-horse: "Подолано верхи на коні"
+list-distance-minecart: "Подолано у вагонетці"
+list-distance-boat: "Подолано на човні"
+list-distance-gliding: "Подолано з елітрами"
+list-distance-llama: "Подолано верхи на ламі"
+list-distance-sneaking: "Подолано крадькома"
+list-itemdrops: "Викинуто предметів"
+list-itempickups: "Підібрано предметів"
+list-hoeplowings: "Зорано землі"
+list-fertilising: "Удобрено рослин"
+list-taming: "Приручено тварин"
+list-breeding: "Розведено тварин"
+list-brewing: "Зварено зілля"
+list-fireworks: "Запущено феєрверків"
+list-musicdiscs: "Програно платівок"
+list-enderpearls: "Телепортацій перлинами Енду"
+list-petmastergive: "Улюбленців передано іншому гравцю"
+list-petmasterreceive: "Улюбленців отримано від іншого гравця"
+list-smelting: "Переплавлено предметів"
+list-commands: "Інші досягнення"
+list-custom: "Власні категорії"
+list-targetsshot: "Влучень у мішені"
+list-raids-won: "Виграно рейдів"
+list-riptides: "Використано Буруна"
+list-jobsreborn: "Підвищення рівня професії"
+list-advancements-completed: "Виконано advancements"
+list-booksedited: "Написано книг"
+list-effectsheld: "Утримувані ефекти"
+
+# Використовується в /aach toggle.
+toggle-displayed: "Тепер ви бачитимете сповіщення про досягнення інших гравців."
+toggle-hidden: "Тепер ви не бачитимете сповіщень про досягнення інших гравців."
+
+# Використовується в /aach reset.
+reset-successful: "Статистику CAT очищено для гравця PLAYER."
+reset-all-successful: "Усю статистику очищено для гравця PLAYER."
+
+# Використовується в /aach generate.
+advancements-generated: "Advancements успішно згенеровано."
+
+# Використовується в /aach inspect.
+achievement-not-recognized: "Досягнення з назвою 'NAME' не розпізнано. Ви мали на увазі CLOSEST_MATCH?"
+
+#======================================================================================================================#
+#                                                  FUTURE PAREMETERS                                                   #
+#                                                                                                                      #
+#                          New parameters added in future plugin releases will appear below.                           #
+#======================================================================================================================#
