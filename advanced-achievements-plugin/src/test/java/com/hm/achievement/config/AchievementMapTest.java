@@ -181,14 +181,29 @@ class AchievementMapTest {
 		assertTrue(underTest.getCategorySubcategories().isEmpty());
 	}
 
+	/**
+	 * Regression test for the 11.6 threshold-ordering defect.
+	 *
+	 * <p>{@code replaceWith} re-inserts via {@code getAll()}, which is
+	 * {@code HashMap.values()} and therefore unordered. The per-subcategory list it
+	 * rebuilds must still come out ascending by threshold, because
+	 * {@code StatisticIncreaseHandler} relies on that ordering for its early exit.
+	 *
+	 * <p>The three names below are chosen deliberately, not arbitrarily: under a real
+	 * {@link java.util.HashMap} at this map's table size they land in buckets 15, 11 and 0,
+	 * so {@code values()} yields them in threshold order 20000, 1000, 100 — the exact
+	 * inversion observed in production on the {@code stone|deepslate} group. A triple of
+	 * arbitrary names would very likely iterate ascending by chance and the test would
+	 * pass against the unpatched code, proving nothing.
+	 */
 	@Test
 	void shouldReplaceWithAscendingThresholdOrderRegardlessOfInputOrder() {
-		Achievement high = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
-				.name("stone_20000").displayName("Stone High").threshold(20000).build();
-		Achievement mid = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
-				.name("stone_1000").displayName("Stone Mid").threshold(1000).build();
-		Achievement low = new AchievementBuilder().category(MultipleAchievements.PLACES).subcategory("stone")
-				.name("stone_100").displayName("Stone Low").threshold(100).build();
+		Achievement high = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_20000_deepslate").displayName("High").threshold(20000).build();
+		Achievement mid = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_1000_deepslate").displayName("Mid").threshold(1000).build();
+		Achievement low = new AchievementBuilder().category(MultipleAchievements.BREAKS).subcategory("deepslate")
+				.name("break_100_deepslate").displayName("Low").threshold(100).build();
 		AchievementMap replacement = new AchievementMap();
 		replacement.put(high);
 		replacement.put(low);
@@ -197,7 +212,7 @@ class AchievementMapTest {
 		underTest.replaceWith(replacement);
 
 		assertEquals(Arrays.asList(low, mid, high),
-				underTest.getForCategoryAndSubcategory(MultipleAchievements.PLACES, "stone"));
+				underTest.getForCategoryAndSubcategory(MultipleAchievements.BREAKS, "deepslate"));
 	}
 
 	@Test
