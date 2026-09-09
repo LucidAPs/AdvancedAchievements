@@ -159,11 +159,12 @@ public class CategoryGUI implements Reloadable {
 					try {
 						Map<String, Long> subcategoriesToStatistics = getStatisticsMapping(category, subcategories,
 								playerId, achievements);
+						Set<String> receivedAchievementNames = new HashSet<>(cacheManager.getPlayerAchievements(playerId));
 						Map<String, String> achievementDates = databaseManager.getPlayerAchievementDates(playerId);
 						advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
 							if (player.isOnline()) {
-								displayPage(player, subcategoriesToStatistics, achievementDates, requestedPage, clickedItem,
-										achievements);
+								displayPage(player, subcategoriesToStatistics, receivedAchievementNames, achievementDates,
+										requestedPage, clickedItem, achievements);
 							}
 						});
 					} catch (RuntimeException e) {
@@ -192,13 +193,15 @@ public class CategoryGUI implements Reloadable {
 	 *
 	 * @param player
 	 * @param subcategoriesToStatistics
+	 * @param receivedAchievementNames
+	 * @param achievementDates
 	 * @param requestedIndex
 	 * @param clickedItem
 	 * @param achievements
 	 */
 	private void displayPage(Player player, Map<String, Long> subcategoriesToStatistics,
-			Map<String, String> achievementDates, int requestedIndex, ItemStack clickedItem,
-			List<Achievement> achievements) {
+			Set<String> receivedAchievementNames, Map<String, String> achievementDates, int requestedIndex,
+			ItemStack clickedItem, List<Achievement> achievements) {
 		int pageIndex = getPageIndex(requestedIndex, achievements.size());
 		int pageStart = MAX_ACHIEVEMENTS_PER_PAGE * pageIndex;
 		int pageEnd = Math.min(MAX_ACHIEVEMENTS_PER_PAGE * (pageIndex + 1), achievements.size());
@@ -209,12 +212,12 @@ public class CategoryGUI implements Reloadable {
 		Inventory inventory = Bukkit.createInventory(inventoryHolder, guiSize, langListGUITitle);
 		inventoryHolder.setInventory(inventory);
 
-		String previousItemDate = null;
+		boolean previousItemReceived = false;
 		String previousSubcategory = NO_SUBCATEGORY;
 		int seriesStart = 0;
 		if (pageStart > 0) {
 			Achievement previousAchievement = achievements.get(pageStart - 1);
-			previousItemDate = achievementDates.get(previousAchievement.getName());
+			previousItemReceived = receivedAchievementNames.contains(previousAchievement.getName());
 			previousSubcategory = previousAchievement.getSubcategory();
 			String currentSubcategory = achievements.get(pageStart).getSubcategory();
 			if (!currentSubcategory.isEmpty()) {
@@ -229,6 +232,7 @@ public class CategoryGUI implements Reloadable {
 			// Path can either be a threshold (eg '10', or a subcategory and threshold (eg 'skeleton.10').
 			Achievement achievement = achievements.get(index);
 			long statistic = subcategoriesToStatistics.get(achievement.getSubcategory());
+			boolean received = receivedAchievementNames.contains(achievement.getName());
 			String receptionDate = achievementDates.get(achievement.getName());
 
 			boolean differentSubcategory = !previousSubcategory.equals(achievement.getSubcategory());
@@ -236,7 +240,7 @@ public class CategoryGUI implements Reloadable {
 				seriesStart = index;
 			}
 			boolean ineligibleSeriesItem = true;
-			if (statistic == NO_STAT || receptionDate != null || previousItemDate != null
+			if (statistic == NO_STAT || received || previousItemReceived
 					|| index == pageStart && pageStart == 0 || differentSubcategory) {
 				// Commands achievement OR achievement has been completed OR previous achievement has been completed OR
 				// first achievement in the category OR different subcategory.
@@ -246,12 +250,12 @@ public class CategoryGUI implements Reloadable {
 			if (configHideProgressiveAchievements && ineligibleSeriesItem) {
 				inventory.setItem(index - pageStart, guiItems.getAchievementLock());
 			} else {
-				List<String> lore = buildLore(achievement, receptionDate, statistic, ineligibleSeriesItem, player);
-				insertAchievement(inventory, index - pageStart, statistic, achievement.getDisplayName(), receptionDate,
-						ineligibleSeriesItem, index - seriesStart, lore, achievement.getType());
+				List<String> lore = buildLore(achievement, received, receptionDate, statistic, ineligibleSeriesItem, player);
+				insertAchievement(inventory, index - pageStart, statistic, achievement.getDisplayName(), received,
+						receptionDate, ineligibleSeriesItem, index - seriesStart, lore, achievement.getType());
 			}
 
-			previousItemDate = receptionDate;
+			previousItemReceived = received;
 			previousSubcategory = achievement.getSubcategory();
 		}
 
@@ -288,18 +292,19 @@ public class CategoryGUI implements Reloadable {
 	 * @param position
 	 * @param statistic
 	 * @param name
+	 * @param received
 	 * @param date
 	 * @param ineligibleSeriesItem
 	 * @param seriesIndex
 	 * @param lore
 	 * @param type
 	 */
-	private void insertAchievement(Inventory gui, int position, long statistic, String name, String date,
-			boolean ineligibleSeriesItem, int seriesIndex, List<String> lore, String type) {
+	private void insertAchievement(Inventory gui, int position, long statistic, String name, boolean received,
+			String date, boolean ineligibleSeriesItem, int seriesIndex, List<String> lore, String type) {
 		// Display an item depending on whether the achievement was received or not, or whether progress was started.
 		// Clone in order to work with an independent set of metadata.
 		ItemStack achItem;
-		if (date != null) {
+		if (received) {
 			achItem = guiItems.getAchievementReceived(type).clone();
 		} else if (statistic > 0) {
 			achItem = guiItems.getAchievementStarted(type).clone();
@@ -307,7 +312,7 @@ public class CategoryGUI implements Reloadable {
 			achItem = guiItems.getAchievementNotStarted(type).clone();
 		}
 
-		String displayName = date == null ? langListAchievementNotReceived + notReceivedStyle(name, ineligibleSeriesItem)
+		String displayName = !received ? langListAchievementNotReceived + notReceivedStyle(name, ineligibleSeriesItem)
 				: langListAchievementReceived + name;
 		ItemMeta itemMeta = achItem.getItemMeta();
 		itemMeta.setDisplayName(translateColorCodes(displayName));
@@ -379,28 +384,31 @@ public class CategoryGUI implements Reloadable {
 	 * description, rewards.
 	 *
 	 * @param achievement
+	 * @param received
 	 * @param date
 	 * @param statistic
 	 * @param ineligibleSeriesItem
 	 * @param player
 	 * @return the list representing the lore of a category item
 	 */
-	private List<String> buildLore(Achievement achievement, String date, long statistic, boolean ineligibleSeriesItem,
-			Player player) {
-		List<String> descriptions = getDescriptionsToDisplay(achievement, date != null);
+	private List<String> buildLore(Achievement achievement, boolean received, String date, long statistic,
+			boolean ineligibleSeriesItem, Player player) {
+		List<String> descriptions = getDescriptionsToDisplay(achievement, received);
 		List<String> lore = new ArrayList<>();
 		lore.add("");
 
-		if (date != null) {
+		if (received) {
 			if (!langListDescription.isEmpty()) {
 				lore.add(langListDescription);
 			}
 			descriptions.forEach(d -> lore.add(translateColorCodes("&r&f" + d)));
-			lore.add("");
-			if (!langListReception.isEmpty()) {
-				lore.add(langListReception);
+			if (date != null) {
+				lore.add("");
+				if (!langListReception.isEmpty()) {
+					lore.add(langListReception);
+				}
+				lore.add(translateColorCodes("&r&f" + date));
 			}
-			lore.add(translateColorCodes("&r&f" + date));
 		} else {
 			if (!langListGoal.isEmpty()) {
 				lore.add(langListGoal);
@@ -427,7 +435,7 @@ public class CategoryGUI implements Reloadable {
 				lore.add(langListRewards);
 			}
 			String dot = StringEscapeUtils.unescapeJava(
-					date == null ? configListColorNotReceived + "\u25CF " + configFormatNotReceived : "&r&f\u25CF ");
+					!received ? configListColorNotReceived + "\u25CF " + configFormatNotReceived : "&r&f\u25CF ");
 			for (Reward reward : rewards) {
 				for (String listText : reward.getListTexts()) {
 					lore.add(StringHelper.replacePlayerPlaceholders(translateColorCodes(dot + listText), player));

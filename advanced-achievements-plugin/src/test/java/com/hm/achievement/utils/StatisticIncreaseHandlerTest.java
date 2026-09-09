@@ -1,15 +1,21 @@
 package com.hm.achievement.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -82,6 +88,34 @@ class StatisticIncreaseHandlerTest {
 	}
 
 	@Test
+	void shouldAwardAnvilTiersOneByOneAsEachThresholdIsReached() {
+		Achievement first = anvilAchievement("anvilsused_1", 1);
+		Achievement novice = anvilAchievement("anvilsused_20", 20);
+		Achievement highest = anvilAchievement("anvilsused_100", 100);
+		// Use the most hostile ordering to ensure tier progression never depends on map iteration order.
+		achievementMap.put(highest);
+		achievementMap.put(novice);
+		achievementMap.put(first);
+
+		Set<String> received = new HashSet<>();
+		when(cacheManager.hasPlayerAchievement(eq(PLAYER_UUID), anyString()))
+				.thenAnswer(invocation -> received.contains(invocation.getArgument(1, String.class)));
+		doAnswer(invocation -> {
+			received.add(invocation.getArgument(1, Achievement.class).getName());
+			return null;
+		}).when(achievementListener).awardAchievement(eq(player), any(Achievement.class));
+
+		underTest.checkThresholdsAndAchievements(player, NormalAchievements.ANVILS, 1);
+		assertEquals(Set.of("anvilsused_1"), received);
+
+		underTest.checkThresholdsAndAchievements(player, NormalAchievements.ANVILS, 20);
+		assertEquals(Set.of("anvilsused_1", "anvilsused_20"), received);
+
+		underTest.checkThresholdsAndAchievements(player, NormalAchievements.ANVILS, 100);
+		assertEquals(Set.of("anvilsused_1", "anvilsused_20", "anvilsused_100"), received);
+	}
+
+	@Test
 	void shouldNotAwardBelowThreshold() {
 		achievementMap.put(achievement("itemdrops_500", 500));
 
@@ -150,6 +184,16 @@ class StatisticIncreaseHandlerTest {
 	private Achievement achievement(String name, long threshold) {
 		return new AchievementBuilder()
 				.category(NormalAchievements.DROPS)
+				.subcategory("")
+				.threshold(threshold)
+				.name(name)
+				.displayName(name)
+				.build();
+	}
+
+	private Achievement anvilAchievement(String name, long threshold) {
+		return new AchievementBuilder()
+				.category(NormalAchievements.ANVILS)
 				.subcategory("")
 				.threshold(threshold)
 				.name(name)

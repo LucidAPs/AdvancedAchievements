@@ -224,7 +224,7 @@ public class CacheManager implements Cleanable {
 	 * @return true if achievement received by player, false otherwise
 	 */
 	public boolean hasPlayerAchievement(UUID player, String name) {
-		return receivedAchievementsCache.computeIfAbsent(player, databaseManager::getPlayerAchievementNames).contains(name);
+		return getPlayerAchievements(player).contains(name);
 	}
 
 	public boolean hasCachedPlayerAchievements(UUID player) {
@@ -238,7 +238,13 @@ public class CacheManager implements Cleanable {
 	 * @return the achievement names received by the player
 	 */
 	public Set<String> getPlayerAchievements(UUID player) {
-		return receivedAchievementsCache.computeIfAbsent(player, databaseManager::getPlayerAchievementNames);
+		return receivedAchievementsCache.computeIfAbsent(player, this::loadPlayerAchievementNames);
+	}
+
+	private Set<String> loadPlayerAchievementNames(UUID player) {
+		Set<String> achievementNames = ConcurrentHashMap.newKeySet();
+		achievementNames.addAll(databaseManager.getPlayerAchievementNames(player));
+		return achievementNames;
 	}
 
 	/**
@@ -249,7 +255,7 @@ public class CacheManager implements Cleanable {
 	 * @param achievementName
 	 */
 	public void registerNewlyReceivedAchievement(UUID player, String achievementName) {
-		receivedAchievementsCache.computeIfAbsent(player, databaseManager::getPlayerAchievementNames).add(achievementName);
+		getPlayerAchievements(player).add(achievementName);
 	}
 
 	/**
@@ -259,8 +265,7 @@ public class CacheManager implements Cleanable {
 	 * @param achievementNames
 	 */
 	public void removePreviouslyReceivedAchievements(UUID player, Collection<String> achievementNames) {
-		receivedAchievementsCache.computeIfAbsent(player, databaseManager::getPlayerAchievementNames)
-				.removeAll(achievementNames);
+		getPlayerAchievements(player).removeAll(achievementNames);
 	}
 
 	/**

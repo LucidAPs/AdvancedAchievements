@@ -142,6 +142,48 @@ class ConfigurationParserTest {
 	}
 
 	@Test
+	void shouldParseProductionAnvilTiersInAscendingOrder(@TempDir File tempDir) throws Exception {
+		YamlConfiguration customConfig = YamlConfiguration.loadConfiguration(
+				new InputStreamReader(getClass().getResourceAsStream("/config.yml")));
+		customConfig.set("AnvilsUsed", null);
+		addAnvilAchievement(customConfig, 1, "anvilsused_1", "First Repair", 5, 100);
+		addAnvilAchievement(customConfig, 20, "anvilsused_20", "Novice Blacksmith", 15, 200);
+		addAnvilAchievement(customConfig, 100, "anvilsused_100", "Hotwheels", 30, 400);
+		customConfig.save(new File(tempDir, "config.yml"));
+
+		AdvancedAchievements plugin = mock(AdvancedAchievements.class);
+		Server server = mock(Server.class);
+		PluginManager pluginManager = mock(PluginManager.class);
+		MaterialHelper materialHelper = mock(MaterialHelper.class);
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		when(plugin.getServer()).thenReturn(server);
+		when(plugin.getResource(anyString())).thenAnswer(invocation -> getClass()
+				.getResourceAsStream("/" + invocation.getArgument(0, String.class)));
+		when(server.getPluginManager()).thenReturn(pluginManager);
+		when(materialHelper.matchMaterial(anyString(), anyString())).thenReturn(Optional.of(Material.STONE));
+
+		YamlConfiguration mainConfig = new YamlConfiguration();
+		YamlConfiguration langConfig = new YamlConfiguration();
+		AchievementMap achievementMap = new AchievementMap();
+		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
+		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, new YamlConfiguration(),
+				achievementMap, new HashSet<>(), new StringBuilder(), Logger.getAnonymousLogger(), 21,
+				new YamlUpdater(plugin), plugin, rewardParser);
+
+		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+			bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+			underTest.loadAndParseConfiguration();
+		}
+
+		List<Achievement> achievements = achievementMap.getForCategory(NormalAchievements.ANVILS);
+		assertEquals(List.of(1L, 20L, 100L), achievements.stream().map(Achievement::getThreshold).toList());
+		assertEquals(List.of("anvilsused_1", "anvilsused_20", "anvilsused_100"),
+				achievements.stream().map(Achievement::getName).toList());
+		assertEquals(List.of("Gain 15 Iron Ingots and 200 claimblocks!"),
+				achievementMap.getForName("anvilsused_20").getRewards().get(0).getListTexts());
+	}
+
+	@Test
 	void shouldSkipInvalidAchievementsAndLoadRemainingConfiguration(@TempDir File tempDir) throws Exception {
 		YamlConfiguration customConfig = YamlConfiguration.loadConfiguration(
 				new InputStreamReader(getClass().getResourceAsStream("/config.yml")));
@@ -232,5 +274,18 @@ class ConfigurationParserTest {
 		config.set(path + ".Message", threshold + " items smelt in a furnace!");
 		config.set(path + ".Name", name);
 		config.set(path + ".DisplayName", "The Smelter");
+	}
+
+	private void addAnvilAchievement(YamlConfiguration config, int threshold, String name, String displayName,
+			int ingots, int claimBlocks) {
+		String path = "AnvilsUsed." + threshold;
+		config.set(path + ".Goal", "Repair " + threshold + " items.");
+		config.set(path + ".Message", "You repaired " + threshold + " items!");
+		config.set(path + ".Name", name);
+		config.set(path + ".DisplayName", displayName);
+		config.set(path + ".Reward.Command.Execute",
+				"give PLAYER iron_ingot:" + ingots + "; claimblocks PLAYER add " + claimBlocks);
+		config.set(path + ".Reward.Command.Display",
+				"Gain " + ingots + " Iron Ingots and " + claimBlocks + " claimblocks!");
 	}
 }
