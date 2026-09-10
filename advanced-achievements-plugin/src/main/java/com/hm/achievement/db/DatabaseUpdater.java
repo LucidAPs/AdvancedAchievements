@@ -23,6 +23,7 @@ import com.hm.achievement.exception.PluginLoadError;
  */
 @Singleton
 public class DatabaseUpdater {
+	private static final int MIN_BREWING_RECIPE_COLUMN_SIZE = 64;
 
 	private final Logger logger;
 
@@ -53,6 +54,10 @@ public class DatabaseUpdater {
 									+ category.toDBName());
 						}
 						for (MultipleAchievements category : MultipleAchievements.values()) {
+							if (category == MultipleAchievements.BREWINGRECIPES
+									&& !tableExists(databaseManager, category.toDBName())) {
+								continue;
+							}
 							st.addBatch("ALTER TABLE " + category.toDBName() + " RENAME TO " + databaseManager.getPrefix()
 									+ category.toDBName());
 						}
@@ -62,6 +67,12 @@ public class DatabaseUpdater {
 			} catch (SQLException e) {
 				throw new PluginLoadError("Error while setting prefix of database tables.", e);
 			}
+		}
+	}
+
+	private boolean tableExists(AbstractDatabaseManager databaseManager, String tableName) throws SQLException {
+		try (ResultSet rs = databaseManager.getConnection().getMetaData().getTables(null, null, tableName, null)) {
+			return rs.next();
 		}
 	}
 
@@ -79,8 +90,9 @@ public class DatabaseUpdater {
 					+ "achievements (playername char(36),achievement varchar(64),date TIMESTAMP,PRIMARY KEY (playername, achievement))");
 
 			for (MultipleAchievements category : MultipleAchievements.values()) {
+				int subcategorySize = getSubcategoryColumnSize(category, size);
 				st.addBatch("CREATE TABLE IF NOT EXISTS " + databaseManager.getPrefix() + category.toDBName()
-						+ " (playername char(36)," + category.toSubcategoryDBName() + " varchar(" + size + "),"
+						+ " (playername char(36)," + category.toSubcategoryDBName() + " varchar(" + subcategorySize + "),"
 						+ category.toDBName() + " INT,PRIMARY KEY(playername, " + category.toSubcategoryDBName() + "))");
 			}
 
@@ -109,21 +121,29 @@ public class DatabaseUpdater {
 	 * @param size
 	 */
 	void updateOldDBColumnSize(AbstractDatabaseManager databaseManager, MultipleAchievements category, int size) {
+		int subcategorySize = getSubcategoryColumnSize(category, size);
 		// SQLite ignores size for varchar datatype.
 		if (!(databaseManager instanceof SQLiteDatabaseManager)) {
 			try (Statement st = databaseManager.getConnection().createStatement();
 					ResultSet rs = st.executeQuery("SELECT " + category.toSubcategoryDBName() + " FROM "
 							+ databaseManager.getPrefix() + category.toDBName() + " LIMIT 1")) {
-				if (rs.getMetaData().getPrecision(1) < size) {
-					logger.info("Changing " + category.toDBName() + " database column size to " + size + ", please wait...");
+				if (rs.getMetaData().getPrecision(1) < subcategorySize) {
+					logger.info("Changing " + category.toDBName() + " database column size to " + subcategorySize
+							+ ", please wait...");
 					String alterOperation = databaseManager instanceof MySQLDatabaseManager
-							? "MODIFY " + category.toSubcategoryDBName() + " varchar(" + size + ")"
-							: "ALTER COLUMN " + category.toSubcategoryDBName() + " TYPE varchar(" + size + ")";
+							? "MODIFY " + category.toSubcategoryDBName() + " varchar(" + subcategorySize + ")"
+							: "ALTER COLUMN " + category.toSubcategoryDBName() + " TYPE varchar(" + subcategorySize + ")";
 					st.execute("ALTER TABLE " + databaseManager.getPrefix() + category.toDBName() + " " + alterOperation);
 				}
 			} catch (SQLException e) {
 				logger.log(Level.SEVERE, "Database error while updating old " + category.toDBName() + " table:", e);
 			}
 		}
+	}
+
+	private int getSubcategoryColumnSize(MultipleAchievements category, int configuredSize) {
+		return category == MultipleAchievements.BREWINGRECIPES
+				? Math.max(configuredSize, MIN_BREWING_RECIPE_COLUMN_SIZE)
+				: configuredSize;
 	}
 }

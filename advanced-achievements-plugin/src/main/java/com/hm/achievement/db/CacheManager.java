@@ -280,7 +280,10 @@ public class CacheManager implements Cleanable {
 				String category = StringUtils.substringBefore(categoryWithSubcategory, ".");
 				String subcategory = StringUtils.substringAfter(categoryWithSubcategory, ".");
 				SubcategoryUUID key = new SubcategoryUUID(subcategory, uuid);
-				Map<SubcategoryUUID, CachedStatistic> cache = getHashMap(MultipleAchievements.getByName(category));
+				MultipleAchievements multipleCategory = NormalAchievements.BREWING.toString().equals(category)
+						? MultipleAchievements.BREWINGRECIPES
+						: MultipleAchievements.getByName(category);
+				Map<SubcategoryUUID, CachedStatistic> cache = getHashMap(multipleCategory);
 				CachedStatistic statistic = cache.get(key);
 				if (statistic == null) {
 					cache.put(key, new CachedStatistic(0L, false));

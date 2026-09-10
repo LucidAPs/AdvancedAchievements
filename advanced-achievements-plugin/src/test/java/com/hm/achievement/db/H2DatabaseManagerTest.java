@@ -263,6 +263,21 @@ class H2DatabaseManagerTest {
 	}
 
 	@Test
+	void testGetBrewingRecipeAchievementAmount() {
+		String recipe = "lingering_potion/turtle_master";
+		assertEquals(0, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.BREWINGRECIPES, recipe));
+
+		((SQLWriteOperation) () -> {
+			try (PreparedStatement ps = db.getConnection()
+					.prepareStatement("REPLACE INTO brewingrecipes VALUES ('" + testUUID + "','" + recipe + "',3)")) {
+				ps.execute();
+			}
+		}).executeOperation(db.writeExecutor, LOGGER, "Writing brewing recipe statistics");
+
+		assertEquals(3, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.BREWINGRECIPES, recipe));
+	}
+
+	@Test
 	void testGetDefaultJobsRebornAchievementAmount() {
 		assertEquals(1, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.JOBSREBORN, "hunter"));
 	}

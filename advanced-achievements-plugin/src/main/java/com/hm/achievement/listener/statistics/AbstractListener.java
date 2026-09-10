@@ -47,13 +47,16 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	 *
 	 * @param player
 	 * @param incrementValue
+	 * @return whether the increase was accepted by the configured player restrictions
 	 */
-	void updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue) {
+	boolean updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue) {
 		if (shouldIncreaseBeTakenIntoAccount(player)) {
 			long amount = cacheManager.getAndIncrementStatisticAmount((NormalAchievements) category, player.getUniqueId(),
 					incrementValue);
 			checkThresholdsAndAchievements(player, category, amount);
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -63,15 +66,18 @@ public abstract class AbstractListener extends StatisticIncreaseHandler implemen
 	 * @param player
 	 * @param subcategories
 	 * @param incrementValue
+	 * @return whether the increase was accepted by the configured player restrictions
 	 */
-	void updateStatisticAndAwardAchievementsIfAvailable(Player player, Set<String> subcategories, int incrementValue) {
+	boolean updateStatisticAndAwardAchievementsIfAvailable(Player player, Set<String> subcategories, int incrementValue) {
 		if (shouldIncreaseBeTakenIntoAccount(player)) {
 			subcategories.forEach(subcategory -> {
 				long amount = cacheManager.getAndIncrementStatisticAmount((MultipleAchievements) category, subcategory,
 						player.getUniqueId(), incrementValue);
 				checkThresholdsAndAchievements(player, category, subcategory, amount);
 			});
+			return true;
 		}
+		return false;
 	}
 
 	/**

@@ -100,7 +100,10 @@ public class MainGUI implements Reloadable {
 	}
 
 	private void displayCachedMainGUI(Player player) {
-		int totalEnabledCategories = MultipleAchievements.values().length + NormalAchievements.values().length + 1
+		int configurableMultipleCategories = (int) Arrays.stream(MultipleAchievements.values())
+				.filter(MultipleAchievements::isConfigurable)
+				.count();
+		int totalEnabledCategories = configurableMultipleCategories + NormalAchievements.values().length + 1
 				- disabledCategories.size();
 		AchievementInventoryHolder inventoryHolder = new AchievementInventoryHolder();
 		int guiSize = NumberHelper.nextMultipleOf9(totalEnabledCategories);

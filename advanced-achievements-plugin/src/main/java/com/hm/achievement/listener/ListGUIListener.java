@@ -3,6 +3,7 @@ package com.hm.achievement.listener;
 import static com.hm.achievement.gui.AchievementInventoryHolder.MAIN_GUI_PAGE;
 import static com.hm.achievement.gui.CategoryGUI.ROW_SIZE;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -99,6 +100,9 @@ public class ListGUIListener implements Listener {
 	 * @return the count of non disabled categories
 	 */
 	private int getMainGUIItemCount() {
-		return NormalAchievements.values().length + MultipleAchievements.values().length - disabledCategories.size() + 1;
+		long configurableMultipleCategories = Arrays.stream(MultipleAchievements.values())
+				.filter(MultipleAchievements::isConfigurable)
+				.count();
+		return (int) (NormalAchievements.values().length + configurableMultipleCategories - disabledCategories.size() + 1);
 	}
 }

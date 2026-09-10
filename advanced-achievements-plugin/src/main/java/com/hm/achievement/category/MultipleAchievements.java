@@ -19,23 +19,33 @@ public enum MultipleAchievements implements Category {
 	PLAYERCOMMANDS("PlayerCommands", "command"),
 	CUSTOM("Custom", "customname"),
 	JOBSREBORN("JobsReborn", "jobname"),
-	EFFECTSHELD("EffectsHeld", "effect");
+	EFFECTSHELD("EffectsHeld", "effect"),
+	/** Internal statistics backing exact recipes configured in the Brewing category. */
+	BREWINGRECIPES("BrewingRecipes", "potion", false);
 
 	private static final Map<String, MultipleAchievements> CATEGORY_NAMES_TO_ENUM = new HashMap<>();
 	static {
 		for (MultipleAchievements category : MultipleAchievements.values()) {
-			CATEGORY_NAMES_TO_ENUM.put(category.categoryName, category);
+			if (category.configurable) {
+				CATEGORY_NAMES_TO_ENUM.put(category.categoryName, category);
+			}
 		}
 	}
 
 	private final String categoryName;
 	private final String subcategoryDBName;
 	private final String dbName;
+	private final boolean configurable;
 
 	MultipleAchievements(String categoryName, String subcategoryDBName) {
+		this(categoryName, subcategoryDBName, true);
+	}
+
+	MultipleAchievements(String categoryName, String subcategoryDBName, boolean configurable) {
 		this.categoryName = categoryName;
 		this.subcategoryDBName = subcategoryDBName;
 		this.dbName = name().toLowerCase();
+		this.configurable = configurable;
 	}
 
 	/**
@@ -68,5 +78,12 @@ public enum MultipleAchievements implements Category {
 	 */
 	public String toSubcategoryDBName() {
 		return subcategoryDBName;
+	}
+
+	/**
+	 * @return whether this category can be configured and displayed directly
+	 */
+	public boolean isConfigurable() {
+		return configurable;
 	}
 }

@@ -78,6 +78,9 @@ public class GUIItems implements Reloadable {
 		List<String> orderedCategories = new ArrayList<>(guiConfig.getKeys(false));
 		// Prepare item stacks displayed in the GUI for Multiple achievements.
 		for (MultipleAchievements category : MultipleAchievements.values()) {
+			if (!category.isConfigurable()) {
+				continue;
+			}
 			String categoryName = category.toString();
 			ItemStack itemStack = createItemStack(categoryName);
 			buildItemLore(itemStack, categoryName);

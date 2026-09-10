@@ -74,10 +74,18 @@ public class AddCommand extends AbstractParsableCommand {
 		if (categorySubcategories.contains(args[2])) {
 			UUID uuid = player.getUniqueId();
 			if (args[2].contains(".")) {
-				MultipleAchievements category = MultipleAchievements.getByName(StringUtils.substringBefore(args[2], "."));
+				String categoryName = StringUtils.substringBefore(args[2], ".");
 				String subcategory = StringUtils.substringAfter(args[2], ".");
-				long amount = cacheManager.getAndIncrementStatisticAmount(category, subcategory, uuid, valueToAdd);
-				statisticIncreaseHandler.checkThresholdsAndAchievements(player, category, subcategory, amount);
+				if (NormalAchievements.BREWING.toString().equals(categoryName)) {
+					long amount = cacheManager.getAndIncrementStatisticAmount(MultipleAchievements.BREWINGRECIPES,
+							subcategory, uuid, valueToAdd);
+					statisticIncreaseHandler.checkThresholdsAndAchievements(player, NormalAchievements.BREWING,
+							subcategory, amount);
+				} else {
+					MultipleAchievements category = MultipleAchievements.getByName(categoryName);
+					long amount = cacheManager.getAndIncrementStatisticAmount(category, subcategory, uuid, valueToAdd);
+					statisticIncreaseHandler.checkThresholdsAndAchievements(player, category, subcategory, amount);
+				}
 			} else {
 				NormalAchievements category = NormalAchievements.getByName(args[2]);
 				long amount;

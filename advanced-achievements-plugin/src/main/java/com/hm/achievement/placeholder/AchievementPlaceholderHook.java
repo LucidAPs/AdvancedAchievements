@@ -72,6 +72,9 @@ public class AchievementPlaceholderHook extends PlaceholderExpansion {
 			}
 
 			for (MultipleAchievements category : MultipleAchievements.values()) {
+				if (!category.isConfigurable()) {
+					continue;
+				}
 				if (("total_" + category).equalsIgnoreCase(identifier)) {
 					return Integer.toString(achievementMap.getForCategory(category).size());
 				}

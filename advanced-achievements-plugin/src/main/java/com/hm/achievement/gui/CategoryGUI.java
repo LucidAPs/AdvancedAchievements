@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -151,8 +152,9 @@ public class CategoryGUI implements Reloadable {
 				Category category = achievementItem.getKey().getCategory();
 				List<Achievement> achievements = new ArrayList<>(achievementMap.getForCategory(category));
 				Set<String> subcategories = category instanceof MultipleAchievements
-						? new HashSet<>(achievementMap.getSubcategoriesForCategory(category))
-						: Collections.emptySet();
+						|| category == NormalAchievements.BREWING
+								? new HashSet<>(achievementMap.getSubcategoriesForCategory(category))
+								: Collections.emptySet();
 				UUID playerId = player.getUniqueId();
 				ItemStack clickedItem = item.clone();
 				advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
@@ -183,6 +185,13 @@ public class CategoryGUI implements Reloadable {
 			return cacheManager.getMultipleAchievementAmounts((MultipleAchievements) category, subcategories, playerId);
 		} else if (category instanceof NormalAchievements) {
 			long statistic = cacheManager.getAndIncrementStatisticAmount((NormalAchievements) category, playerId, 0);
+			if (category == NormalAchievements.BREWING) {
+				subcategories.remove(NO_SUBCATEGORY);
+				Map<String, Long> statistics = new HashMap<>(cacheManager.getMultipleAchievementAmounts(
+						MultipleAchievements.BREWINGRECIPES, subcategories, playerId));
+				statistics.put(NO_SUBCATEGORY, statistic);
+				return statistics;
+			}
 			return Collections.singletonMap(NO_SUBCATEGORY, statistic);
 		}
 		return achievements.stream().collect(Collectors.toMap(Achievement::getSubcategory, a -> NO_STAT));

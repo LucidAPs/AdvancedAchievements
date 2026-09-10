@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -36,10 +37,14 @@ public class AchievementMap {
 		namesToAchievements.put(achievement.getName(), achievement);
 		sanitisedDisplayNamesToAchievements.put(sanitise(achievement.getDisplayName()), achievement);
 		Category category = achievement.getCategory();
+		String subcategory = Objects.toString(achievement.getSubcategory(), "");
 		categoriesToAchievements.computeIfAbsent(category, c -> new ArrayList<>()).add(achievement);
-		categoriesToSubcategories.computeIfAbsent(category, c -> new HashSet<>()).add(achievement.getSubcategory());
+		categoriesToSubcategories.computeIfAbsent(category, c -> new HashSet<>()).add(subcategory);
 		if (category instanceof NormalAchievements) {
-			categoriesSubcategoriesToAchievements.computeIfAbsent(category.toString(), c -> new ArrayList<>())
+			String key = subcategory.isEmpty()
+					? category.toString()
+					: category + "." + subcategory;
+			categoriesSubcategoriesToAchievements.computeIfAbsent(key, c -> new ArrayList<>())
 					.add(achievement);
 		} else if (category instanceof MultipleAchievements) {
 			categoriesSubcategoriesToAchievements
@@ -74,7 +79,8 @@ public class AchievementMap {
 		// per subcategory, which AdvancementManager relies on to find advancement-chain boundaries; sorting by
 		// threshold within a subcategory is what StatisticIncreaseHandler's early exit expects.
 		replacement.getAll().stream()
-				.sorted(Comparator.comparing(Achievement::getSubcategory).thenComparingLong(Achievement::getThreshold))
+				.sorted(Comparator.comparing((Achievement achievement) -> Objects.toString(achievement.getSubcategory(), ""))
+						.thenComparingLong(Achievement::getThreshold))
 				.forEach(this::put);
 	}
 
@@ -91,7 +97,10 @@ public class AchievementMap {
 	}
 
 	public List<Achievement> getForCategoryAndSubcategory(Category category, String subcategory) {
-		return categoriesSubcategoriesToAchievements.get(category + "." + subcategory);
+		String key = category instanceof NormalAchievements && subcategory.isEmpty()
+				? category.toString()
+				: category + "." + subcategory;
+		return categoriesSubcategoriesToAchievements.getOrDefault(key, Collections.emptyList());
 	}
 
 	public Set<String> getSubcategoriesForCategory(Category category) {

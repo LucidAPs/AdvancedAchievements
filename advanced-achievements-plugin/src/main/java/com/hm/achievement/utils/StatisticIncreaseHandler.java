@@ -64,7 +64,7 @@ public class StatisticIncreaseHandler implements Reloadable {
 	 * @param currentValue
 	 */
 	public void checkThresholdsAndAchievements(Player player, Category category, long currentValue) {
-		checkThresholdsAndAchievements(player, achievementMap.getForCategory(category), currentValue);
+		checkThresholdsAndAchievements(player, achievementMap.getForCategoryAndSubcategory(category, ""), currentValue);
 	}
 
 	/**

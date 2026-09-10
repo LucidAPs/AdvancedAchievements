@@ -49,8 +49,8 @@ public class AbstractRateLimitedListener extends AbstractListener implements Cle
 	public void extractConfigurationParameters() {
 		super.extractConfigurationParameters();
 
-		List<Achievement> achievements = achievementMap.getForCategory(category);
-		hardestCategoryThreshold = achievements.isEmpty() ? Long.MAX_VALUE
+		List<Achievement> achievements = achievementMap.getForCategoryAndSubcategory(category, "");
+		hardestCategoryThreshold = achievements.isEmpty() ? 0L
 				: achievements.get(achievements.size() - 1).getThreshold();
 		categoryCooldown = mainConfig.getInt("StatisticCooldown." + category) * 1000;
 		configCooldownActionBar = mainConfig.getBoolean("CooldownActionBar");
@@ -64,17 +64,19 @@ public class AbstractRateLimitedListener extends AbstractListener implements Cle
 				.removeIf(lastActionTime -> currentTime > lastActionTime + categoryCooldown));
 	}
 
-	void updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue, int slotNumber) {
+	boolean updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue, int slotNumber) {
 		if (!isInCooldownPeriod(player, slotNumber)) {
-			super.updateStatisticAndAwardAchievementsIfAvailable(player, incrementValue);
+			return super.updateStatisticAndAwardAchievementsIfAvailable(player, incrementValue);
 		}
+		return false;
 	}
 
 	@Override
-	void updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue) {
+	boolean updateStatisticAndAwardAchievementsIfAvailable(Player player, int incrementValue) {
 		if (!isInCooldownPeriod(player, 0)) {
-			super.updateStatisticAndAwardAchievementsIfAvailable(player, incrementValue);
+			return super.updateStatisticAndAwardAchievementsIfAvailable(player, incrementValue);
 		}
+		return false;
 	}
 
 	/**
@@ -87,8 +89,11 @@ public class AbstractRateLimitedListener extends AbstractListener implements Cle
 	private boolean isInCooldownPeriod(Player player, int slotNumber) {
 		UUID uuid = player.getUniqueId();
 		long currentPlayerStatistic = cacheManager.getAndIncrementStatisticAmount((NormalAchievements) category, uuid, 0);
-		// Ignore cooldown if player has received all achievements in the category.
-		if (currentPlayerStatistic >= hardestCategoryThreshold) {
+		// Ignore cooldown if the player has received every count and exact-recipe achievement in the category.
+		boolean allRecipeAchievementsReceived = achievementMap.getForCategory(category).stream()
+				.filter(achievement -> !achievement.getSubcategory().isEmpty())
+				.allMatch(achievement -> cacheManager.hasPlayerAchievement(uuid, achievement.getName()));
+		if (currentPlayerStatistic >= hardestCategoryThreshold && allRecipeAchievementsReceived) {
 			return false;
 		}
 

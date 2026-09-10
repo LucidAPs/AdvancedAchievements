@@ -3,6 +3,7 @@ package com.hm.achievement.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -101,7 +102,14 @@ class ConfigurationParserTest {
 		}
 
 		assertEquals("h2", mainConfig.getString("DatabaseType"));
-		assertEquals(62, achievementMap.getAll().size());
+		assertEquals(81, achievementMap.getAll().size());
+		Achievement turtleMaster = achievementMap.getForName("brewing_lingering_turtle_master");
+		assertEquals(NormalAchievements.BREWING, turtleMaster.getCategory());
+		assertEquals("lingering_potion/turtle_master", turtleMaster.getSubcategory());
+		Set<String> brewingSubcategories = achievementMap.getSubcategoriesForCategory(NormalAchievements.BREWING);
+		assertEquals(20, brewingSubcategories.size()); // Generic total plus 19 craftable effect potions.
+		assertTrue(brewingSubcategories.stream().filter(subcategory -> !subcategory.isEmpty())
+				.allMatch(subcategory -> subcategory.startsWith("lingering_potion/")));
 	}
 
 	@Test
@@ -219,7 +227,7 @@ class ConfigurationParserTest {
 			underTest.loadAndParseConfiguration();
 		}
 
-		assertEquals(63, achievementMap.getAll().size());
+		assertEquals(82, achievementMap.getAll().size());
 		assertEquals("The Smelter", achievementMap.getForName("smeltitems_500").getDisplayName());
 		assertNull(achievementMap.getForName("broken_smelt"));
 		assertNull(achievementMap.getForName("broken_threshold"));

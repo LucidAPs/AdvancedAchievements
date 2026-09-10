@@ -937,7 +937,11 @@ Taming:
     DisplayName: Tamer
     Type: normal
 
-# Count potions brewed.
+# Count potions brewed. Numeric keys directly below Brewing match any brewed potion.
+#
+# Exact recipes can also be configured below Recipes using a potion item type and a Paper PotionType key. Supported
+# item types are potion, splash_potion and lingering_potion. Each exact recipe can have one or more count thresholds.
+# PotionType keys: https://jd.papermc.io/paper/26.2/org/bukkit/potion/PotionType.html
 Brewing:
   1:
     Goal: Brew a potion.
@@ -945,6 +949,143 @@ Brewing:
     Name: brewing_1
     DisplayName: Alchemist
     Type: normal
+  Recipes:
+    # One recipe for each effect potion craftable in Minecraft Java 26.2. Lingering potions are used instead of the
+    # easier splash equivalents; extended and strengthened variants are omitted to avoid duplicate effects.
+    lingering_potion:
+      night_vision:
+        1:
+          Goal: Brew a Lingering Potion of Night Vision.
+          Message: You brewed a Lingering Potion of Night Vision!
+          Name: brewing_lingering_night_vision
+          DisplayName: Lingering Night Vision
+          Type: normal
+      invisibility:
+        1:
+          Goal: Brew a Lingering Potion of Invisibility.
+          Message: You brewed a Lingering Potion of Invisibility!
+          Name: brewing_lingering_invisibility
+          DisplayName: Lingering Invisibility
+          Type: normal
+      leaping:
+        1:
+          Goal: Brew a Lingering Potion of Leaping.
+          Message: You brewed a Lingering Potion of Leaping!
+          Name: brewing_lingering_leaping
+          DisplayName: Lingering Leaping
+          Type: normal
+      fire_resistance:
+        1:
+          Goal: Brew a Lingering Potion of Fire Resistance.
+          Message: You brewed a Lingering Potion of Fire Resistance!
+          Name: brewing_lingering_fire_resistance
+          DisplayName: Lingering Fire Resistance
+          Type: normal
+      swiftness:
+        1:
+          Goal: Brew a Lingering Potion of Swiftness.
+          Message: You brewed a Lingering Potion of Swiftness!
+          Name: brewing_lingering_swiftness
+          DisplayName: Lingering Swiftness
+          Type: normal
+      slowness:
+        1:
+          Goal: Brew a Lingering Potion of Slowness.
+          Message: You brewed a Lingering Potion of Slowness!
+          Name: brewing_lingering_slowness
+          DisplayName: Lingering Slowness
+          Type: normal
+      water_breathing:
+        1:
+          Goal: Brew a Lingering Potion of Water Breathing.
+          Message: You brewed a Lingering Potion of Water Breathing!
+          Name: brewing_lingering_water_breathing
+          DisplayName: Lingering Water Breathing
+          Type: normal
+      healing:
+        1:
+          Goal: Brew a Lingering Potion of Healing.
+          Message: You brewed a Lingering Potion of Healing!
+          Name: brewing_lingering_healing
+          DisplayName: Lingering Healing
+          Type: normal
+      harming:
+        1:
+          Goal: Brew a Lingering Potion of Harming.
+          Message: You brewed a Lingering Potion of Harming!
+          Name: brewing_lingering_harming
+          DisplayName: Lingering Harming
+          Type: normal
+      poison:
+        1:
+          Goal: Brew a Lingering Potion of Poison.
+          Message: You brewed a Lingering Potion of Poison!
+          Name: brewing_lingering_poison
+          DisplayName: Lingering Poison
+          Type: normal
+      regeneration:
+        1:
+          Goal: Brew a Lingering Potion of Regeneration.
+          Message: You brewed a Lingering Potion of Regeneration!
+          Name: brewing_lingering_regeneration
+          DisplayName: Lingering Regeneration
+          Type: normal
+      strength:
+        1:
+          Goal: Brew a Lingering Potion of Strength.
+          Message: You brewed a Lingering Potion of Strength!
+          Name: brewing_lingering_strength
+          DisplayName: Lingering Strength
+          Type: normal
+      weakness:
+        1:
+          Goal: Brew a Lingering Potion of Weakness.
+          Message: You brewed a Lingering Potion of Weakness!
+          Name: brewing_lingering_weakness
+          DisplayName: Lingering Weakness
+          Type: normal
+      turtle_master:
+        1:
+          Goal: Brew a Lingering Potion of the Turtle Master.
+          Message: You brewed a Lingering Potion of the Turtle Master!
+          Name: brewing_lingering_turtle_master
+          DisplayName: Lingering Turtle Master
+          Type: normal
+      slow_falling:
+        1:
+          Goal: Brew a Lingering Potion of Slow Falling.
+          Message: You brewed a Lingering Potion of Slow Falling!
+          Name: brewing_lingering_slow_falling
+          DisplayName: Lingering Slow Falling
+          Type: normal
+      wind_charged:
+        1:
+          Goal: Brew a Lingering Potion of Wind Charging.
+          Message: You brewed a Lingering Potion of Wind Charging!
+          Name: brewing_lingering_wind_charging
+          DisplayName: Lingering Wind Charging
+          Type: normal
+      weaving:
+        1:
+          Goal: Brew a Lingering Potion of Weaving.
+          Message: You brewed a Lingering Potion of Weaving!
+          Name: brewing_lingering_weaving
+          DisplayName: Lingering Weaving
+          Type: normal
+      oozing:
+        1:
+          Goal: Brew a Lingering Potion of Oozing.
+          Message: You brewed a Lingering Potion of Oozing!
+          Name: brewing_lingering_oozing
+          DisplayName: Lingering Oozing
+          Type: normal
+      infested:
+        1:
+          Goal: Brew a Lingering Potion of Infestation.
+          Message: You brewed a Lingering Potion of Infestation!
+          Name: brewing_lingering_infestation
+          DisplayName: Lingering Infestation
+          Type: normal
 
 # Count fireworks launched.
 Fireworks:

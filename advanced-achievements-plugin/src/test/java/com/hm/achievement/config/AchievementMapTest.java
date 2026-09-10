@@ -126,6 +126,8 @@ class AchievementMapTest {
 
 		assertEquals(Arrays.asList(achievement1),
 				underTest.getForCategoryAndSubcategory(MultipleAchievements.PLACES, "stone"));
+		assertEquals(Arrays.asList(achievement2),
+				underTest.getForCategoryAndSubcategory(NormalAchievements.SMELTING, "iron_ingot"));
 	}
 
 	@Test

@@ -34,12 +34,14 @@ import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.domain.Achievement.AchievementBuilder;
+import com.hm.achievement.domain.PotionRecipe;
 import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.utils.StringHelper;
 
 /**
- * Class in charge of parsing the TESTconfig.yml, lang.yml and gui.yml configuration files. It loads the files and populates
- * common data structures used in other parts of the plugin. Basic validation is performed on the achievements.
+ * Class in charge of parsing the TESTconfig.yml, lang.yml and gui.yml configuration files. It loads the files and
+ * populates common data structures used in other parts of the plugin. Basic validation is performed on the
+ * achievements.
  *
  * @author Pyves
  */
@@ -312,7 +314,8 @@ public class ConfigurationParser {
 			if (category == null) {
 				List<String> allCategories = new ArrayList<>();
 				Arrays.stream(NormalAchievements.values()).forEach(n -> allCategories.add(n.toString()));
-				Arrays.stream(MultipleAchievements.values()).forEach(m -> allCategories.add(m.toString()));
+				Arrays.stream(MultipleAchievements.values()).filter(MultipleAchievements::isConfigurable)
+						.forEach(m -> allCategories.add(m.toString()));
 				allCategories.add(CommandAchievements.COMMANDS.toString());
 				throw new PluginLoadError("Category " + disabledCategory + " specified in DisabledCategories is misspelt. "
 						+ "Did you mean " + StringHelper.getClosestMatch(disabledCategory, allCategories) + "?");
@@ -371,7 +374,9 @@ public class ConfigurationParser {
 				}
 				ThresholdParsingResult result;
 				try {
-					result = getSortedThresholds(config, categoryPath);
+					result = category == NormalAchievements.BREWING
+							? getSortedThresholds(config, categoryPath, Set.of("Recipes"))
+							: getSortedThresholds(config, categoryPath);
 				} catch (PluginLoadError e) {
 					logInvalidAchievementConfiguration(categoryPath, e.getMessage());
 					categories.add(category);
@@ -386,6 +391,10 @@ public class ConfigurationParser {
 						skippedAchievements++;
 					}
 				}
+				if (category == NormalAchievements.BREWING) {
+					skippedAchievements += parseBrewingRecipeAchievements(config, achievements,
+							configurationRewardParser, advancementKeys);
+				}
 				if (achievements.getForCategory(category).isEmpty()) {
 					categories.add(category);
 				}
@@ -394,6 +403,9 @@ public class ConfigurationParser {
 
 		// Enumerate the achievements with multiple categories.
 		for (MultipleAchievements category : MultipleAchievements.values()) {
+			if (!category.isConfigurable()) {
+				continue;
+			}
 			if (!categories.contains(category)) {
 				String categoryPath = category.toString();
 				Set<String> subcategories;
@@ -438,7 +450,74 @@ public class ConfigurationParser {
 		return skippedAchievements;
 	}
 
+	/**
+	 * Parses exact potion-form and Paper PotionType combinations nested below Brewing.Recipes.
+	 */
+	private int parseBrewingRecipeAchievements(YamlConfiguration config, AchievementMap achievements,
+			RewardParser configurationRewardParser, Set<String> advancementKeys) {
+		String recipesPath = NormalAchievements.BREWING + ".Recipes";
+		if (!config.contains(recipesPath)) {
+			return 0;
+		}
+
+		Set<String> itemTypes;
+		try {
+			itemTypes = getSectionKeys(config, recipesPath);
+		} catch (PluginLoadError e) {
+			logInvalidAchievementConfiguration(recipesPath, e.getMessage());
+			return 1;
+		}
+
+		int invalidCount = 0;
+		for (String itemType : itemTypes) {
+			String itemTypePath = recipesPath + "." + itemType;
+			Set<String> potionTypes;
+			try {
+				potionTypes = getSectionKeys(config, itemTypePath);
+			} catch (PluginLoadError e) {
+				logInvalidAchievementConfiguration(itemTypePath, e.getMessage());
+				invalidCount++;
+				continue;
+			}
+
+			for (String potionType : potionTypes) {
+				String potionTypePath = itemTypePath + "." + potionType;
+				PotionRecipe recipe;
+				try {
+					recipe = PotionRecipe.fromConfig(itemType, potionType);
+				} catch (IllegalArgumentException e) {
+					logInvalidAchievementConfiguration(potionTypePath, e.getMessage());
+					invalidCount++;
+					continue;
+				}
+
+				ThresholdParsingResult result;
+				try {
+					result = getSortedThresholds(config, potionTypePath);
+				} catch (PluginLoadError e) {
+					logInvalidAchievementConfiguration(potionTypePath, e.getMessage());
+					invalidCount++;
+					continue;
+				}
+				invalidCount += result.invalidCount();
+				for (AchievementThreshold threshold : result.thresholds()) {
+					String path = potionTypePath + "." + threshold.configKey();
+					if (!parseAchievementSafely(config, achievements, configurationRewardParser, advancementKeys,
+							NormalAchievements.BREWING, recipe.key(), threshold.value(), path)) {
+						invalidCount++;
+					}
+				}
+			}
+		}
+		return invalidCount;
+	}
+
 	private ThresholdParsingResult getSortedThresholds(YamlConfiguration config, String path) throws PluginLoadError {
+		return getSortedThresholds(config, path, Collections.emptySet());
+	}
+
+	private ThresholdParsingResult getSortedThresholds(YamlConfiguration config, String path, Set<String> ignoredKeys)
+			throws PluginLoadError {
 		ConfigurationSection section = config.getConfigurationSection(path);
 		if (section == null) {
 			throw new PluginLoadError(path + " must be a YAML section containing achievement thresholds.");
@@ -447,6 +526,9 @@ public class ConfigurationParser {
 		List<AchievementThreshold> thresholds = new ArrayList<>();
 		int invalidCount = 0;
 		for (String configKey : section.getKeys(false)) {
+			if (ignoredKeys.contains(configKey)) {
+				continue;
+			}
 			try {
 				long threshold = Long.parseLong(configKey);
 				if (threshold <= 0) {
@@ -506,7 +588,8 @@ public class ConfigurationParser {
 		String message = section.getString("Message");
 		String displayName = StringUtils.defaultString(section.getString("DisplayName"), name);
 		if (StringUtils.isBlank(name)) {
-			throw new PluginLoadError("Achievement with path (" + path + ") is missing its Name parameter in TESTconfig.yml.");
+			throw new PluginLoadError(
+					"Achievement with path (" + path + ") is missing its Name parameter in TESTconfig.yml.");
 		} else if (achievements.getForName(name) != null) {
 			throw new PluginLoadError("Duplicate achievement Name (" + name + "). "
 					+ "Please ensure each Name is unique in TESTconfig.yml.");
@@ -547,7 +630,10 @@ public class ConfigurationParser {
 	private void logLoadingMessages(AchievementMap achievements, Set<Category> categoriesDisabled,
 			int skippedAchievements) {
 		int disabledCategoryCount = categoriesDisabled.size();
-		int categories = NormalAchievements.values().length + MultipleAchievements.values().length + 1
+		long configurableMultipleCategories = Arrays.stream(MultipleAchievements.values())
+				.filter(MultipleAchievements::isConfigurable)
+				.count();
+		long categories = NormalAchievements.values().length + configurableMultipleCategories + 1
 				- disabledCategoryCount;
 		logger.info("Loaded " + achievements.getAll().size() + " achievements in " + categories + " categories.");
 		if (skippedAchievements > 0) {
