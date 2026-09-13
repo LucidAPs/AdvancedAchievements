@@ -1,5 +1,6 @@
 package com.hm.achievement.config;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -42,9 +43,23 @@ class YamlUpdaterTest {
 
 		underTest.update("config-default.yml", userFile.getName(), YamlConfiguration.loadConfiguration(userFile));
 
-		byte[] expectedUserConfig = Files.readAllBytes(Paths.get(getClass().getResource("/config-updated.yml").toURI()));
-		byte[] actualUserConfig = Files.readAllBytes(userFile.toPath());
-		assertEquals(new String(expectedUserConfig), new String(actualUserConfig));
+		String expectedUserConfig = getTestResourceContents("config-updated.yml");
+		String actualUserConfig = Files.readString(userFile.toPath(), UTF_8);
+		assertEquals(expectedUserConfig, actualUserConfig);
+	}
+
+	@Test
+	void shouldPreserveCrLfLineEndingsWhenAppendingMissingSections() throws Exception {
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		File userFile = createFileFromTestResource("config-missing-sections.yml");
+		Files.writeString(userFile.toPath(), getTestResourceContents("config-missing-sections.yml").replace("\n", "\r\n"),
+				UTF_8);
+
+		underTest.update("config-default.yml", userFile.getName(), YamlConfiguration.loadConfiguration(userFile));
+
+		String expectedUserConfig = getTestResourceContents("config-updated.yml").replace("\n", "\r\n");
+		String actualUserConfig = Files.readString(userFile.toPath(), UTF_8);
+		assertEquals(expectedUserConfig, actualUserConfig);
 	}
 
 	@Test
@@ -74,5 +89,9 @@ class YamlUpdaterTest {
 			Files.copy(Paths.get(getClass().getClassLoader().getResource(testResourceName).toURI()), targetUserConfig);
 		}
 		return userFile;
+	}
+
+	private String getTestResourceContents(String testResourceName) throws Exception {
+		return Files.readString(Paths.get(getClass().getClassLoader().getResource(testResourceName).toURI()), UTF_8);
 	}
 }

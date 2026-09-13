@@ -55,10 +55,21 @@ public class YamlUpdater {
 
 			if (!sectionsToAppend.isEmpty()) {
 				Path userConfigPath = Paths.get(plugin.getDataFolder().getPath(), userConfigName);
-				Files.write(userConfigPath, sectionsToAppend, StandardOpenOption.APPEND);
+				String lineSeparator = detectLineSeparator(userConfigPath);
+				String contentToAppend = String.join(lineSeparator, sectionsToAppend) + lineSeparator;
+				Files.writeString(userConfigPath, contentToAppend, UTF_8, StandardOpenOption.APPEND);
 				userConfig.load(userConfigPath.toFile());
 			}
 		}
+	}
+
+	private String detectLineSeparator(Path path) throws IOException {
+		String content = Files.readString(path, UTF_8);
+		int lineFeedIndex = content.indexOf('\n');
+		if (lineFeedIndex > 0 && content.charAt(lineFeedIndex - 1) == '\r') {
+			return "\r\n";
+		}
+		return "\n";
 	}
 
 	private Stream<String> extractSectionForMissingKey(List<String> defaultLines, String key) {
