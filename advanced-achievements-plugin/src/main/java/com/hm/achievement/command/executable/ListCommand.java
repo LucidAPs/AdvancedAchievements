@@ -54,11 +54,10 @@ public class ListCommand extends AbstractCommand {
 
 	@Override
 	void onExecute(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
+		Player player = requirePlayer(sender);
+		if (player == null) {
 			return;
 		}
-
-		Player player = (Player) sender;
 
 		if (player.isSleeping()) {
 			sender.sendMessage(langConfig.getString("list-unavailable-whilst-sleeping"));

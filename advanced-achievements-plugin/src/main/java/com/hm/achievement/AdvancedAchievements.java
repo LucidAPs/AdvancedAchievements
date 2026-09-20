@@ -16,7 +16,6 @@ import com.hm.achievement.module.CommandModule;
 import com.hm.achievement.module.ConfigModule;
 import com.hm.achievement.module.DatabaseModule;
 import com.hm.achievement.module.ReloadableModule;
-import com.hm.achievement.module.ServerVersionModule;
 
 import dagger.BindsInstance;
 import dagger.Component;
@@ -74,7 +73,6 @@ public class AdvancedAchievements extends JavaPlugin {
 		ConfigModule.class,
 		DatabaseModule.class,
 		ReloadableModule.class,
-		ServerVersionModule.class
 })
 interface AdvancedAchievementsComponent {
 

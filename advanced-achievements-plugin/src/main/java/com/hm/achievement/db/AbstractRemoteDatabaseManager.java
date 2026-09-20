@@ -1,13 +1,8 @@
 package com.hm.achievement.db;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -30,25 +25,35 @@ public class AbstractRemoteDatabaseManager extends AbstractDatabaseManager {
 	private final String databaseType;
 
 	public AbstractRemoteDatabaseManager(@Named("main") YamlConfiguration mainConfig, Logger logger,
-			DatabaseUpdater databaseUpdater, String driverPath, String databaseType, ExecutorService writeExecutor) {
-		super(mainConfig, logger, databaseUpdater, driverPath, writeExecutor);
+			DatabaseUpdater databaseUpdater, String driverPath, String databaseType, DatabaseExecutor databaseExecutor) {
+		super(mainConfig, logger, databaseUpdater, driverPath, databaseExecutor);
 		this.databaseType = databaseType;
 	}
 
 	@Override
-	void performPreliminaryTasks() throws ClassNotFoundException, UnsupportedEncodingException {
+	void performPreliminaryTasks() throws ClassNotFoundException {
 		Class.forName(driverPath);
 
 		databaseAddress = getDatabaseAddress();
-		databaseUser = URLEncoder.encode(mainConfig.getString("DatabaseUser"), UTF_8.name());
-		databasePassword = URLEncoder.encode(mainConfig.getString("DatabasePassword"), UTF_8.name());
+		databaseUser = mainConfig.getString("DatabaseUser");
+		databasePassword = mainConfig.getString("DatabasePassword");
 		additionalConnectionOptions = mainConfig.getString("AdditionalConnectionOptions");
 	}
 
 	@Override
 	Connection createConnection() throws SQLException {
-		return DriverManager.getConnection(databaseAddress + "?autoReconnect=true" + additionalConnectionOptions + "&user="
-				+ databaseUser + "&password=" + databasePassword);
+		return DriverManager.getConnection(buildConnectionUrl(), databaseUser, databasePassword);
+	}
+
+	String buildConnectionUrl() {
+		String options = additionalConnectionOptions == null ? "" : additionalConnectionOptions.trim();
+		while (options.startsWith("?") || options.startsWith("&")) {
+			options = options.substring(1);
+		}
+		if (options.isEmpty()) {
+			return databaseAddress;
+		}
+		return databaseAddress + (databaseAddress.contains("?") ? "&" : "?") + options;
 	}
 
 	private String getDatabaseAddress() {

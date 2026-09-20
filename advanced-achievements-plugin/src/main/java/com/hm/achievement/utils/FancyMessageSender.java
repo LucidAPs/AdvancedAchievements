@@ -7,7 +7,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -22,11 +21,8 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 @Singleton
 public final class FancyMessageSender {
 
-	private final int serverVersion;
-
 	@Inject
-	public FancyMessageSender(int serverVersion) {
-		this.serverVersion = serverVersion;
+	public FancyMessageSender() {
 	}
 
 	/**
@@ -43,13 +39,8 @@ public final class FancyMessageSender {
 		tc.setText(ChatColor.translateAlternateColorCodes('&', message));
 		tc.setColor(ChatColor.valueOf(color.toUpperCase()).asBungee());
 
-		if (serverVersion >= 16) {
-			tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-					new Text(ChatColor.translateAlternateColorCodes('&', hover))));
-		} else {
-			tc.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
-					new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', hover)).create()));
-		}
+		tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+				new Text(ChatColor.translateAlternateColorCodes('&', hover))));
 		player.spigot().sendMessage(tc);
 	}
 
@@ -70,13 +61,8 @@ public final class FancyMessageSender {
 		tc.setColor(ChatColor.valueOf(color.toUpperCase()).asBungee());
 		tc.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 
-		if (serverVersion >= 16) {
-			tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-					new Text(ChatColor.translateAlternateColorCodes('&', hover))));
-		} else {
-			tc.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
-					new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', hover)).create()));
-		}
+		tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+				new Text(ChatColor.translateAlternateColorCodes('&', hover))));
 		player.spigot().sendMessage(tc);
 	}
 }

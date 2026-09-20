@@ -33,13 +33,11 @@ public class FireworksListener extends AbstractListener {
 
 	private Set<String> forbiddenFireworkBlocks;
 	private Set<String> forbiddenFireworkBlocksWhenNotSneaking;
-	private final int serverVersion;
 
 	@Inject
-	public FireworksListener(@Named("main") YamlConfiguration mainConfig, int serverVersion, AchievementMap achievementMap,
+	public FireworksListener(@Named("main") YamlConfiguration mainConfig, AchievementMap achievementMap,
 			CacheManager cacheManager) {
 		super(NormalAchievements.FIREWORKS, mainConfig, achievementMap, cacheManager);
-		this.serverVersion = serverVersion;
 	}
 
 	@Override
@@ -87,7 +85,7 @@ public class FireworksListener extends AbstractListener {
 			return false;
 		}
 		if (!player.isSneaking()) {
-			if (serverVersion >= 14 && clickedBlock.getType() == Material.SWEET_BERRY_BUSH) {
+			if (clickedBlock.getType() == Material.SWEET_BERRY_BUSH) {
 				return ((Ageable) clickedBlock.getBlockData()).getAge() <= 1;
 			} else if (forbiddenFireworkBlocksWhenNotSneaking.contains(clickedBlock.getType().name())) {
 				return false;

@@ -1,6 +1,5 @@
 package com.hm.achievement.db;
 
-import static com.google.common.util.concurrent.MoreExecutors.newDirectExecutorService;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -54,7 +53,7 @@ class H2DatabaseManagerTest {
 		when(plugin.getDataFolder()).thenReturn(tempDir.toFile());
 		YamlConfiguration config = YamlConfiguration
 				.loadConfiguration(new InputStreamReader(H2DatabaseManagerTest.class.getResourceAsStream("/config-h2.yml")));
-		db = new H2DatabaseManager(config, LOGGER, new DatabaseUpdater(LOGGER), plugin, newDirectExecutorService());
+		db = new H2DatabaseManager(config, LOGGER, new DatabaseUpdater(LOGGER), plugin, new DatabaseExecutor());
 		db.initialise();
 		db.extractConfigurationParameters();
 	}
@@ -221,12 +220,12 @@ class H2DatabaseManagerTest {
 	void testGetNormalAchievementAmount() {
 		assertEquals(0, db.getNormalAchievementAmount(testUUID, NormalAchievements.BEDS));
 
-		((SQLWriteOperation) () -> {
+		db.queueWrite(() -> {
 			try (PreparedStatement ps = db.getConnection()
 					.prepareStatement("REPLACE INTO beds VALUES ('" + testUUID + "',5)")) {
 				ps.execute();
 			}
-		}).executeOperation(db.writeExecutor, LOGGER, "Writing beds statistics");
+		}, "Writing beds statistics");
 
 		assertEquals(5, db.getNormalAchievementAmount(testUUID, NormalAchievements.BEDS));
 	}
@@ -235,19 +234,19 @@ class H2DatabaseManagerTest {
 	void testGetMultipleAchievementAmount() {
 		assertEquals(0, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.CRAFTS, "diamond_axe"));
 
-		((SQLWriteOperation) () -> {
+		db.queueWrite(() -> {
 			try (PreparedStatement ps = db.getConnection()
 					.prepareStatement("REPLACE INTO crafts VALUES ('" + testUUID + "','diamond_axe',7)")) {
 				ps.execute();
 			}
-		}).executeOperation(db.writeExecutor, LOGGER, "Writing crafts statistics");
+		}, "Writing crafts statistics");
 
 		assertEquals(7, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.CRAFTS, "diamond_axe"));
 	}
 
 	@Test
 	void testGetMultipleAchievementAmounts() {
-		((SQLWriteOperation) () -> {
+		db.queueWrite(() -> {
 			try (PreparedStatement first = db.getConnection()
 					.prepareStatement("REPLACE INTO crafts VALUES ('" + testUUID + "','diamond_axe',7)");
 					PreparedStatement second = db.getConnection()
@@ -255,7 +254,7 @@ class H2DatabaseManagerTest {
 				first.execute();
 				second.execute();
 			}
-		}).executeOperation(db.writeExecutor, LOGGER, "Writing crafts statistics");
+		}, "Writing crafts statistics");
 
 		Map<String, Long> amounts = db.getMultipleAchievementAmounts(testUUID, MultipleAchievements.CRAFTS);
 
@@ -267,12 +266,12 @@ class H2DatabaseManagerTest {
 		String recipe = "lingering_potion/turtle_master";
 		assertEquals(0, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.BREWINGRECIPES, recipe));
 
-		((SQLWriteOperation) () -> {
+		db.queueWrite(() -> {
 			try (PreparedStatement ps = db.getConnection()
 					.prepareStatement("REPLACE INTO brewingrecipes VALUES ('" + testUUID + "','" + recipe + "',3)")) {
 				ps.execute();
 			}
-		}).executeOperation(db.writeExecutor, LOGGER, "Writing brewing recipe statistics");
+		}, "Writing brewing recipe statistics");
 
 		assertEquals(3, db.getMultipleAchievementAmount(testUUID, MultipleAchievements.BREWINGRECIPES, recipe));
 	}
@@ -283,10 +282,10 @@ class H2DatabaseManagerTest {
 	}
 
 	private void clearDatabase() {
-		((SQLWriteOperation) () -> {
+		db.queueWrite(() -> {
 			try (PreparedStatement ps = db.getConnection().prepareStatement("DELETE FROM achievements")) {
 				ps.execute();
 			}
-		}).executeOperation(db.writeExecutor, LOGGER, "Clearing achievements table");
+		}, "Clearing achievements table");
 	}
 }

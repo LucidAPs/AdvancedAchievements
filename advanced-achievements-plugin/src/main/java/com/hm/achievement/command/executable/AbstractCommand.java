@@ -3,6 +3,7 @@ package com.hm.achievement.command.executable;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import com.hm.achievement.lifecycle.Reloadable;
 
@@ -18,6 +19,7 @@ public abstract class AbstractCommand implements Reloadable {
 	final StringBuilder pluginHeader;
 
 	private String langNoPermissions;
+	private String langPlayerOnly;
 
 	AbstractCommand(YamlConfiguration mainConfig, YamlConfiguration langConfig, StringBuilder pluginHeader) {
 		this.mainConfig = mainConfig;
@@ -28,6 +30,7 @@ public abstract class AbstractCommand implements Reloadable {
 	@Override
 	public void extractConfigurationParameters() {
 		langNoPermissions = pluginHeader.toString() + langConfig.getString("no-permissions");
+		langPlayerOnly = pluginHeader.toString() + langConfig.getString("player-only");
 	}
 
 	/**
@@ -53,6 +56,14 @@ public abstract class AbstractCommand implements Reloadable {
 	 * @param args
 	 */
 	abstract void onExecute(CommandSender sender, String[] args);
+
+	Player requirePlayer(CommandSender sender) {
+		if (sender instanceof Player) {
+			return (Player) sender;
+		}
+		sender.sendMessage(langPlayerOnly);
+		return null;
+	}
 
 	String translateColorCodes(String translate) {
 		return ChatColor.translateAlternateColorCodes('&', translate);

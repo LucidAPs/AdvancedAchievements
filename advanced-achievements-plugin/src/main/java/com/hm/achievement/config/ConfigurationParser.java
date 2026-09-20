@@ -39,9 +39,8 @@ import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.utils.StringHelper;
 
 /**
- * Class in charge of parsing the TESTconfig.yml, lang.yml and gui.yml configuration files. It loads the files and
- * populates common data structures used in other parts of the plugin. Basic validation is performed on the
- * achievements.
+ * Class in charge of parsing the config.yml, lang.yml and gui.yml configuration files. It loads the files and populates
+ * common data structures used in other parts of the plugin. Basic validation is performed on the achievements.
  *
  * @author Pyves
  */
@@ -58,7 +57,6 @@ public class ConfigurationParser {
 	private final Set<Category> disabledCategories;
 	private final StringBuilder pluginHeader;
 	private final Logger logger;
-	private final int serverVersion;
 	private final YamlUpdater yamlUpdater;
 	private final AdvancedAchievements plugin;
 	private final RewardParser rewardParser;
@@ -66,7 +64,7 @@ public class ConfigurationParser {
 	@Inject
 	public ConfigurationParser(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
 			@Named("gui") YamlConfiguration guiConfig, AchievementMap achievementMap, Set<Category> disabledCategories,
-			StringBuilder pluginHeader, Logger logger, int serverVersion, YamlUpdater yamlUpdater,
+			StringBuilder pluginHeader, Logger logger, YamlUpdater yamlUpdater,
 			AdvancedAchievements plugin, RewardParser rewardParser) {
 		this.mainConfig = mainConfig;
 		this.langConfig = langConfig;
@@ -75,7 +73,6 @@ public class ConfigurationParser {
 		this.disabledCategories = disabledCategories;
 		this.pluginHeader = pluginHeader;
 		this.logger = logger;
-		this.serverVersion = serverVersion;
 		this.yamlUpdater = yamlUpdater;
 		this.plugin = plugin;
 		this.rewardParser = rewardParser;
@@ -105,6 +102,9 @@ public class ConfigurationParser {
 		parseDisabledCategories(parsedMainConfig, parsedDisabledCategories);
 		int skippedAchievements = parseAchievements(parsedMainConfig, parsedAchievementMap, parsedDisabledCategories,
 				parsedRewardParser);
+		if (parsedAchievementMap.getAll().isEmpty()) {
+			throw new PluginLoadError("No valid achievements were found in config.yml.");
+		}
 
 		commitConfiguration(parsedMainConfig, parsedLangConfig, parsedGuiConfig, parsedAchievementMap,
 				parsedDisabledCategories, parsedPluginHeader);
@@ -112,7 +112,7 @@ public class ConfigurationParser {
 	}
 
 	/**
-	 * Reterive keys associated with the configuration section at the given path
+	 * Retrieves keys associated with the configuration section at the given path.
 	 *
 	 * @param path
 	 * @return A set containing the keys
@@ -179,6 +179,13 @@ public class ConfigurationParser {
 		String databaseType = config.getString("DatabaseType");
 		if (DATABASE_TYPES.stream().noneMatch(type -> type.equalsIgnoreCase(databaseType))) {
 			throw new PluginLoadError("DatabaseType must be one of " + DATABASE_TYPES + ", but was " + databaseType + ".");
+		}
+		if (!config.getString("TablePrefix", "").matches("[A-Za-z0-9_]*")) {
+			throw new PluginLoadError("TablePrefix may only contain letters, numbers and underscores.");
+		}
+		if (("mysql".equalsIgnoreCase(databaseType) || "postgresql".equalsIgnoreCase(databaseType))
+				&& StringUtils.isAnyBlank(config.getString("DatabaseAddress"), config.getString("DatabaseUser"))) {
+			throw new PluginLoadError("DatabaseAddress and DatabaseUser are required for remote databases.");
 		}
 
 		validateColor(config, "Color");
@@ -274,7 +281,7 @@ public class ConfigurationParser {
 			categories.add(NormalAchievements.PETMASTERRECEIVE);
 			logger.warning("Overriding configuration: disabling PetMasterGive and PetMasterReceive categories.");
 			logger.warning(
-					"Ensure you have placed Pet Master in your plugins folder or add PetMasterGive and PetMasterReceive to the DisabledCategories list in TESTconfig.yml.");
+					"Ensure you have placed Pet Master in your plugins folder or add PetMasterGive and PetMasterReceive to the DisabledCategories list in config.yml.");
 		}
 		// Need Jobs for JobsReborn category.
 		if (!categories.contains(MultipleAchievements.JOBSREBORN)
@@ -282,14 +289,7 @@ public class ConfigurationParser {
 			categories.add(MultipleAchievements.JOBSREBORN);
 			logger.warning("Overriding configuration: disabling JobsReborn category.");
 			logger.warning(
-					"Ensure you have placed JobsReborn in your plugins folder or add JobsReborn to the DisabledCategories list in TESTconfig.yml.");
-		}
-		// Raids introduced in 1.14.
-		if (!categories.contains(NormalAchievements.RAIDSWON) && serverVersion < 14) {
-			categories.add(NormalAchievements.RAIDSWON);
-			logger.warning("Overriding configuration: disabling RaidsWon category.");
-			logger.warning(
-					"Raids are not available in your server version, please add RaidsWon to the DisabledCategories list in TESTconfig.yml.");
+					"Ensure you have placed JobsReborn in your plugins folder or add JobsReborn to the DisabledCategories list in config.yml.");
 		}
 	}
 
@@ -589,13 +589,13 @@ public class ConfigurationParser {
 		String displayName = StringUtils.defaultString(section.getString("DisplayName"), name);
 		if (StringUtils.isBlank(name)) {
 			throw new PluginLoadError(
-					"Achievement with path (" + path + ") is missing its Name parameter in TESTconfig.yml.");
+					"Achievement with path (" + path + ") is missing its Name parameter in config.yml.");
 		} else if (achievements.getForName(name) != null) {
 			throw new PluginLoadError("Duplicate achievement Name (" + name + "). "
-					+ "Please ensure each Name is unique in TESTconfig.yml.");
+					+ "Please ensure each Name is unique in config.yml.");
 		} else if (StringUtils.isBlank(message)) {
 			throw new PluginLoadError(
-					"Achievement with path (" + path + ") is missing its Message parameter in TESTconfig.yml.");
+					"Achievement with path (" + path + ") is missing its Message parameter in config.yml.");
 		} else if (StringUtils.isBlank(displayName)) {
 			throw new PluginLoadError(
 					"Achievement with path (" + path + ") must have a non-empty DisplayName parameter.");

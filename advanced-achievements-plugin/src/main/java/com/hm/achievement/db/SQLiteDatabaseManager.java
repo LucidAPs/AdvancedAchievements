@@ -1,7 +1,6 @@
 package com.hm.achievement.db;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -19,8 +18,8 @@ import com.hm.achievement.AdvancedAchievements;
 public class SQLiteDatabaseManager extends AbstractFileDatabaseManager {
 
 	public SQLiteDatabaseManager(@Named("main") YamlConfiguration mainConfig, Logger logger, DatabaseUpdater databaseUpdater,
-			AdvancedAchievements advancedAchievements, ExecutorService writeExecutor) {
+			AdvancedAchievements advancedAchievements, DatabaseExecutor databaseExecutor) {
 		super(mainConfig, logger, databaseUpdater, advancedAchievements, "org.sqlite.JDBC", "jdbc:sqlite:"
-				+ new File(advancedAchievements.getDataFolder(), "achievements.db"), "achievements.db", writeExecutor);
+				+ new File(advancedAchievements.getDataFolder(), "achievements.db"), "achievements.db", databaseExecutor);
 	}
 }

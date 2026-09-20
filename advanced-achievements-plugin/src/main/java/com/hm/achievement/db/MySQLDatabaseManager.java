@@ -1,7 +1,5 @@
 package com.hm.achievement.db;
 
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -17,14 +15,17 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class MySQLDatabaseManager extends AbstractRemoteDatabaseManager {
 
 	public MySQLDatabaseManager(@Named("main") YamlConfiguration mainConfig, Logger logger,
-			DatabaseUpdater databaseUpdater, ExecutorService writeExecutor) {
-		super(mainConfig, logger, databaseUpdater, "com.mysql.jdbc.Driver", "mysql", writeExecutor);
+			DatabaseUpdater databaseUpdater, DatabaseExecutor databaseExecutor) {
+		super(mainConfig, logger, databaseUpdater, "com.mysql.cj.jdbc.Driver", "mysql", databaseExecutor);
 	}
 
 	@Override
-	void performPreliminaryTasks() throws ClassNotFoundException, UnsupportedEncodingException {
+	void performPreliminaryTasks() throws ClassNotFoundException {
 		super.performPreliminaryTasks();
 
-		additionalConnectionOptions = "&useSSL=false" + additionalConnectionOptions;
+		String options = additionalConnectionOptions == null ? "" : additionalConnectionOptions.trim();
+		if (!options.toLowerCase().contains("usessl=")) {
+			additionalConnectionOptions = "useSSL=false&" + options.replaceFirst("^[?&]+", "");
+		}
 	}
 }

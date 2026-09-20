@@ -69,7 +69,7 @@ public class InspectCommand extends AbstractCommand {
 
 	private int getPage(String[] args) {
 		boolean lastArgIsNumber = args.length > 1 && NumberUtils.isDigits(args[args.length - 1]);
-		return lastArgIsNumber ? Integer.parseInt(args[args.length - 1]) : 1;
+		return lastArgIsNumber ? Math.max(1, NumberUtils.toInt(args[args.length - 1], 1)) : 1;
 	}
 
 	@Override
@@ -85,14 +85,26 @@ public class InspectCommand extends AbstractCommand {
 		}
 		int page = getPage(args);
 
-		advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
-			// Cleaning the cache & caching desired pagination
-			cleanUpCache();
-			checkAndCache(achievement.getName());
+		cleanUpCache();
+		SupplierCommandPagination cachedPagination = cachedPaginations.get(achievement.getName());
+		if (cachedPagination != null) {
+			cachedPagination.sendPage(page, sender);
+			return;
+		}
 
-			// Send pagination
-			SupplierCommandPagination pagination = cachedPaginations.get(achievement.getName());
-			pagination.sendPage(page, sender);
+		advancedAchievements.getServer().getScheduler().runTaskAsynchronously(advancedAchievements, () -> {
+			try {
+				List<AwardedDBAchievement> recipients = databaseManager
+						.getAchievementsRecipientList(achievement.getName());
+				advancedAchievements.getServer().getScheduler().runTask(advancedAchievements, () -> {
+					cache(achievement.getName(), recipients);
+					cachedPaginations.get(achievement.getName()).sendPage(page, sender);
+				});
+			} catch (RuntimeException e) {
+				advancedAchievements.getLogger().warning("Could not inspect achievement recipients: " + e.getMessage());
+				advancedAchievements.getServer().getScheduler().runTask(advancedAchievements,
+						() -> sender.sendMessage(pluginHeader + langConfig.getString("database-error")));
+			}
 		});
 	}
 
@@ -134,21 +146,17 @@ public class InspectCommand extends AbstractCommand {
 
 	}
 
-	private void checkAndCache(String achievementName) {
-		if (System.currentTimeMillis() - CACHE_EXPIRATION_DELAY > lastCached.getOrDefault(achievementName, 0L)) {
-			List<AwardedDBAchievement> recipientList = databaseManager.getAchievementsRecipientList(achievementName);
-			// Use Suppliers to avoid huge work on getting UUID - name relations.
-			List<Supplier<String>> messages = recipientList.stream()
-					.map(achievement -> (Supplier<String>) () -> {
-						UUID uuid = achievement.getAwardedTo();
-						OfflinePlayer player = advancedAchievements.getServer().getOfflinePlayer(uuid);
-						String identifier = player.hasPlayedBefore() ? player.getName() : uuid.toString();
-						return "  " + identifier + " (" + achievement.getFormattedDate() + ")";
-					}).collect(Collectors.toList());
+	private void cache(String achievementName, List<AwardedDBAchievement> recipientList) {
+		// Player profile lookups and message delivery stay on the main server thread.
+		List<Supplier<String>> messages = recipientList.stream().map(achievement -> (Supplier<String>) () -> {
+			UUID uuid = achievement.getAwardedTo();
+			OfflinePlayer player = advancedAchievements.getServer().getOfflinePlayer(uuid);
+			String identifier = player.hasPlayedBefore() ? player.getName() : uuid.toString();
+			return "  " + identifier + " (" + achievement.getFormattedDate() + ")";
+		}).collect(Collectors.toList());
 
-			SupplierCommandPagination pagination = new SupplierCommandPagination(messages, PER_PAGE, langConfig);
-			cachedPaginations.put(achievementName, pagination);
-			lastCached.put(achievementName, System.currentTimeMillis());
-		}
+		SupplierCommandPagination pagination = new SupplierCommandPagination(messages, PER_PAGE, langConfig);
+		cachedPaginations.put(achievementName, pagination);
+		lastCached.put(achievementName, System.currentTimeMillis());
 	}
 }

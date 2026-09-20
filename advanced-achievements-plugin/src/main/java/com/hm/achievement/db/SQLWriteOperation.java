@@ -1,7 +1,7 @@
 package com.hm.achievement.db;
 
 import java.sql.SQLException;
-import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,29 +23,23 @@ public interface SQLWriteOperation {
 	void performWrite() throws SQLException;
 
 	/**
-	 * Performs the write operation with an Executor.
-	 *
-	 * @param executor
-	 * @param logger
-	 * @param operationMessage
-	 */
-	default void executeOperation(Executor executor, Logger logger, String operationMessage) {
-		executor.execute(() -> attemptWrites(logger, operationMessage));
-	}
-
-	/**
 	 * Calls {@code performWrite} repeatedly until the write succeeds or {@code MAX_ATTEMPTS} is reached.
 	 *
 	 * @param logger
 	 * @param operationMessage
 	 */
-	default void attemptWrites(Logger logger, String operationMessage) {
+	default boolean attemptWrites(Logger logger, String operationMessage) {
+		return attemptWrites(logger, operationMessage, exception -> {
+		});
+	}
+
+	default boolean attemptWrites(Logger logger, String operationMessage, Consumer<SQLException> failureHandler) {
 		for (int attempt = 1; attempt <= MAX_ATTEMPTS; ++attempt) {
 			try {
 				performWrite();
-				// Operation succeeded: return immediately.
-				return;
+				return true;
 			} catch (SQLException e) {
+				failureHandler.accept(e);
 				if (attempt == MAX_ATTEMPTS) {
 					// Final attempt: log error.
 					logger.log(Level.SEVERE, "Database write error while " + operationMessage + ":", e);
@@ -55,6 +49,7 @@ public interface SQLWriteOperation {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -66,7 +61,7 @@ public interface SQLWriteOperation {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE, "Thead interrupted while sleeping:", e);
+			logger.log(Level.SEVERE, "Thread interrupted while sleeping:", e);
 			Thread.currentThread().interrupt();
 		}
 	}

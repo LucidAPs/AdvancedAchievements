@@ -66,11 +66,10 @@ public class StatsCommand extends AbstractCommand {
 
 	@Override
 	void onExecute(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
+		Player player = requirePlayer(sender);
+		if (player == null) {
 			return;
 		}
-
-		Player player = (Player) sender;
 
 		int playerAchievements = cacheManager.getPlayerAchievements(player.getUniqueId()).size();
 		int totalAchievements = achievementMap.getAll().size();

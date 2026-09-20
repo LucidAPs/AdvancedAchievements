@@ -9,35 +9,41 @@ package com.hm.achievement.db;
 public class CachedStatistic {
 
 	// Value of the statistic. Can only be modified by the main server thread.
-	private volatile long value;
-	// Indicates whether this in-memory value was written to or is about to be written to the database. Can be modified
-	// concurrently by either the main server thread or the AsyncCachedRequestsSender thread.
-	private volatile boolean databaseConsistent;
+	private long value;
+	private long revision;
+	private long persistedRevision;
 	// Indicates whether the player linked to this statistic has recently disconnected. Can only be modified by the main
 	// server thread.
 	private volatile boolean disconnection;
 
 	public CachedStatistic(long value, boolean databaseConsistent) {
 		this.value = value;
-		this.databaseConsistent = databaseConsistent;
+		revision = databaseConsistent ? 0L : 1L;
+		persistedRevision = 0L;
 		disconnection = false;
 	}
 
-	public long getValue() {
+	public synchronized long getValue() {
 		return value;
 	}
 
-	public void setValue(long value) {
+	public synchronized void setValue(long value) {
 		this.value = value;
-		databaseConsistent = false;
+		revision++;
 	}
 
-	public boolean isDatabaseConsistent() {
-		return databaseConsistent;
+	public synchronized boolean isDatabaseConsistent() {
+		return revision == persistedRevision;
 	}
 
-	public void prepareDatabaseWrite() {
-		databaseConsistent = true;
+	public synchronized WriteSnapshot snapshotForWrite() {
+		return isDatabaseConsistent() ? null : new WriteSnapshot(value, revision);
+	}
+
+	public synchronized void markPersisted(long writtenRevision) {
+		if (revision == writtenRevision) {
+			persistedRevision = writtenRevision;
+		}
 	}
 
 	public boolean didPlayerDisconnect() {
@@ -50,5 +56,24 @@ public class CachedStatistic {
 
 	public void resetDisconnection() {
 		disconnection = false;
+	}
+
+	public static final class WriteSnapshot {
+
+		private final long value;
+		private final long revision;
+
+		private WriteSnapshot(long value, long revision) {
+			this.value = value;
+			this.revision = revision;
+		}
+
+		public long getValue() {
+			return value;
+		}
+
+		public long getRevision() {
+			return revision;
+		}
 	}
 }

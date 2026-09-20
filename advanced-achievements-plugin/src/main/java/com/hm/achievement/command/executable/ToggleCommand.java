@@ -63,11 +63,10 @@ public class ToggleCommand extends AbstractCommand {
 
 	@Override
 	void onExecute(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
+		Player player = requirePlayer(sender);
+		if (player == null) {
 			return;
 		}
-
-		Player player = (Player) sender;
 		Set<UUID> toggledPlayersForType = toggledPlayers;
 		if (args.length > 1) {
 			toggledPlayersForType = typesToToggledPlayers.computeIfAbsent(args[1], t -> new HashSet<>());

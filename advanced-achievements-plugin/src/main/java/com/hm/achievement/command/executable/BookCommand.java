@@ -1,6 +1,5 @@
 package com.hm.achievement.command.executable;
 
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
@@ -43,19 +41,10 @@ import com.hm.achievement.utils.SoundPlayer;
 @CommandSpec(name = "book", permission = "book", minArgs = 1, maxArgs = 1)
 public class BookCommand extends AbstractCommand implements Cleanable {
 
-	// Strings related to Reflection.
-	private static final String PACKAGE_INVENTORY = "inventory";
-	private static final String PACKAGE_UTIL = "util";
-	private static final String CLASS_CRAFT_META_BOOK = "CraftMetaBook";
-	private static final String CLASS_CRAFT_CHAT_MESSAGE = "CraftChatMessage";
-	private static final String FIELD_PAGES = "pages";
-	private static final String METHOD_FROM_STRING = "fromString";
-
 	// Corresponds to times at which players have received their books. Cooldown structure.
 	private final HashMap<UUID, Long> playersBookTime = new HashMap<>();
 	private final AdvancedAchievements advancedAchievements;
 	private final Logger logger;
-	private final int serverVersion;
 	private final AbstractDatabaseManager databaseManager;
 	private final SoundPlayer soundPlayer;
 	private final AchievementMap achievementMap;
@@ -74,12 +63,11 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 
 	@Inject
 	public BookCommand(@Named("main") YamlConfiguration mainConfig, @Named("lang") YamlConfiguration langConfig,
-			StringBuilder pluginHeader, AdvancedAchievements advancedAchievements, Logger logger, int serverVersion,
+			StringBuilder pluginHeader, AdvancedAchievements advancedAchievements, Logger logger,
 			AbstractDatabaseManager databaseManager, SoundPlayer soundPlayer, AchievementMap achievementMap) {
 		super(mainConfig, langConfig, pluginHeader);
 		this.advancedAchievements = advancedAchievements;
 		this.logger = logger;
-		this.serverVersion = serverVersion;
 		this.databaseManager = databaseManager;
 		this.soundPlayer = soundPlayer;
 		this.achievementMap = achievementMap;
@@ -114,11 +102,10 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 
 	@Override
 	void onExecute(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
+		Player player = requirePlayer(sender);
+		if (player == null) {
 			return;
 		}
-
-		Player player = (Player) sender;
 
 		if (!isInCooldownPeriod(player)) {
 			UUID playerId = player.getUniqueId();
@@ -148,16 +135,7 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 
 		// Play special particle effect when receiving the book.
 		if (configAdditionalEffects) {
-			// Get the server's version
-			String bukkitVersion = Bukkit.getServer().getBukkitVersion();
-
-			if (bukkitVersion.startsWith("1.20.4")) {
-				// For 1.20.4 and above, skip particles as ENCHANTMENT_TABLE is unavailable
-				logger.info("Skipping particles for version 1.20.4 or bellow.");
-			} else {
-				// Fallback for older versions, use ENCHANT particle
-				player.spawnParticle(Particle.ENCHANT, player.getLocation(), 1000, 0, 2, 0, 1);
-			}
+			player.spawnParticle(Particle.ENCHANT, player.getLocation(), 1000, 0, 2, 0, 1);
 		}
 
 		// Play special sound when receiving the book.
@@ -226,39 +204,8 @@ public class BookCommand extends AbstractCommand implements Cleanable {
 		return true;
 	}
 
-	/**
-	 * Adds pages to the BookMeta. A Spigot commit in the late days of Minecraft 1.11.2 started enforcing extremely low
-	 * limits (why? If it's not broken, don't fix it.), with books limited in page size and total number of pages, as
-	 * well as title length. This function bypasses such limits and restores the original CraftBukkit behaviour. See
-	 * https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/commits/4acd0f49e07e0912096e79494472535baf0db2ab
-	 * for more information.
-	 *
-	 * @param bookPages
-	 * @param bookMeta
-	 */
-	@SuppressWarnings("unchecked")
+	/** Adds all generated pages using the supported BookMeta API. */
 	private void setBookPages(List<String> bookPages, BookMeta bookMeta) {
-		if (serverVersion <= 15) {
-			try {
-				// Code we're trying to execute: this.pages.add(CraftChatMessage.fromString(page, true)[0]); in
-				// CraftMetaBook.java.
-				String versionIdentifier = Bukkit.getServer().getClass().getPackage().getName().substring(23);
-				Class<?> craftMetaBookClass = Class.forName("org.bukkit.craftbukkit." + versionIdentifier + "."
-						+ PACKAGE_INVENTORY + "." + CLASS_CRAFT_META_BOOK);
-				List<Object> pages = (List<Object>) craftMetaBookClass.getField(FIELD_PAGES)
-						.get(craftMetaBookClass.cast(bookMeta));
-				Method fromStringMethod = Class.forName("org.bukkit.craftbukkit." + versionIdentifier + "."
-						+ PACKAGE_UTIL + "." + CLASS_CRAFT_CHAT_MESSAGE)
-						.getMethod(METHOD_FROM_STRING, String.class, boolean.class);
-				for (String bookPage : bookPages) {
-					pages.add(((Object[]) fromStringMethod.invoke(null, bookPage, true))[0]);
-				}
-			} catch (Exception e) {
-				logger.warning("Error while creating book pages. Your achievements book may be trimmed down to 50 pages.");
-				bookMeta.setPages(bookPages);
-			}
-		} else {
-			bookMeta.setPages(bookPages);
-		}
+		bookMeta.setPages(bookPages);
 	}
 }

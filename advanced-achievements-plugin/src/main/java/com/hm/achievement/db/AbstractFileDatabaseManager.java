@@ -7,7 +7,6 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,8 +32,8 @@ public class AbstractFileDatabaseManager extends AbstractDatabaseManager {
 
 	public AbstractFileDatabaseManager(@Named("main") YamlConfiguration mainConfig, Logger logger,
 			DatabaseUpdater databaseUpdater, AdvancedAchievements advancedAchievements,
-			String driverPath, String url, String filename, ExecutorService writeExecutor) {
-		super(mainConfig, logger, databaseUpdater, driverPath, writeExecutor);
+			String driverPath, String url, String filename, DatabaseExecutor databaseExecutor) {
+		super(mainConfig, logger, databaseUpdater, driverPath, databaseExecutor);
 		this.advancedAchievements = advancedAchievements;
 		this.url = url;
 		this.filename = filename;

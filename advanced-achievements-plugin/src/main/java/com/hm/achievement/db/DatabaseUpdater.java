@@ -23,6 +23,7 @@ import com.hm.achievement.exception.PluginLoadError;
  */
 @Singleton
 public class DatabaseUpdater {
+
 	private static final int MIN_BREWING_RECIPE_COLUMN_SIZE = 64;
 
 	private final Logger logger;

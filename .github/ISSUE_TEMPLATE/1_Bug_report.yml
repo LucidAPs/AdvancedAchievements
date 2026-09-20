@@ -1,83 +1,63 @@
-name: '🐛 Bug Report'
-description: Report errors and problems
+name: Bug report
+description: Report a reproducible error or regression
 labels: [bug]
 body:
   - type: input
     id: plugin-version
     attributes:
-      label: '🎆 Advanced Achievements version'
-      description: 'What version of the plugin are you running?' 
+      label: Advanced Achievements version
+      placeholder: "12.0"
     validations:
       required: true
-
   - type: input
     id: server-version
     attributes:
-      label: '🖥 Server version'
-      description: 'What server version are you running?' 
+      label: Server software and version
+      description: Current releases support Paper/Purpur 1.21+.
+      placeholder: "Paper 1.21.4 build 123"
     validations:
       required: true
-
   - type: input
-    id: spigot-username
+    id: java-version
     attributes:
-      label: '🚰 Spigot username'
-      description: 'What is your username on spigotmc.org?' 
+      label: Java version
+      placeholder: "21.0.6"
     validations:
       required: true
-
-  - type: checkboxes
-    id: wiki
-    attributes:
-      label: '𝑾 Wiki read'
-      description: 'Have you read through the [Wiki](https://github.com/PyvesB/advanced-achievements/wiki) and all the useful information it contains?' 
-      options:
-        - label: 'I have read the Wiki.'
-          required: true
-
-  - type: checkboxes
-    id: issues-searched
-    attributes:
-      label: '📁 Existing issues'
-      description: 'Many new issues tend to be duplicates, have you searched [existing ones](https://github.com/PyvesB/advanced-achievements/issues)?' 
-      options:
-        - label: 'I have searched existing issues.'
-          required: true
-
   - type: textarea
-    id: description
+    id: doctor
     attributes:
-      label: '🐛 Description'
-      description: 'A clear and concise description of the problem, including any steps to reproduce.'
+      label: /aach doctor output
+      description: Paste every page. The report does not include database credentials.
     validations:
       required: true
-
   - type: textarea
-    id: server-logs
+    id: reproduction
     attributes:
-      label: '📄 Server logs'
-      description: 'If there are any relevant server logs or exceptions, please paste them between the ``` lines below.'
-      value: |
-        ```
-        
-        ```
+      label: Reproduction steps
+      description: Explain the smallest sequence that reliably triggers the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste the complete exception and nearby startup warnings. Remove secrets first.
+      render: text
     validations:
       required: false
-
-  - type: textarea
-    id: configuration
+  - type: checkboxes
+    id: checks
     attributes:
-      label: '⚙ Configuration'
-      description: 'Please paste relevant configuration sections between the ``` lines below.'
-      value: |
-        ```
-        
-        ```
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ## :heart: Love Advanced Achievements?
-        Don't forget to star the repository or leave a review on Spigot to boost the project!
+      label: Checks
+      options:
+        - label: I searched the existing issues.
+          required: true
+        - label: I removed passwords and other secrets from all pasted content.
+          required: true

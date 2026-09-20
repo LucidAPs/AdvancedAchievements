@@ -1,71 +1,48 @@
-name: '❓ General Support'
-description: Request help
-labels: ['general support']
+name: General support
+description: Ask for configuration or usage help
+labels: [support]
 body:
   - type: input
     id: plugin-version
     attributes:
-      label: '🎆 Advanced Achievements version'
-      description: 'What version of the plugin are you running?' 
+      label: Advanced Achievements version
     validations:
       required: true
-
   - type: input
     id: server-version
     attributes:
-      label: '🖥 Server version'
-      description: 'What server version are you running?' 
+      label: Server software, Minecraft version, and Java version
+      placeholder: "Purpur 1.21.4, Java 21"
     validations:
       required: true
-
-  - type: input
-    id: spigot-username
-    attributes:
-      label: '🚰 Spigot username'
-      description: 'What is your username on spigotmc.org?' 
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: wiki
-    attributes:
-      label: '𝑾 Wiki read'
-      description: 'Have you read through the [Wiki](https://github.com/PyvesB/advanced-achievements/wiki) and all the useful information it contains?' 
-      options:
-        - label: 'I have read the Wiki.'
-          required: true
-
-  - type: checkboxes
-    id: issues-searched
-    attributes:
-      label: '📁 Existing issues'
-      description: 'Many new issues tend to be duplicates, have you searched [existing ones](https://github.com/PyvesB/advanced-achievements/issues)?' 
-      options:
-        - label: 'I have searched existing issues.'
-          required: true
-
   - type: textarea
-    id: description
+    id: question
     attributes:
-      label: '❓ Description'
-      description: 'Ask your question clearly and concisely.'
+      label: Question
+      description: Explain what you are trying to configure and what happened.
     validations:
       required: true
-
+  - type: textarea
+    id: doctor
+    attributes:
+      label: /aach doctor output
+      description: Paste every page. The report does not include database credentials.
+    validations:
+      required: true
   - type: textarea
     id: configuration
     attributes:
-      label: '⚙ Configuration'
-      description: 'Please paste relevant configuration sections between the ``` lines below.'
-      value: |
-        ```
-        
-        ```
+      label: Relevant configuration
+      description: Include only the relevant sections and remove passwords or other secrets.
+      render: yaml
     validations:
       required: false
-
-  - type: markdown
+  - type: checkboxes
+    id: checks
     attributes:
-      value: |
-        ## :heart: Love Advanced Achievements?
-        Don't forget to star the repository or leave a review on Spigot to boost the project!
+      label: Checks
+      options:
+        - label: I searched the existing issues.
+          required: true
+        - label: I removed passwords and other secrets from all pasted content.
+          required: true

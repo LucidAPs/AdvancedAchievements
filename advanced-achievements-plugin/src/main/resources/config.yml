@@ -9,10 +9,10 @@
 
 # Only spaces, no tabs. Don't forget the indents (2 spaces per indentation level).
 # To check syntax errors in your file, use: https://yaml-online-parser.appspot.com
-# To get involved with the project, visit its GitHub: https://github.com/PyvesB/advanced-achievements
-# To get some valuable additional documentation, visit the Wiki: https://github.com/PyvesB/advanced-achievements/wiki
+# To get involved with the project, visit its GitHub: https://github.com/LucidAPs/AdvancedAchievements
+# Run /aach doctor after changing configuration to perform read-only validation and health checks.
 # The default configuration files can be found at the following address:
-# https://github.com/PyvesB/advanced-achievements/blob/master/advanced-achievements-plugin/src/main/resources/config.yml
+# https://github.com/LucidAPs/AdvancedAchievements/blob/master/advanced-achievements-plugin/src/main/resources/config.yml
 
 #======================================================================================================================#
 #                                                   GENERAL SETTINGS                                                   #
@@ -382,7 +382,7 @@ BackButtonIsCategoryItem: true
 DatabaseBackup: true
 
 # Database type, sqlite, h2, postgresql or mysql. Do a full server restart for this to take effect.
-DatabaseType: h2
+DatabaseType: sqlite
 
 # Prefix added to the tables in the database. If you switch from the default tables names (no prefix), the plugin does
 # an automatic renaming. Otherwise you must rename tables manually. Do a full server restart for this to take effect.
@@ -393,15 +393,16 @@ TablePrefix: ""
 # large sizes, you don't need to change this value.
 TableMaxSizeOfGroupedSubcategories: 128
 
-# Specify additional options when opening a connection to a MySQL/PostgreSQL database. Start each option with &, for
-# example "&useUnicode=yes&characterEncoding=UTF-8". Make sure the key-value pairs themselves are URL encoded.
+# Specify additional options when opening a connection to a MySQL/PostgreSQL database, for example
+# "useUnicode=yes&characterEncoding=UTF-8". Make sure the key-value pairs themselves are URL encoded.
 AdditionalConnectionOptions: ""
 
-# Settings to connect to your MySQL/PostgreSQL database (ignored if sqlite).
+# Settings to connect to your MySQL/PostgreSQL database (ignored if sqlite or h2). Credentials are passed separately
+# to the JDBC driver and should not be included in DatabaseAddress.
 # A PostgreSQL database address will be similar to jdbc:postgresql://localhost:5432/minecraft
 DatabaseAddress: "jdbc:mysql://localhost:3306/minecraft"
 DatabaseUser: root
-DatabasePassword: root
+DatabasePassword: ""
 
 #======================================================================================================================#
 #                                                 PERFORMANCE SETTINGS                                                 #

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.hm.achievement</groupId>
 		<artifactId>advanced-achievements</artifactId>
-		<version>11.7</version>
+		<version>12.0</version>
 	</parent>
 	<artifactId>advanced-achievements-plugin</artifactId>
 	<packaging>jar</packaging>
@@ -17,8 +17,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>com.google.dagger</groupId>
@@ -30,12 +29,23 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${byte-buddy.version}/byte-buddy-agent-${byte-buddy.version}.jar</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<executions>
 					<execution>
 						<configuration>
 							<finalName>AdvancedAchievements</finalName>
-							<minimizeJar>true</minimizeJar>
+							<minimizeJar>false</minimizeJar>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+							</transformers>
 							<relocations>
 								<!-- Older versions of Minecraft may ship antique builds of Apache 
 									Commons, relocate our own managed version. -->
@@ -146,6 +156,10 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.mockbukkit.mockbukkit</groupId>

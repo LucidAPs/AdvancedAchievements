@@ -3,6 +3,7 @@ package com.hm.achievement.db;
 import com.hm.achievement.exception.DatabaseReadError;
 
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 /**
  * Class used to perform read operations to the database and automatically retry if a SQLException is thrown.
@@ -31,12 +32,18 @@ public interface SQLReadOperation<T> {
 	 * @return the result of a successful read operation
 	 */
 	default T executeOperation(String operationMessage) {
+		return executeOperation(operationMessage, exception -> {
+		});
+	}
+
+	default T executeOperation(String operationMessage, Consumer<SQLException> failureHandler) {
 		SQLException cause = null;
 		for (int attempt = 1; attempt <= MAX_ATTEMPTS; ++attempt) {
 			try {
 				return performRead();
 			} catch (SQLException e) {
 				cause = e;
+				failureHandler.accept(e);
 			}
 		}
 		throw new DatabaseReadError("Database read error while " + operationMessage + ".", cause);

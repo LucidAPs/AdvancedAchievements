@@ -49,6 +49,8 @@ public class HelpCommand extends AbstractCommand {
 	private String langCommandGenerateHover;
 	private String langCommandInspect;
 	private String langCommandInspectHover;
+	private String langCommandDoctor;
+	private String langCommandDoctorHover;
 	private String langCommandGive;
 	private String langCommandGiveHover;
 	private String langCommandAdd;
@@ -102,6 +104,8 @@ public class HelpCommand extends AbstractCommand {
 				+ translateColorCodes(
 						StringUtils.replaceOnce(langConfig.getString("aach-command-inspect"), "ACH", "&oach&7"));
 		langCommandInspectHover = langConfig.getString("aach-command-inspect-hover");
+		langCommandDoctor = header("/aach doctor") + langConfig.getString("aach-command-doctor");
+		langCommandDoctorHover = langConfig.getString("aach-command-doctor-hover");
 		langCommandGiveHover = langConfig.getString("aach-command-give-hover");
 		langCommandAdd = header("/aach add &ox cat player") + langConfig.getString("aach-command-add");
 		langCommandAddHover = langConfig.getString("aach-command-add-hover");
@@ -169,6 +173,10 @@ public class HelpCommand extends AbstractCommand {
 
 		if (sender.hasPermission("achievement.inspect")) {
 			sendJsonClickableHoverableMessage(sender, langCommandInspect, "/aach inspect ach", langCommandInspectHover);
+		}
+
+		if (sender.hasPermission("achievement.doctor")) {
+			sendJsonClickableHoverableMessage(sender, langCommandDoctor, "/aach doctor", langCommandDoctorHover);
 		}
 
 		if (sender.hasPermission("achievement.give")) {

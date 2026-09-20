@@ -14,6 +14,7 @@ statistic-cooldown: "Achievements cooldown: wait TIME seconds before this action
 category-does-not-exist: "The category and/or sub-category CAT does not exist. Did you mean CLOSEST_MATCH?"
 all-achievements-received: "Congratulations, you have received all the achievements!"
 invalid-command: "Invalid command. Please type /aach to display the command help."
+database-error: "The database request failed. Check the server logs for details."
 
 # Used in /aach reload.
 configuration-successfully-reloaded: "Configuration successfully reloaded."
@@ -41,6 +42,7 @@ book-not-received: "You have not yet received any achievements."
 # Used in /aach give.
 player-offline: "The player PLAYER is offline!"
 not-a-player: "You cannot give achievements to ENTITY, it is not a player!"
+player-only: "This command can only be used by a player."
 achievement-already-received: "The player PLAYER has already received this achievement!"
 achievement-not-found: "The specified achievement was not found in Commands category. Did you mean CLOSEST_MATCH?"
 achievement-given: "Achievement given!"
@@ -84,7 +86,7 @@ aach-command-give-hover: "Player must be online; only Commands achievements can 
 aach-command-add: "Increase a statistic."
 aach-command-add-hover: "Player must be online; mainly used for Custom Categories."
 aach-command-reload: "Reload the plugin's configuration."
-aach-command-reload-hover: "Reload most settings in TESTconfig.yml, gui.yml and lang.yml files."
+aach-command-reload-hover: "Reload most settings in config.yml, gui.yml and lang.yml files."
 aach-command-info: "Display information about the plugin."
 aach-command-info-hover: "Some extra info about the plugin and its awesome author!"
 aach-command-check: "Check if NAME has ACH."
@@ -103,7 +105,12 @@ aach-command-generate: "Generate advancements."
 aach-command-generate-hover: "Potentially slow command; use with care!"
 aach-command-inspect: "Inspect recipients of ACH."
 aach-command-inspect-hover: "Lists most recent recipients of an achievement, max 1000."
+aach-command-doctor: "Run read-only configuration and database diagnostics."
+aach-command-doctor-hover: "Checks YAML files, runtime compatibility, integrations and database health."
 aach-tip: "&lHINT &8You can &7&n&ohover&8 or &7&n&oclick&8 on the commands!"
+
+# Used in /aach doctor.
+doctor-running: "Running read-only diagnostics..."
 
 # Used in /aach info.
 version-command-version: "Version:"

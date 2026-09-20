@@ -2,9 +2,10 @@ name: AdvancedAchievements
 main: com.hm.achievement.AdvancedAchievements
 version: ${project.version}
 author: LucidAPs
+website: https://github.com/LucidAPs/AdvancedAchievements
 softdepend: [Vault,PetMaster,Essentials,PlaceholderAPI,Jobs]
 description: Advanced Achievements enables unique and challenging achievements. Try to collect as many as you can, earn rewards, climb the rankings and receive RP books!
-api-version: 1.17
+api-version: '1.21'
 commands:
   aach:
     description: Main Advanced Achievements command, use it to list sub-commands.
@@ -56,6 +57,12 @@ permissions:
   achievement.generate:
     description: Allows to generate advancements from the achievements defined in the configuration.
     default: op
+  achievement.inspect:
+    description: Allows to inspect recent recipients of an achievement.
+    default: op
+  achievement.doctor:
+    description: Allows to run read-only configuration, database and integration diagnostics.
+    default: op
   achievement.*:
     description: Star notation of command permissions, includes all the above ones and disables book command cooldowns.
     default: op
@@ -75,9 +82,11 @@ permissions:
       achievement.delete: true
       achievement.reset: true
       achievement.generate: true
+      achievement.inspect: true
+      achievement.doctor: true
   achievement.config.title.screen:
-    description: If TitleScreen is false in TESTconfig.yml, allows overriding to true on a per-player basis.
+    description: If TitleScreen is false in config.yml, allows overriding to true on a per-player basis.
     default: false
   achievement.config.receiver.chat.messages:
-    description: If ReceiverChatMessages is false in TESTconfig.yml, allows overriding to true on a per-player basis.
+    description: If ReceiverChatMessages is false in config.yml, allows overriding to true on a per-player basis.
     default: false

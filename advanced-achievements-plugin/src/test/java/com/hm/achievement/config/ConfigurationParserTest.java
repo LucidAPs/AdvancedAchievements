@@ -61,7 +61,7 @@ class ConfigurationParserTest {
 		StringBuilder pluginHeader = new StringBuilder("original header");
 
 		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, guiConfig, achievementMap,
-				disabledCategories, pluginHeader, Logger.getAnonymousLogger(), 21, mock(YamlUpdater.class), plugin,
+				disabledCategories, pluginHeader, Logger.getAnonymousLogger(), mock(YamlUpdater.class), plugin,
 				mock(RewardParser.class));
 
 		assertThrows(PluginLoadError.class, underTest::loadAndParseConfiguration);
@@ -93,7 +93,7 @@ class ConfigurationParserTest {
 		Set<Category> disabledCategories = new HashSet<>();
 		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
 		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, guiConfig, achievementMap,
-				disabledCategories, new StringBuilder(), Logger.getAnonymousLogger(), 21, new YamlUpdater(plugin), plugin,
+				disabledCategories, new StringBuilder(), Logger.getAnonymousLogger(), new YamlUpdater(plugin), plugin,
 				rewardParser);
 
 		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -101,7 +101,7 @@ class ConfigurationParserTest {
 			underTest.loadAndParseConfiguration();
 		}
 
-		assertEquals("h2", mainConfig.getString("DatabaseType"));
+		assertEquals("sqlite", mainConfig.getString("DatabaseType"));
 		assertEquals(81, achievementMap.getAll().size());
 		Achievement turtleMaster = achievementMap.getForName("brewing_lingering_turtle_master");
 		assertEquals(NormalAchievements.BREWING, turtleMaster.getCategory());
@@ -136,7 +136,7 @@ class ConfigurationParserTest {
 		AchievementMap achievementMap = new AchievementMap();
 		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
 		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, new YamlConfiguration(),
-				achievementMap, new HashSet<>(), new StringBuilder(), Logger.getAnonymousLogger(), 21,
+				achievementMap, new HashSet<>(), new StringBuilder(), Logger.getAnonymousLogger(),
 				new YamlUpdater(plugin), plugin, rewardParser);
 
 		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -175,7 +175,7 @@ class ConfigurationParserTest {
 		AchievementMap achievementMap = new AchievementMap();
 		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
 		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, new YamlConfiguration(),
-				achievementMap, new HashSet<>(), new StringBuilder(), Logger.getAnonymousLogger(), 21,
+				achievementMap, new HashSet<>(), new StringBuilder(), Logger.getAnonymousLogger(),
 				new YamlUpdater(plugin), plugin, rewardParser);
 
 		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -219,7 +219,7 @@ class ConfigurationParserTest {
 		AchievementMap achievementMap = new AchievementMap();
 		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
 		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, new YamlConfiguration(),
-				achievementMap, new HashSet<>(), new StringBuilder(), logger, 21, new YamlUpdater(plugin), plugin,
+				achievementMap, new HashSet<>(), new StringBuilder(), logger, new YamlUpdater(plugin), plugin,
 				rewardParser);
 
 		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -262,7 +262,7 @@ class ConfigurationParserTest {
 
 		AchievementMap achievementMap = new AchievementMap();
 		ConfigurationParser underTest = new ConfigurationParser(new YamlConfiguration(), new YamlConfiguration(),
-				new YamlConfiguration(), achievementMap, new HashSet<>(), new StringBuilder(), logger, 21,
+				new YamlConfiguration(), achievementMap, new HashSet<>(), new StringBuilder(), logger,
 				new YamlUpdater(plugin), plugin, rewardParser);
 
 		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {

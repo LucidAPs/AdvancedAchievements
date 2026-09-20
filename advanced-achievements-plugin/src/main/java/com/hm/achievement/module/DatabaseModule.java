@@ -1,7 +1,5 @@
 package com.hm.achievement.module;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
@@ -12,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.db.DatabaseUpdater;
+import com.hm.achievement.db.DatabaseExecutor;
 import com.hm.achievement.db.H2DatabaseManager;
 import com.hm.achievement.db.MySQLDatabaseManager;
 import com.hm.achievement.db.PostgreSQLDatabaseManager;
@@ -25,26 +24,25 @@ public class DatabaseModule {
 
 	@Provides
 	@Singleton
-	ExecutorService provideWriteExecutor() {
-		// Used to do perform the database write operations asynchronously. We expect to execute many short writes to
-		// the database. The pool can grow dynamically under high load and allows to reuse threads.
-		return Executors.newCachedThreadPool();
+	DatabaseExecutor provideDatabaseExecutor() {
+		return new DatabaseExecutor();
 	}
 
 	@Provides
 	@Singleton
 	AbstractDatabaseManager provideSQLDatabaseManager(@Named("main") YamlConfiguration mainConfig, Logger logger,
-			DatabaseUpdater databaseUpdater, AdvancedAchievements advancedAchievements, ExecutorService writeExecutor) {
+			DatabaseUpdater databaseUpdater, AdvancedAchievements advancedAchievements,
+			DatabaseExecutor databaseExecutor) {
 		String databaseType = advancedAchievements.getConfig().getString("DatabaseType", "sqlite");
 		if ("mysql".equalsIgnoreCase(databaseType)) {
-			return new MySQLDatabaseManager(mainConfig, logger, databaseUpdater, writeExecutor);
+			return new MySQLDatabaseManager(mainConfig, logger, databaseUpdater, databaseExecutor);
 		} else if ("postgresql".equalsIgnoreCase(databaseType)) {
-			return new PostgreSQLDatabaseManager(mainConfig, logger, databaseUpdater, writeExecutor);
+			return new PostgreSQLDatabaseManager(mainConfig, logger, databaseUpdater, databaseExecutor);
 		} else if ("h2".equalsIgnoreCase(databaseType)) {
-			return new H2DatabaseManager(mainConfig, logger, databaseUpdater, advancedAchievements, writeExecutor);
+			return new H2DatabaseManager(mainConfig, logger, databaseUpdater, advancedAchievements, databaseExecutor);
 		} else {
 			// User has specified "sqlite" or an invalid type.
-			return new SQLiteDatabaseManager(mainConfig, logger, databaseUpdater, advancedAchievements, writeExecutor);
+			return new SQLiteDatabaseManager(mainConfig, logger, databaseUpdater, advancedAchievements, databaseExecutor);
 		}
 	}
 

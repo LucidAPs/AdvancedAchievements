@@ -6,7 +6,7 @@ import java.util.List;
 import com.hm.achievement.category.Category;
 
 /**
- * Class representing an achievement found in Advanced Achievements' TESTconfig.yml.
+ * Class representing an achievement found in Advanced Achievements' config.yml.
  *
  * @author Pyves
  */

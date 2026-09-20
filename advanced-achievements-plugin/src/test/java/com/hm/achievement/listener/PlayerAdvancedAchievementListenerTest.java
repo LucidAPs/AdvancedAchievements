@@ -1,6 +1,7 @@
 package com.hm.achievement.listener;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -78,7 +79,7 @@ class PlayerAdvancedAchievementListenerTest {
 				.loadConfiguration(new InputStreamReader(getClass().getResourceAsStream("/lang.yml")));
 		underTest = new PlayerAdvancedAchievementListener(mainConfig, langConfig, mock(Logger.class),
 				new StringBuilder(PLUGIN_HEADER), new CacheManager(plugin, abstractDatabaseManager), plugin, null,
-				achievementMap, abstractDatabaseManager, null, new FancyMessageSender(16));
+				achievementMap, abstractDatabaseManager, null, new FancyMessageSender());
 		underTest.extractConfigurationParameters();
 		when(player.getUniqueId()).thenReturn(PLAYER_UUID);
 		when(player.getName()).thenReturn("DarkPyves");
@@ -95,6 +96,34 @@ class PlayerAdvancedAchievementListenerTest {
 
 		underTest.awardAchievement(player, achievement);
 
+		verify(abstractDatabaseManager).registerAchievement(eq(PLAYER_UUID), eq("connect_1"), anyLong());
+	}
+
+	@Test
+	void repeatedAchievementDoesNotRepeatAllAchievementsReward() {
+		Achievement achievement = new AchievementBuilder()
+				.name("connect_1")
+				.displayName("Good Choice")
+				.message("Connected for the first time!")
+				.build();
+		AchievementMap achievementMap = new AchievementMap();
+		achievementMap.put(achievement);
+		YamlConfiguration mainConfig = YamlConfiguration
+				.loadConfiguration(new InputStreamReader(getClass().getResourceAsStream("/config-reception.yml")));
+		YamlConfiguration langConfig = YamlConfiguration
+				.loadConfiguration(new InputStreamReader(getClass().getResourceAsStream("/lang.yml")));
+		underTest = new PlayerAdvancedAchievementListener(mainConfig, langConfig, mock(Logger.class),
+				new StringBuilder(PLUGIN_HEADER), new CacheManager(plugin, abstractDatabaseManager), plugin, null,
+				achievementMap, abstractDatabaseManager, null, new FancyMessageSender());
+		underTest.extractConfigurationParameters();
+		when(player.getUniqueId()).thenReturn(PLAYER_UUID);
+		when(player.getName()).thenReturn("DarkPyves");
+		when(plugin.getServer()).thenReturn(server);
+		doReturn(Arrays.asList(player)).when(server).getOnlinePlayers();
+		when(abstractDatabaseManager.getPlayerAchievementNames(PLAYER_UUID))
+				.thenReturn(new HashSet<>(Collections.singleton("connect_1")));
+
+		assertDoesNotThrow(() -> underTest.awardAchievement(player, achievement));
 		verify(abstractDatabaseManager).registerAchievement(eq(PLAYER_UUID), eq("connect_1"), anyLong());
 	}
 
@@ -120,7 +149,7 @@ class PlayerAdvancedAchievementListenerTest {
 		CacheManager cacheManager = new CacheManager(plugin, abstractDatabaseManager);
 		underTest = new PlayerAdvancedAchievementListener(mainConfig, langConfig, logger,
 				new StringBuilder(PLUGIN_HEADER), cacheManager, plugin, null,
-				achievementMap, abstractDatabaseManager, null, new FancyMessageSender(16));
+				achievementMap, abstractDatabaseManager, null, new FancyMessageSender());
 		underTest.extractConfigurationParameters();
 		when(player.getUniqueId()).thenReturn(PLAYER_UUID);
 		when(player.getName()).thenReturn("Tealon");
