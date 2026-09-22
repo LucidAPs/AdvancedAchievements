@@ -4,13 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hm.achievement</groupId>
 	<artifactId>advanced-achievements</artifactId>
-	<version>12.1</version>
+	<version>${revision}</version>
 	<url>https://github.com/LucidAPs/AdvancedAchievements</url>
 	<name>AdvancedAchievements</name>
 	<description>A Minecraft plugin that brings unique and challenging achievements on your server! Books, GUI, rankings, rewards, effects and more!</description>
 	<packaging>pom</packaging>
 
 	<properties>
+		<revision>12.1</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>21</java.version>
 		<byte-buddy.version>1.17.7</byte-buddy.version>

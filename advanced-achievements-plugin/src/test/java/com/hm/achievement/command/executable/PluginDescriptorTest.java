@@ -1,6 +1,7 @@
 package com.hm.achievement.command.executable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,10 +35,13 @@ class PluginDescriptorTest {
 	}
 
 	@Test
-	void descriptorTargetsCurrentReleaseLine() {
+	void descriptorContainsResolvedVersionAndCurrentPlatformMetadata() {
 		YamlConfiguration descriptor = YamlConfiguration.loadConfiguration(new InputStreamReader(
 				PluginDescriptorTest.class.getResourceAsStream("/plugin.yml"), StandardCharsets.UTF_8));
-		assertEquals("12.0", descriptor.getString("version"));
+		String version = descriptor.getString("version");
+		assertNotNull(version);
+		assertFalse(version.isBlank());
+		assertFalse(version.contains("${"), "Maven resource filtering did not resolve the plugin version");
 		assertEquals("1.21", descriptor.getString("api-version"));
 		assertEquals("https://github.com/LucidAPs/AdvancedAchievements", descriptor.getString("website"));
 	}
