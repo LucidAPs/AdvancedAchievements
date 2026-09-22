@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -67,6 +68,15 @@ public class AdvancementManager implements Reloadable {
 			this.key = key;
 			this.json = json;
 		}
+	}
+
+	private static final class GenerationState {
+
+		int removalIndex;
+		int loadIndex;
+		boolean dataReloaded;
+		boolean terminal;
+		String currentOperation = "preparing advancement generation";
 	}
 
 	@Inject
@@ -208,53 +218,93 @@ public class AdvancementManager implements Reloadable {
 			return;
 		}
 
-		// Build the work list on the main thread (safe for Bukkit calls)
-		final List<Runnable> work = new ArrayList<>();
-
-		// If forceRegenerate: remove old ones first (without reloadData)
 		final List<NamespacedKey> toRemove = forceRegenerate ? findOldAchievementAdvancements() : List.of();
-		for (NamespacedKey key : toRemove) {
-			work.add(() -> Bukkit.getUnsafe().removeAdvancement(key));
-		}
-
 		final List<LoadRequest> loads = buildLoadRequests(forceRegenerate);
-		for (LoadRequest req : loads) {
-			work.add(() -> {
-				Advancement adv = Bukkit.getUnsafe().loadAdvancement(req.key, req.json);
-				if (adv == null) {
-					logger.warning("Failed to load advancement: " + req.key);
-				}
-			});
-		}
+		final boolean reloadData = forceRegenerate && !toRemove.isEmpty();
 
 		if (feedback != null) {
 			feedback.sendMessage("§7Generating advancements in small batches to reduce lag...");
 		}
 
 		final int perTick = Math.max(1, mainConfig.getInt("AdvancementGenerationPerTick", DEFAULT_PER_TICK));
-		final int[] index = { 0 };
+		final GenerationState state = new GenerationState();
 
 		generationTask = Bukkit.getScheduler().runTaskTimer(advancedAchievements, () -> {
-			int processed = 0;
-			while (processed < perTick && index[0] < work.size()) {
-				work.get(index[0]++).run();
-				processed++;
+			if (state.terminal) {
+				return;
 			}
 
-			if (index[0] >= work.size()) {
-				generationTask.cancel();
-				generationTask = null;
-
-				// Make tab appear immediately for online players
-				Bukkit.getOnlinePlayers().forEach(this::ensureRootVisible);
-
-				if (feedback != null) {
-					feedback.sendMessage("§aAdvancements generation finished.");
+			try {
+				if (state.removalIndex < toRemove.size()) {
+					int processed = 0;
+					while (processed < perTick && state.removalIndex < toRemove.size()) {
+						NamespacedKey key = toRemove.get(state.removalIndex++);
+						state.currentOperation = "removing advancement " + key;
+						// A false result is valid after an interrupted generation. The data reload below is the
+						// authoritative check that the live registry has been cleared.
+						Bukkit.getUnsafe().removeAdvancement(key);
+						processed++;
+					}
+					return;
 				}
-				if (onComplete != null)
-					onComplete.run();
+
+				if (reloadData && !state.dataReloaded) {
+					state.currentOperation = "reloading server data after removing old advancements";
+					Bukkit.reloadData();
+					state.dataReloaded = true;
+
+					List<NamespacedKey> remaining = findOldAchievementAdvancements();
+					if (!remaining.isEmpty()) {
+						throw new IllegalStateException("Server data reload left " + remaining.size()
+								+ " advancement(s) registered in the advancedachievements namespace; first key: "
+								+ remaining.get(0));
+					}
+					return;
+				}
+
+				int processed = 0;
+				while (processed < perTick && state.loadIndex < loads.size()) {
+					LoadRequest request = loads.get(state.loadIndex);
+					state.currentOperation = "loading advancement " + request.key;
+					Advancement advancement = Bukkit.getUnsafe().loadAdvancement(request.key, request.json);
+					if (advancement == null) {
+						throw new IllegalStateException("The server returned no advancement for " + request.key);
+					}
+					state.loadIndex++;
+					processed++;
+				}
+
+				if (state.loadIndex >= loads.size()) {
+					state.currentOperation = "finalising advancement generation";
+					state.terminal = true;
+					stopGenerationTask();
+
+					// Make tab appear immediately for online players
+					Bukkit.getOnlinePlayers().forEach(this::ensureRootVisible);
+
+					if (feedback != null) {
+						feedback.sendMessage("§aAdvancements generation finished.");
+					}
+					if (onComplete != null)
+						onComplete.run();
+				}
+			} catch (RuntimeException e) {
+				state.terminal = true;
+				stopGenerationTask();
+				logger.log(Level.SEVERE, "Advancement generation failed while " + state.currentOperation + ".", e);
+				if (feedback != null) {
+					feedback.sendMessage("§cAdvancement generation failed. Check the server logs for details.");
+				}
 			}
 		}, 1L, 1L);
+	}
+
+	private void stopGenerationTask() {
+		BukkitTask task = generationTask;
+		generationTask = null;
+		if (task != null) {
+			task.cancel();
+		}
 	}
 
 	private void registerParentAdvancement() {
