@@ -20,6 +20,7 @@ import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.command.pagination.CommandPagination;
 import com.hm.achievement.db.AbstractDatabaseManager;
 import com.hm.achievement.utils.SoundPlayer;
+import com.hm.achievement.utils.ColorHelper;
 
 /**
  * Abstract class in charge of factoring out common functionality for /aach top, week and month commands.
@@ -42,7 +43,7 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 	private final AbstractDatabaseManager databaseManager;
 	private final SoundPlayer soundPlayer;
 
-	private ChatColor configColor;
+	private String configColor;
 	private int configTopList;
 	private boolean configAdditionalEffects;
 	private boolean configSound;
@@ -72,7 +73,7 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 	public void extractConfigurationParameters() {
 		super.extractConfigurationParameters();
 
-		configColor = ChatColor.getByChar(mainConfig.getString("Color"));
+		configColor = ColorHelper.colorCode(mainConfig.getString("Color"));
 		configTopList = mainConfig.getInt("TopList");
 		configAdditionalEffects = mainConfig.getBoolean("AdditionalEffects");
 		configSound = mainConfig.getBoolean("Sound");
@@ -164,7 +165,7 @@ public abstract class AbstractRankingCommand extends AbstractCommand {
 			String playerName = Bukkit.getOfflinePlayer(UUID.fromString(ranking.getKey())).getName();
 			if (playerName != null) {
 				// Color the name of the player if he is in the top list.
-				ChatColor color = playerName.equals(sender.getName()) ? configColor : ChatColor.GRAY;
+				String color = playerName.equals(sender.getName()) ? configColor : ChatColor.GRAY.toString();
 				rankingMessages.add(color + " " + getRankingSymbol(currentRank) + " " + playerName + " - "
 						+ ranking.getValue());
 			} else {

@@ -150,10 +150,12 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 		configHoverableReceiverChatText = mainConfig.getBoolean("HoverableReceiverChatText");
 		configBossBarProgress = mainConfig.getBoolean("BossBarProgress");
 		configReceiverChatMessages = mainConfig.getBoolean("ReceiverChatMessages");
-		ChatColor chatColor = ChatColor.getByChar(mainConfig.getString("Color"));
-		configColor = ColorHelper.convertChatColorToColor(chatColor);
-		mixColor = Color.WHITE.mixColors(ColorHelper.convertChatColorToColor(FIREWORK_COLOR_MIX.get(chatColor)));
-		barColor = ColorHelper.convertChatColorToBarColor(chatColor);
+		String colorCode = mainConfig.getString("Color");
+		configColor = ColorHelper.fireworkColor(colorCode);
+		ChatColor chatColor = colorCode.length() == 1 ? ChatColor.getByChar(colorCode) : null;
+		mixColor = Color.WHITE.mixColors(chatColor == null ? configColor
+				: ColorHelper.convertChatColorToColor(FIREWORK_COLOR_MIX.get(chatColor)));
+		barColor = ColorHelper.barColor(colorCode);
 
 		langAchievementReceived = langConfig.getString("achievement-received") + " " + ChatColor.WHITE;
 		langAchievementNew = pluginHeader + langConfig.getString("achievement-new") + " " + ChatColor.WHITE;
@@ -210,8 +212,8 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 	private void displayAchievement(Player player, Achievement achievement) {
 		logger.info("Player " + player.getName() + " received the achievement: " + achievement.getDisplayName());
 
-		String nameToShowUser = ChatColor.translateAlternateColorCodes('&', achievement.getDisplayName());
-		String messageToShowUser = ChatColor.translateAlternateColorCodes('&', achievement.getMessage());
+		String nameToShowUser = ColorHelper.translateColorCodes(achievement.getDisplayName());
+		String messageToShowUser = ColorHelper.translateColorCodes(achievement.getMessage());
 
 		if (configReceiverChatMessages || player.hasPermission("achievement.config.receiver.chat.messages")) {
 			displayReceiverMessages(player, nameToShowUser, messageToShowUser, achievement.getRewards());
@@ -270,13 +272,13 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 				: langAchievementNew + nameToShowUser;
 		if (configHoverableReceiverChatText) {
 			StringBuilder hover = new StringBuilder(messageToShowUser + "\n");
-			chatMessages.forEach(t -> hover.append(ChatColor.translateAlternateColorCodes('&', t)).append("\n"));
+			chatMessages.forEach(t -> hover.append(ColorHelper.translateColorCodes(t)).append("\n"));
 			fancyMessageSender.sendHoverableMessage(player, message, hover.substring(0, hover.length() - 1), "white");
 			return;
 		}
 		player.sendMessage(message);
 		player.sendMessage(pluginHeader.toString() + ChatColor.WHITE + messageToShowUser);
-		chatMessages.forEach(t -> player.sendMessage(pluginHeader + ChatColor.translateAlternateColorCodes('&', t)));
+		chatMessages.forEach(t -> player.sendMessage(pluginHeader + ColorHelper.translateColorCodes(t)));
 	}
 
 	/**
@@ -292,7 +294,8 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 						new String[] { receiver.getName(), nameToShowUser })
 				: StringUtils.replaceOnce(langAchievementReceived, "PLAYER", receiver.getName()) + nameToShowUser;
 		if (configActionBarNotify) {
-			otherPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("&o" + message));
+			otherPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+					TextComponent.fromLegacyText(ColorHelper.translateColorCodes("&o" + message)));
 		} else {
 			otherPlayer.sendMessage(pluginHeader + message);
 		}
@@ -357,6 +360,6 @@ public class PlayerAdvancedAchievementListener implements Listener, Reloadable {
 				.map(Reward::getChatTexts)
 				.flatMap(List::stream)
 				.map(m -> StringHelper.replacePlayerPlaceholders(m, player))
-				.forEach(t -> player.sendMessage(pluginHeader + ChatColor.translateAlternateColorCodes('&', t)));
+				.forEach(t -> player.sendMessage(pluginHeader + ColorHelper.translateColorCodes(t)));
 	}
 }

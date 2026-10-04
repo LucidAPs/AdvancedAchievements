@@ -14,6 +14,7 @@ import org.bukkit.map.MinecraftFont;
 
 import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.db.CacheManager;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.SoundPlayer;
 
 /**
@@ -33,7 +34,7 @@ public class StatsCommand extends AbstractCommand {
 	private final AchievementMap achievementMap;
 	private final SoundPlayer soundPlayer;
 
-	private ChatColor configColor;
+	private String configColor;
 	private String configIcon;
 	private boolean configAdditionalEffects;
 	private boolean configSound;
@@ -55,7 +56,7 @@ public class StatsCommand extends AbstractCommand {
 		super.extractConfigurationParameters();
 
 		// Load configuration parameters.
-		configColor = ChatColor.getByChar(mainConfig.getString("Color"));
+		configColor = ColorHelper.colorCode(mainConfig.getString("Color"));
 		configIcon = StringEscapeUtils.unescapeJava(mainConfig.getString("Icon"));
 		configAdditionalEffects = mainConfig.getBoolean("AdditionalEffects");
 		configSound = mainConfig.getBoolean("Sound");

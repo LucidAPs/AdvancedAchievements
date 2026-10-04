@@ -21,7 +21,6 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,6 +35,7 @@ import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.domain.Achievement.AchievementBuilder;
 import com.hm.achievement.domain.PotionRecipe;
 import com.hm.achievement.exception.PluginLoadError;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.StringHelper;
 
 /**
@@ -91,6 +91,12 @@ public class ConfigurationParser {
 		validateMainConfiguration(parsedMainConfig);
 		String languageFileName = parsedMainConfig.getString("LanguageFileName");
 		YamlConfiguration parsedLangConfig = backupAndLoadConfiguration("lang.yml", languageFileName);
+		for (String key : new ArrayList<>(parsedLangConfig.getKeys(true))) {
+			Object value = parsedLangConfig.get(key);
+			if (value instanceof String text) {
+				parsedLangConfig.set(key, ColorHelper.translateHexCodes(text));
+			}
+		}
 		YamlConfiguration parsedGuiConfig = backupAndLoadConfiguration("gui.yml", "gui.yml");
 
 		AchievementMap parsedAchievementMap = new AchievementMap();
@@ -212,10 +218,8 @@ public class ConfigurationParser {
 	}
 
 	private void validateColor(YamlConfiguration config, String path) throws PluginLoadError {
-		String colorCode = config.getString(path);
-		ChatColor color = StringUtils.isEmpty(colorCode) ? null : ChatColor.getByChar(colorCode);
-		if (color == null || !color.isColor()) {
-			throw new PluginLoadError(path + " must be a valid Minecraft color code (0-9 or a-f).");
+		if (!ColorHelper.isColorCode(config.getString(path))) {
+			throw new PluginLoadError(path + " must be a valid Minecraft color code (0-9, a-f, or #RRGGBB).");
 		}
 	}
 
@@ -257,9 +261,9 @@ public class ConfigurationParser {
 		header.setLength(0);
 		String icon = StringEscapeUtils.unescapeJava(config.getString("Icon"));
 		if (StringUtils.isNotBlank(icon)) {
-			String coloredIcon = ChatColor.getByChar(config.getString("Color")) + icon;
+			String coloredIcon = ColorHelper.colorCode(config.getString("Color")) + icon;
 			header
-					.append(ChatColor.translateAlternateColorCodes('&',
+					.append(ColorHelper.translateColorCodes(
 							StringUtils.replace(config.getString("ChatHeader"), "%ICON%", coloredIcon)))
 					.append(" ");
 		}
@@ -614,9 +618,9 @@ public class ConfigurationParser {
 
 		Achievement achievement = new AchievementBuilder()
 				.name(name)
-				.displayName(displayName)
-				.message(message)
-				.goal(StringUtils.defaultString(section.getString("Goal"), message))
+				.displayName(ColorHelper.translateHexCodes(displayName))
+				.message(ColorHelper.translateHexCodes(message))
+				.goal(ColorHelper.translateHexCodes(StringUtils.defaultString(section.getString("Goal"), message)))
 				.type(section.getString("Type"))
 				.threshold(threshold)
 				.category(category)

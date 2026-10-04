@@ -23,7 +23,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -41,6 +40,7 @@ import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.domain.Reward;
 import com.hm.achievement.lifecycle.Reloadable;
 import com.hm.achievement.utils.NumberHelper;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.StringHelper;
 
 /**
@@ -76,8 +76,8 @@ public class CategoryGUI implements Reloadable {
 	private boolean configHideRewardDisplayInList;
 	private boolean configEnrichedProgressBars;
 	private boolean configNumberedItemsInList;
-	private ChatColor configColor;
-	private ChatColor configListColorNotReceived;
+	private String configColor;
+	private String configListColorNotReceived;
 	private String configFormatNotReceived;
 	private boolean configBackButtonIsCategoryItem;
 	private String langListBackMessage;
@@ -114,8 +114,8 @@ public class CategoryGUI implements Reloadable {
 		configHideRewardDisplayInList = mainConfig.getBoolean("HideRewardDisplayInList");
 		configEnrichedProgressBars = mainConfig.getBoolean("EnrichedListProgressBars");
 		configNumberedItemsInList = mainConfig.getBoolean("NumberedItemsInList");
-		configColor = ChatColor.getByChar(mainConfig.getString("Color"));
-		configListColorNotReceived = ChatColor.getByChar(mainConfig.getString("ListColorNotReceived"));
+		configColor = ColorHelper.colorCode(mainConfig.getString("Color"));
+		configListColorNotReceived = ColorHelper.colorCode(mainConfig.getString("ListColorNotReceived"));
 		configFormatNotReceived = mainConfig.getBoolean("ListItaliciseNotReceived") ? "&o" : "";
 		configBackButtonIsCategoryItem = mainConfig.getBoolean("BackButtonIsCategoryItem");
 
@@ -534,7 +534,7 @@ public class CategoryGUI implements Reloadable {
 	}
 
 	private String translateColorCodes(String translate) {
-		return ChatColor.translateAlternateColorCodes('&', translate);
+		return ColorHelper.translateColorCodes(translate);
 	}
 
 }

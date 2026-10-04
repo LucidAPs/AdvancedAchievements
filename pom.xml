@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<revision>12.1</revision>
+		<revision>12.2</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>21</java.version>
 		<byte-buddy.version>1.17.7</byte-buddy.version>

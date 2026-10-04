@@ -9,6 +9,8 @@
 
 # Only spaces, no tabs. Don't forget the indents (2 spaces per indentation level).
 # To check syntax errors in your file, use: https://yaml-online-parser.appspot.com
+# Text supports legacy codes such as &a and HEX colors such as &#8A2BE2 or #8A2BE2.
+# Quote values containing # so YAML treats the color as text, for example Message: "#8A2BE2A colorful message".
 # To get involved with the project, visit its GitHub: https://github.com/LucidAPs/AdvancedAchievements
 # Run /aach doctor after changing configuration to perform read-only validation and health checks.
 # The default configuration files can be found at the following address:
@@ -61,7 +63,8 @@ SoundRanking: entity_firework_rocket_blast
 # Icon of the plugin (default: shamrock, \u2618).
 Icon: \u2618
 
-# Main color of the plugin (default: 5, dark purple).
+# Main color of the plugin (default: 5, dark purple). Use a legacy color character (0-9 or a-f),
+# or a quoted HEX color such as "#8A2BE2". Fireworks use the exact HEX color; boss bars use the nearest available color.
 Color: 5
 
 # Notify other connected players when an achievement is received. This defines the default behaviour, players can 
@@ -359,7 +362,7 @@ EnrichedListProgressBars: true
 # Annotate each achievement displayed in a /aach list category with a number.
 NumberedItemsInList: false
 
-# Color used for not yet received achievements in /aach list.
+# Color used for not yet received achievements in /aach list. Accepts a legacy color character or quoted HEX color.
 ListColorNotReceived: 8
 
 # Italicise not yet received achievements in /aach list. Obfuscated achievements are not affected.

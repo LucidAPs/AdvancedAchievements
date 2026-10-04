@@ -148,7 +148,7 @@ public class AdvancementManager implements Reloadable {
 			} else {
 				AchievementAdvancementBuilder builder = new AchievementAdvancementBuilder()
 						.iconItem(MINECRAFT_BOOK_KEY)
-						.title(configRootAdvancementTitle)
+						.title(StringHelper.removeFormattingCodes(configRootAdvancementTitle))
 						.description("")
 						.background(configBackgroundTexture)
 						.type(AdvancementType.GOAL)
@@ -319,7 +319,7 @@ public class AdvancementManager implements Reloadable {
 		} else {
 			AchievementAdvancementBuilder builder = new AchievementAdvancementBuilder()
 					.iconItem(MINECRAFT_BOOK_KEY)
-					.title(configRootAdvancementTitle)
+					.title(StringHelper.removeFormattingCodes(configRootAdvancementTitle))
 					.description("")
 					.background(configBackgroundTexture)
 					.type(AdvancementType.GOAL)

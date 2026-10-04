@@ -1,8 +1,9 @@
 package com.hm.achievement.command.executable;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.hm.achievement.utils.ColorHelper;
 import org.bukkit.entity.Player;
 
 import com.hm.achievement.lifecycle.Reloadable;
@@ -66,6 +67,6 @@ public abstract class AbstractCommand implements Reloadable {
 	}
 
 	String translateColorCodes(String translate) {
-		return ChatColor.translateAlternateColorCodes('&', translate);
+		return ColorHelper.translateColorCodes(translate);
 	}
 }

@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.config.RewardParser;
+import com.hm.achievement.utils.ColorHelper;
 
 /**
  * Class in charge of displaying the plugin's extra information (/aach info).
@@ -50,7 +51,7 @@ public class InfoCommand extends AbstractCommand {
 	public void extractConfigurationParameters() {
 		super.extractConfigurationParameters();
 
-		ChatColor configColor = ChatColor.getByChar(mainConfig.getString("Color"));
+		String configColor = ColorHelper.colorCode(mainConfig.getString("Color"));
 		String configIcon = StringEscapeUtils.unescapeJava(mainConfig.getString("Icon"));
 		configDatabaseType = mainConfig.getString("DatabaseType");
 

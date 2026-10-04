@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 
 import com.hm.achievement.utils.MaterialHelper;
+import com.hm.achievement.utils.ColorHelper;
 
 class GUIItemsTest {
 
@@ -24,6 +25,7 @@ class GUIItemsTest {
 		try {
 			YamlConfiguration mainConfig = loadConfiguration("config.yml");
 			YamlConfiguration langConfig = loadConfiguration("lang.yml");
+			langConfig.set("list-previous-message", "&#12AB34Previous");
 			YamlConfiguration guiConfig = loadConfiguration("gui.yml");
 			guiConfig.set("AchievementNotStarted.Item", "blue_terracotta");
 			guiConfig.set("AchievementStarted.Item", "orange_terracotta");
@@ -45,6 +47,8 @@ class GUIItemsTest {
 			assertEquals(Material.RED_GLAZED_TERRACOTTA, underTest.getAchievementNotStarted("rare").getType());
 			assertEquals(Material.YELLOW_GLAZED_TERRACOTTA, underTest.getAchievementStarted("rare").getType());
 			assertEquals(Material.LIME_GLAZED_TERRACOTTA, underTest.getAchievementReceived("rare").getType());
+			assertEquals((ColorHelper.colorCode("#12AB34") + "Previous").toLowerCase(Locale.ROOT),
+					underTest.getPreviousButton().getItemMeta().getDisplayName().toLowerCase(Locale.ROOT));
 		} finally {
 			MockBukkit.unmock();
 		}

@@ -6,8 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.hm.achievement.utils.ColorHelper;
 
 /**
  * Utility for paginating command messages.
@@ -47,10 +48,10 @@ public class SupplierCommandPagination extends CommandPagination {
 	public void sendPage(int page, Consumer<String> to) {
 		int pageToSend = page > maxPage ? maxPage : page;
 
-		String header = ChatColor.translateAlternateColorCodes('&',
+		String header = ColorHelper.translateColorCodes(
 				StringUtils.replaceEach(langConfig.getString("pagination-header"), new String[] { "PAGE", "MAX" },
 						new String[] { Integer.toString(pageToSend), Integer.toString(maxPage) }));
-		String footer = ChatColor.translateAlternateColorCodes('&', langConfig.getString("pagination-footer"));
+		String footer = ColorHelper.translateColorCodes(langConfig.getString("pagination-footer"));
 
 		to.accept(header);
 

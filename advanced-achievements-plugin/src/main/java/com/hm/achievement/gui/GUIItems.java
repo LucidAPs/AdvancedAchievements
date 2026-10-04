@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,6 +24,7 @@ import com.hm.achievement.category.MultipleAchievements;
 import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.exception.PluginLoadError;
 import com.hm.achievement.lifecycle.Reloadable;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.MaterialHelper;
 import com.hm.achievement.utils.StringHelper;
 
@@ -154,11 +154,11 @@ public class GUIItems implements Reloadable {
 	private ItemStack createButton(String category, String msg, String lore) {
 		ItemStack button = createItemStack(category);
 		ItemMeta meta = button.getItemMeta();
-		String displayName = ChatColor.translateAlternateColorCodes('&',
+		String displayName = ColorHelper.translateColorCodes(
 				StringEscapeUtils.unescapeJava(langConfig.getString(msg)));
 		meta.setDisplayName(displayName);
 		if (lore != null) {
-			String loreString = ChatColor.translateAlternateColorCodes('&',
+			String loreString = ColorHelper.translateColorCodes(
 					StringEscapeUtils.unescapeJava(langConfig.getString(lore)));
 			if (!loreString.isEmpty()) {
 				meta.setLore(Collections.singletonList(loreString));
@@ -185,7 +185,7 @@ public class GUIItems implements Reloadable {
 		} else {
 			String formattedDisplayName = StringUtils.replaceEach(configListAchievementFormat,
 					new String[] { "%ICON%", "%NAME%" }, new String[] { configIcon, "&l" + displayName + "&8" });
-			itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', formattedDisplayName));
+			itemMeta.setDisplayName(ColorHelper.translateColorCodes(formattedDisplayName));
 		}
 		item.setItemMeta(itemMeta);
 	}

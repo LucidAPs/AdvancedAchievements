@@ -37,6 +37,7 @@ import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.domain.Achievement;
 import com.hm.achievement.domain.Achievement.AchievementBuilder;
 import com.hm.achievement.exception.PluginLoadError;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.MaterialHelper;
 
 class ConfigurationParserTest {
@@ -110,6 +111,56 @@ class ConfigurationParserTest {
 		assertEquals(20, brewingSubcategories.size()); // Generic total plus 19 craftable effect potions.
 		assertTrue(brewingSubcategories.stream().filter(subcategory -> !subcategory.isEmpty())
 				.allMatch(subcategory -> subcategory.startsWith("lingering_potion/")));
+	}
+
+	@Test
+	void shouldLoadHexColorsAndRejectInvalidColorOnReload(@TempDir File tempDir) throws Exception {
+		YamlConfiguration customConfig = YamlConfiguration.loadConfiguration(
+				new InputStreamReader(getClass().getResourceAsStream("/config.yml")));
+		customConfig.set("Color", "#12AB34");
+		customConfig.set("ListColorNotReceived", "&#ABCDEF");
+		customConfig.set("ChatHeader", "#654321[%ICON%]");
+		File configFile = new File(tempDir, "config.yml");
+		customConfig.save(configFile);
+		YamlConfiguration customLang = YamlConfiguration.loadConfiguration(
+				new InputStreamReader(getClass().getResourceAsStream("/lang.yml")));
+		customLang.set("pagination-header", "&#112233Page PAGE/MAX");
+		customLang.save(new File(tempDir, "lang.yml"));
+
+		AdvancedAchievements plugin = mock(AdvancedAchievements.class);
+		Server server = mock(Server.class);
+		PluginManager pluginManager = mock(PluginManager.class);
+		MaterialHelper materialHelper = mock(MaterialHelper.class);
+		when(plugin.getDataFolder()).thenReturn(tempDir);
+		when(plugin.getServer()).thenReturn(server);
+		when(plugin.getResource(anyString())).thenAnswer(invocation -> getClass()
+				.getResourceAsStream("/" + invocation.getArgument(0, String.class)));
+		when(server.getPluginManager()).thenReturn(pluginManager);
+		when(materialHelper.matchMaterial(anyString(), anyString())).thenReturn(Optional.of(Material.STONE));
+
+		YamlConfiguration mainConfig = new YamlConfiguration();
+		YamlConfiguration langConfig = new YamlConfiguration();
+		StringBuilder header = new StringBuilder();
+		RewardParser rewardParser = new RewardParser(mainConfig, langConfig, plugin, materialHelper);
+		ConfigurationParser underTest = new ConfigurationParser(mainConfig, langConfig, new YamlConfiguration(),
+				new AchievementMap(), new HashSet<>(), header, Logger.getAnonymousLogger(),
+				new YamlUpdater(plugin), plugin, rewardParser);
+
+		try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+			bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+			underTest.loadAndParseConfiguration();
+			assertEquals("#12AB34", mainConfig.getString("Color"));
+			assertEquals("&#ABCDEF", mainConfig.getString("ListColorNotReceived"));
+			assertTrue(header.toString().startsWith(ColorHelper.colorCode("#654321")));
+			assertEquals(ColorHelper.translateHexCodes("&#112233Page PAGE/MAX"),
+					langConfig.getString("pagination-header"));
+
+			customConfig.set("Color", "#12345");
+			customConfig.save(configFile);
+			assertThrows(PluginLoadError.class, underTest::loadAndParseConfiguration);
+			assertEquals("#12AB34", mainConfig.getString("Color"));
+			assertTrue(header.toString().startsWith(ColorHelper.colorCode("#654321")));
+		}
 	}
 
 	@Test

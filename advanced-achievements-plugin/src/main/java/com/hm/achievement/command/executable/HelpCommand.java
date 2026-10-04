@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.hm.achievement.utils.FancyMessageSender;
+import com.hm.achievement.utils.ColorHelper;
 
 /**
  * Class in charge of displaying the plugin's help (/aach help).
@@ -24,7 +25,8 @@ public class HelpCommand extends AbstractCommand {
 
 	private final FancyMessageSender fancyMessageSender;
 
-	private ChatColor configColor;
+	private String configColor;
+	private String configuredColor;
 	private String configIcon;
 
 	private String langCommandList;
@@ -74,7 +76,8 @@ public class HelpCommand extends AbstractCommand {
 	public void extractConfigurationParameters() {
 		super.extractConfigurationParameters();
 
-		configColor = ChatColor.getByChar(mainConfig.getString("Color"));
+		configuredColor = mainConfig.getString("Color");
+		configColor = ColorHelper.colorCode(configuredColor);
 		configIcon = StringEscapeUtils.unescapeJava(mainConfig.getString("Icon"));
 
 		langCommandList = header("/aach list") + langConfig.getString("aach-command-list");
@@ -218,7 +221,7 @@ public class HelpCommand extends AbstractCommand {
 		// Send clickable and hoverable message if sender is a player.
 		if (sender instanceof Player) {
 			fancyMessageSender.sendHoverableCommandMessage((Player) sender, message, command, hover,
-					configColor.name().toLowerCase());
+					configuredColor);
 		} else {
 			sender.sendMessage(message);
 		}

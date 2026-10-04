@@ -3,9 +3,9 @@ package com.hm.achievement.utils;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -35,13 +35,14 @@ public final class FancyMessageSender {
 	 */
 	@SuppressWarnings("deprecation")
 	public void sendHoverableMessage(Player player, String message, String hover, String color) {
-		TextComponent tc = new TextComponent();
-		tc.setText(ChatColor.translateAlternateColorCodes('&', message));
-		tc.setColor(ChatColor.valueOf(color.toUpperCase()).asBungee());
-
-		tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-				new Text(ChatColor.translateAlternateColorCodes('&', hover))));
-		player.spigot().sendMessage(tc);
+		BaseComponent[] components = TextComponent.fromLegacyText(ColorHelper.translateColorCodes(message),
+				ColorHelper.bungeeColor(color));
+		HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+				new Text(TextComponent.fromLegacyText(ColorHelper.translateColorCodes(hover))));
+		for (BaseComponent component : components) {
+			component.setHoverEvent(hoverEvent);
+		}
+		player.spigot().sendMessage(components);
 	}
 
 	/**
@@ -56,13 +57,15 @@ public final class FancyMessageSender {
 	@SuppressWarnings("deprecation")
 	public void sendHoverableCommandMessage(Player player, String message, String command, String hover,
 			String color) {
-		TextComponent tc = new TextComponent();
-		tc.setText(ChatColor.translateAlternateColorCodes('&', message));
-		tc.setColor(ChatColor.valueOf(color.toUpperCase()).asBungee());
-		tc.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
-
-		tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-				new Text(ChatColor.translateAlternateColorCodes('&', hover))));
-		player.spigot().sendMessage(tc);
+		BaseComponent[] components = TextComponent.fromLegacyText(ColorHelper.translateColorCodes(message),
+				ColorHelper.bungeeColor(color));
+		ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+		HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+				new Text(TextComponent.fromLegacyText(ColorHelper.translateColorCodes(hover))));
+		for (BaseComponent component : components) {
+			component.setClickEvent(clickEvent);
+			component.setHoverEvent(hoverEvent);
+		}
+		player.spigot().sendMessage(components);
 	}
 }

@@ -12,7 +12,6 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -26,6 +25,7 @@ import com.hm.achievement.category.NormalAchievements;
 import com.hm.achievement.config.AchievementMap;
 import com.hm.achievement.db.CacheManager;
 import com.hm.achievement.lifecycle.Reloadable;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.NumberHelper;
 
 /**
@@ -67,7 +67,7 @@ public class MainGUI implements Reloadable {
 	public void extractConfigurationParameters() {
 		configHideNotReceivedCategories = mainConfig.getBoolean("HideNotReceivedCategories");
 
-		langListGUITitle = ChatColor.translateAlternateColorCodes('&', langConfig.getString("list-gui-title"));
+		langListGUITitle = ColorHelper.translateColorCodes(langConfig.getString("list-gui-title"));
 		langListAchievementsInCategoryPlural = langConfig.getString("list-achievements-in-category-plural");
 		langListAchievementInCategorySingular = langConfig.getString("list-achievements-in-category-singular");
 	}
@@ -158,7 +158,7 @@ public class MainGUI implements Reloadable {
 				ItemStack itemWithLore = item.clone();
 				ItemMeta itemMetaWithLore = itemWithLore.getItemMeta();
 				String amountMessage = StringUtils.replaceOnce(message, "AMOUNT", receivedAmount + "/" + totalAmount);
-				itemMetaWithLore.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&8" + amountMessage)));
+				itemMetaWithLore.setLore(Arrays.asList(ColorHelper.translateColorCodes("&8" + amountMessage)));
 				itemWithLore.setItemMeta(itemMetaWithLore);
 				gui.setItem(position, itemWithLore);
 			}

@@ -42,6 +42,14 @@ class StringHelperTest {
 	}
 
 	@Test
+	void shouldRemoveRawAndTranslatedHexCodes() {
+		String text = "&#12AB34First #ABCDEFsecond "
+				+ ColorHelper.translateColorCodes("#102030third") + " &alegacy";
+
+		assertEquals("First second third legacy", StringHelper.removeFormattingCodes(text));
+	}
+
+	@Test
 	void shouldReturnClosestMatchingString() {
 		List<String> possibleMatches = Arrays.asList("nothing", "something", "random text", "amasing");
 		String result = StringHelper.getClosestMatch("somaeThing", possibleMatches);

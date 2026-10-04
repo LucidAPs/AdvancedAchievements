@@ -18,7 +18,6 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.WordUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.attribute.Attribute;
@@ -33,6 +32,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.hm.achievement.AdvancedAchievements;
 import com.hm.achievement.domain.Reward;
+import com.hm.achievement.utils.ColorHelper;
 import com.hm.achievement.utils.MaterialHelper;
 import com.hm.achievement.utils.StringHelper;
 
@@ -122,7 +122,7 @@ public class RewardParser {
 		String currencyName = amount > 1 ? economy.currencyNamePlural() : economy.currencyNameSingular();
 		String listText = StringUtils.replaceOnce(langConfig.getString("list-reward-money"), "AMOUNT",
 				amount + " " + currencyName);
-		String chatText = ChatColor.translateAlternateColorCodes('&',
+		String chatText = ColorHelper.translateColorCodes(
 				StringUtils.replaceOnce(langConfig.getString("money-reward-received"), "AMOUNT",
 						amount + " " + currencyName));
 		Consumer<Player> rewarder = player -> economy.depositPlayer(player, amount);
@@ -152,7 +152,7 @@ public class RewardParser {
 				} else {
 					ItemMeta itemMeta = itemStack.getItemMeta();
 					if (itemMeta != null) {
-						itemMeta.setDisplayName(name);
+						itemMeta.setDisplayName(ColorHelper.translateColorCodes(name));
 						itemStack.setItemMeta(itemMeta);
 					}
 				}
@@ -182,7 +182,7 @@ public class RewardParser {
 		int amount = configSection.getInt("Experience");
 		String listText = StringUtils.replaceOnce(langConfig.getString("list-reward-experience"), "AMOUNT",
 				Integer.toString(amount));
-		String chatText = ChatColor.translateAlternateColorCodes('&',
+		String chatText = ColorHelper.translateColorCodes(
 				StringUtils.replaceOnce(langConfig.getString("experience-reward-received"), "AMOUNT",
 						Integer.toString(amount)));
 		Consumer<Player> rewarder = player -> player.giveExp(amount);
@@ -193,7 +193,7 @@ public class RewardParser {
 		int amount = configSection.getInt("IncreaseMaxHealth");
 		String listText = StringUtils.replaceOnce(langConfig.getString("list-reward-increase-max-health"), "AMOUNT",
 				Integer.toString(amount));
-		String chatText = ChatColor.translateAlternateColorCodes('&',
+		String chatText = ColorHelper.translateColorCodes(
 				StringUtils.replaceOnce(langConfig.getString("increase-max-health-reward-received"), "AMOUNT",
 						Integer.toString(amount)));
 		Consumer<Player> rewarder = player -> {
@@ -207,7 +207,7 @@ public class RewardParser {
 		int amount = configSection.getInt("IncreaseMaxOxygen");
 		String listText = StringUtils.replaceOnce(langConfig.getString("list-reward-increase-max-oxygen"), "AMOUNT",
 				Integer.toString(amount));
-		String chatText = ChatColor.translateAlternateColorCodes('&',
+		String chatText = ColorHelper.translateColorCodes(
 				StringUtils.replaceOnce(langConfig.getString("increase-max-oxygen-reward-received"), "AMOUNT",
 						Integer.toString(amount)));
 		Consumer<Player> rewarder = player -> player.setMaximumAir(player.getMaximumAir() + amount);
